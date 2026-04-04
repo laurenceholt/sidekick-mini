@@ -49,7 +49,7 @@ body {
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #FF8C00, #FFA040);
+  background: linear-gradient(90deg, #57B477, #6EC48E);
   border-radius: 7px;
   transition: width 0.4s ease;
   width: 0%;
@@ -88,7 +88,7 @@ body {
   align-items: center;
   gap: 4px;
   font-weight: 700;
-  color: #FF8C00;
+  color: #57B477;
   font-size: 16px;
 }
 
@@ -115,9 +115,9 @@ body {
 }
 
 .edit-toggle.active {
-  background: #FF8C00;
+  background: #57B477;
   color: white;
-  border-color: #E07800;
+  border-color: #44905F;
 }
 
 /* Step content */
@@ -139,7 +139,7 @@ body {
 }
 
 .instruction.editable {
-  border: 2px dashed #FF8C00;
+  border: 2px dashed #57B477;
   border-radius: 8px;
   padding: 8px 12px;
   outline: none;
@@ -151,10 +151,33 @@ body {
   width: 100%;
   max-width: 500px;
   position: relative;
-  padding: 40px 0 50px;
+  padding: 70px 0 50px;
   user-select: none;
   -webkit-user-select: none;
   align-self: center;
+}
+
+.jump-arrows {
+  position: absolute;
+  top: 0;
+  left: 25px;
+  right: 25px;
+  height: 70px;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ghost-start {
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  background: #57B477;
+  opacity: 0.2;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .number-line {
@@ -184,7 +207,7 @@ body {
 }
 
 .tick-label.highlight {
-  color: #FF8C00;
+  color: #57B477;
   font-size: 16px;
   font-weight: 800;
 }
@@ -192,15 +215,15 @@ body {
 .point {
   position: absolute;
   top: 50%;
-  width: 30px;
-  height: 30px;
-  background: #FF8C00;
+  width: 24px;
+  height: 24px;
+  background: #57B477;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   cursor: grab;
   z-index: 5;
   transition: transform 0.1s;
-  box-shadow: 0 3px 10px rgba(255, 140, 0, 0.45);
+  box-shadow: 0 3px 10px rgba(87, 180, 119, 0.45);
 }
 
 .point:active {
@@ -242,11 +265,11 @@ body {
 }
 
 .equation .op {
-  color: #FF8C00;
+  color: #57B477;
 }
 
 .equation .editable-eq {
-  border: 2px dashed #FF8C00;
+  border: 2px dashed #57B477;
   border-radius: 8px;
   padding: 4px 8px;
   outline: none;
@@ -255,9 +278,9 @@ body {
 .answer-box {
   width: 110px;
   height: 72px;
-  border: 3px solid #FF8C00;
+  border: 3px solid #57B477;
   border-radius: 14px;
-  background: #fff8f0;
+  background: #f2faf5;
   font-family: 'Nunito', sans-serif;
   font-size: 48px;
   font-weight: 900;
@@ -267,8 +290,8 @@ body {
 }
 
 .answer-box:focus {
-  border-color: #FF8C00;
-  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2);
+  border-color: #57B477;
+  box-shadow: 0 0 0 3px rgba(87, 180, 119, 0.2);
 }
 
 /* Multiple choice */
@@ -295,14 +318,14 @@ body {
 }
 
 .choice-btn:hover {
-  border-color: #FF8C00;
-  background: #fff8f0;
+  border-color: #57B477;
+  background: #f2faf5;
 }
 
 .choice-btn.selected {
-  border-color: #FF8C00;
-  background: #fff0e0;
-  color: #FF8C00;
+  border-color: #57B477;
+  background: #e5f5eb;
+  color: #57B477;
 }
 
 .choice-btn.correct {
@@ -358,14 +381,14 @@ body {
   cursor: pointer;
   transition: all 0.15s;
   text-transform: uppercase;
-  background: #FF8C00;
+  background: #57B477;
   color: white;
-  box-shadow: 0 4px 0 #D07200;
+  box-shadow: 0 4px 0 #44905F;
 }
 
 .check-btn:active:not(.disabled) {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 #D07200;
+  box-shadow: 0 2px 0 #44905F;
 }
 
 .check-btn.disabled {
@@ -376,8 +399,8 @@ body {
 }
 
 .check-btn.next {
-  background: #FF8C00;
-  box-shadow: 0 4px 0 #D07200;
+  background: #57B477;
+  box-shadow: 0 4px 0 #44905F;
 }
 
 .check-btn.try-again {
@@ -413,7 +436,7 @@ body {
 .celebrate .congrats-text {
   font-size: 34px;
   font-weight: 900;
-  color: #FF8C00;
+  color: #57B477;
 }
 
 .celebrate .sub-text {
@@ -431,8 +454,8 @@ body {
   gap: 10px;
   font-size: 28px;
   font-weight: 900;
-  color: #FF8C00;
-  background: #fff5e6;
+  color: #57B477;
+  background: #edf7f0;
   padding: 16px 32px;
   border-radius: 16px;
 }
@@ -523,12 +546,12 @@ body {
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 1px;
-  background: #FF8C00;
+  background: #57B477;
   color: white;
-  box-shadow: 0 4px 0 #D07200;
+  box-shadow: 0 4px 0 #44905F;
 }
 
 .restart-btn:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 #D07200;
+  box-shadow: 0 2px 0 #44905F;
 }
