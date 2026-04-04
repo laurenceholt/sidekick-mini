@@ -1,0 +1,675 @@
+let lessons = null;
+let currentStep = 0;
+let gems = 0;
+let lives = 3;
+let editMode = false;
+let selectedAnswer = null;
+let pointValue = null;
+let subStep = 0; // for multi-part steps like place-and-move
+
+const TANGERINE = '#FF8C00';
+
+async function loadLessons() {
+  // Try localStorage first (for persisted edits), fall back to static file
+  const saved = localStorage.getItem('sidekick-lessons');
+  if (saved) {
+    lessons = JSON.parse(saved);
+  } else {
+    const res = await fetch('/lessons.json');
+    lessons = await res.json();
+  }
+  renderStep();
+}
+
+function saveLessons() {
+  localStorage.setItem('sidekick-lessons', JSON.stringify(lessons));
+}
+
+function updateLives() {
+  for (let i = 0; i < 3; i++) {
+    const h = document.getElementById('heart-' + i);
+    if (i < lives) {
+      h.classList.remove('lost');
+    } else {
+      h.classList.add('lost');
+    }
+  }
+}
+
+function loseLife() {
+  if (lives > 0) {
+    lives--;
+    const h = document.getElementById('heart-' + lives);
+    h.classList.add('breaking');
+    setTimeout(() => updateLives(), 500);
+
+    if (lives === 0) {
+      setTimeout(showGameOver, 700);
+    }
+  }
+}
+
+function showGameOver() {
+  const overlay = document.createElement('div');
+  overlay.className = 'game-over-overlay';
+  overlay.innerHTML = `
+    <div class="game-over-card">
+      <div class="sad-emoji">😢</div>
+      <h2>Out of lives!</h2>
+      <p>No worries — let's try again!</p>
+      <button class="restart-btn">TRY AGAIN</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.restart-btn').onclick = () => {
+    overlay.remove();
+    currentStep = 0;
+    gems = 0;
+    lives = 3;
+    updateLives();
+    renderStep();
+  };
+}
+
+function renderStep() {
+  const step = lessons.steps[currentStep];
+  const content = document.getElementById('step-content');
+  const checkBtn = document.getElementById('check-btn');
+  const feedbackBar = document.getElementById('feedback-bar');
+
+  feedbackBar.className = 'feedback-bar hidden';
+  feedbackBar.textContent = '';
+  checkBtn.textContent = 'CHECK';
+  checkBtn.className = 'check-btn disabled';
+  checkBtn.style.display = '';
+  checkBtn.onclick = null;
+  selectedAnswer = null;
+  pointValue = null;
+  subStep = 0;
+
+  // Update progress bar
+  const progress = (currentStep / lessons.steps.length) * 100;
+  document.getElementById('progress-bar').style.width = progress + '%';
+  document.getElementById('gems-count').textContent = gems;
+  updateLives();
+
+  content.innerHTML = '';
+
+  switch (step.type) {
+    case 'place-point':
+      renderPlacePoint(step, content, checkBtn);
+      break;
+    case 'move-point':
+      renderMovePoint(step, content, checkBtn);
+      break;
+    case 'equation-input':
+      renderEquationInput(step, content, checkBtn);
+      break;
+    case 'multiple-choice':
+      renderMultipleChoice(step, content, checkBtn);
+      break;
+    case 'place-and-move':
+      renderPlaceAndMove(step, content, checkBtn);
+      break;
+    case 'celebrate':
+      renderCelebrate(step, content, checkBtn);
+      break;
+  }
+}
+
+// ─── Number Line Builder ───────────────────────────────────
+
+function buildNumberLine(container, min, max, options = {}) {
+  const nlContainer = document.createElement('div');
+  nlContainer.className = 'number-line-container';
+
+  const line = document.createElement('div');
+  line.className = 'number-line';
+
+  const range = max - min;
+  for (let i = min; i <= max; i++) {
+    const pct = ((i - min) / range) * 100;
+
+    const tick = document.createElement('div');
+    tick.className = 'tick';
+    tick.style.left = pct + '%';
+    line.appendChild(tick);
+
+    const label = document.createElement('div');
+    label.className = 'tick-label';
+    if (options.highlightValues && options.highlightValues.includes(i)) {
+      label.className += ' highlight';
+    }
+    label.style.left = pct + '%';
+    label.textContent = i;
+    line.appendChild(label);
+  }
+
+  nlContainer.appendChild(line);
+  return { nlContainer, line, range, min, max };
+}
+
+function addClickablePoint(nlContainer, line, min, max, onChange) {
+  const range = max - min;
+  let point = null;
+  let isDragging = false;
+
+  function getValueFromX(clientX) {
+    const rect = line.getBoundingClientRect();
+    let pct = (clientX - rect.left) / rect.width;
+    pct = Math.max(0, Math.min(1, pct));
+    const raw = min + pct * range;
+    return Math.round(raw);
+  }
+
+  function setPointValue(val) {
+    pointValue = val;
+    const pct = ((val - min) / range) * 100;
+    if (!point) {
+      point = document.createElement('div');
+      point.className = 'point placed';
+      line.appendChild(point);
+    }
+    point.style.left = pct + '%';
+    if (onChange) onChange(val);
+  }
+
+  const clickZone = document.createElement('div');
+  clickZone.className = 'click-zone';
+  line.appendChild(clickZone);
+
+  clickZone.addEventListener('mousedown', (e) => {
+    setPointValue(getValueFromX(e.clientX));
+    isDragging = true;
+  });
+  clickZone.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    setPointValue(getValueFromX(e.touches[0].clientX));
+    isDragging = true;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    setPointValue(getValueFromX(e.clientX));
+  });
+  document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    setPointValue(getValueFromX(e.touches[0].clientX));
+  });
+  document.addEventListener('mouseup', () => { isDragging = false; });
+  document.addEventListener('touchend', () => { isDragging = false; });
+
+  return { setPointValue };
+}
+
+function addDraggablePoint(nlContainer, line, min, max, startVal, onChange) {
+  const range = max - min;
+  pointValue = startVal;
+
+  const point = document.createElement('div');
+  point.className = 'point';
+  point.style.left = ((startVal - min) / range) * 100 + '%';
+  line.appendChild(point);
+
+  let isDragging = false;
+
+  function getValueFromX(clientX) {
+    const rect = line.getBoundingClientRect();
+    let pct = (clientX - rect.left) / rect.width;
+    pct = Math.max(0, Math.min(1, pct));
+    return Math.round(min + pct * range);
+  }
+
+  function updatePoint(val) {
+    pointValue = val;
+    point.style.left = ((val - min) / range) * 100 + '%';
+    if (onChange) onChange(val);
+  }
+
+  point.addEventListener('mousedown', (e) => { e.preventDefault(); isDragging = true; });
+  point.addEventListener('touchstart', (e) => { e.preventDefault(); isDragging = true; });
+  document.addEventListener('mousemove', (e) => { if (isDragging) updatePoint(getValueFromX(e.clientX)); });
+  document.addEventListener('touchmove', (e) => { if (isDragging) updatePoint(getValueFromX(e.touches[0].clientX)); });
+  document.addEventListener('mouseup', () => { isDragging = false; });
+  document.addEventListener('touchend', () => { isDragging = false; });
+
+  return { point, updatePoint };
+}
+
+// ─── Equation Builder (colorized operators) ────────────────
+
+function buildEquation(eqString, step) {
+  const eqDiv = document.createElement('div');
+  eqDiv.className = 'equation';
+
+  if (editMode) {
+    const eqText = document.createElement('span');
+    eqText.textContent = eqString;
+    eqText.contentEditable = true;
+    eqText.className = 'editable-eq';
+    eqText.addEventListener('blur', () => {
+      step.equation = eqText.textContent;
+      saveLessons();
+    });
+    eqDiv.appendChild(eqText);
+  } else {
+    // Parse and colorize operators
+    const tokens = eqString.split(/(\s*[+\−\-=]\s*)/);
+    tokens.forEach(tok => {
+      const span = document.createElement('span');
+      const trimmed = tok.trim();
+      if (trimmed === '+' || trimmed === '−' || trimmed === '-' || trimmed === '=') {
+        span.className = 'op';
+        span.textContent = tok;
+      } else {
+        span.textContent = tok;
+      }
+      eqDiv.appendChild(span);
+    });
+  }
+
+  const input = document.createElement('input');
+  input.className = 'answer-box';
+  input.type = 'text';
+  input.inputMode = 'numeric';
+  input.maxLength = 4;
+  eqDiv.appendChild(input);
+
+  return { eqDiv, input };
+}
+
+// ─── Step Renderers ────────────────────────────────────────
+
+function renderPlacePoint(step, content, checkBtn) {
+  content.appendChild(makeInstruction(step, 'instruction'));
+
+  const { nlContainer, line } = buildNumberLine(content, step.min, step.max);
+  content.appendChild(nlContainer);
+
+  addClickablePoint(nlContainer, line, step.min, step.max, () => {
+    checkBtn.className = 'check-btn';
+  });
+
+  checkBtn.onclick = () => {
+    if (checkBtn.classList.contains('disabled')) return;
+    if (pointValue === step.target) {
+      handleCorrect(checkBtn);
+    } else {
+      const hint = step.target < 0
+        ? 'Look for the negative side — it\'s to the LEFT of zero.'
+        : 'Look for the positive side — it\'s to the RIGHT of zero.';
+      handleWrong(hint, checkBtn);
+    }
+  };
+}
+
+function renderMovePoint(step, content, checkBtn) {
+  content.appendChild(makeInstruction(step, 'instruction'));
+
+  const { nlContainer, line } = buildNumberLine(content, step.min, step.max);
+  content.appendChild(nlContainer);
+
+  addDraggablePoint(nlContainer, line, step.min, step.max, step.startValue, () => {
+    checkBtn.className = 'check-btn';
+  });
+
+  checkBtn.onclick = () => {
+    if (checkBtn.classList.contains('disabled')) return;
+    if (pointValue === step.target) {
+      handleCorrect(checkBtn);
+    } else {
+      const dir = step.moveBy > 0 ? 'right' : 'left';
+      handleWrong(`Adding ${Math.abs(step.moveBy)} means move ${Math.abs(step.moveBy)} spaces to the ${dir}.`, checkBtn);
+    }
+  };
+}
+
+function renderEquationInput(step, content, checkBtn) {
+  content.appendChild(makeInstruction(step, 'instruction'));
+
+  const { eqDiv, input } = buildEquation(step.equation, step);
+  content.appendChild(eqDiv);
+
+  input.addEventListener('input', () => {
+    selectedAnswer = input.value.trim();
+    checkBtn.className = selectedAnswer ? 'check-btn' : 'check-btn disabled';
+  });
+
+  // Optional number line
+  if (step.showNumberLine) {
+    const highlights = [];
+    if (step.startValue !== undefined) highlights.push(step.startValue);
+    if (step.endValue !== undefined) highlights.push(step.endValue);
+    const { nlContainer, line } = buildNumberLine(content, step.min, step.max, {
+      highlightValues: highlights
+    });
+    if (step.startValue !== undefined && !step.showClean) {
+      const range = step.max - step.min;
+      if (step.endValue !== undefined) {
+        const p2 = document.createElement('div');
+        p2.className = 'point';
+        p2.style.left = ((step.endValue - step.min) / range) * 100 + '%';
+        p2.style.cursor = 'default';
+        line.appendChild(p2);
+      }
+    }
+    content.appendChild(nlContainer);
+  }
+
+  checkBtn.onclick = () => {
+    if (checkBtn.classList.contains('disabled')) return;
+    const ans = parseInt(selectedAnswer, 10);
+    if (ans === step.answer) {
+      handleCorrect(checkBtn);
+    } else {
+      handleWrong('Try counting the spaces on the number line.', checkBtn);
+    }
+  };
+}
+
+function renderMultipleChoice(step, content, checkBtn) {
+  content.appendChild(makeInstruction(step, 'instruction'));
+
+  const choicesDiv = document.createElement('div');
+  choicesDiv.className = 'choices';
+
+  step.choices.forEach((choice, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = choice.text;
+    btn.onclick = () => {
+      choicesDiv.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedAnswer = i;
+      checkBtn.className = 'check-btn';
+    };
+    choicesDiv.appendChild(btn);
+  });
+  content.appendChild(choicesDiv);
+
+  checkBtn.onclick = () => {
+    if (checkBtn.classList.contains('disabled')) return;
+    const correct = step.choices[selectedAnswer].correct;
+    if (correct) {
+      choicesDiv.querySelectorAll('.choice-btn')[selectedAnswer].classList.add('correct');
+      handleCorrect(checkBtn);
+    } else {
+      choicesDiv.querySelectorAll('.choice-btn')[selectedAnswer].classList.add('wrong');
+      handleWrong('Think about which direction means getting smaller.', checkBtn);
+    }
+  };
+}
+
+function renderPlaceAndMove(step, content, checkBtn) {
+  if (subStep === 0) {
+    content.appendChild(makeInstruction(step, 'instruction'));
+
+    // Show equation above number line
+    const eqLabel = document.createElement('div');
+    eqLabel.className = 'equation';
+    if (editMode) {
+      const eqText = document.createElement('span');
+      eqText.textContent = step.equation;
+      eqText.contentEditable = true;
+      eqText.className = 'editable-eq';
+      eqText.addEventListener('blur', () => { step.equation = eqText.textContent; saveLessons(); });
+      eqLabel.appendChild(eqText);
+    } else {
+      const tokens = step.equation.split(/(\s*[+\−\-=]\s*)/);
+      tokens.forEach(tok => {
+        const span = document.createElement('span');
+        const trimmed = tok.trim();
+        if (trimmed === '+' || trimmed === '−' || trimmed === '-' || trimmed === '=') {
+          span.className = 'op';
+        }
+        span.textContent = tok;
+        eqLabel.appendChild(span);
+      });
+      const qmark = document.createElement('span');
+      qmark.textContent = ' ?';
+      qmark.className = 'op';
+      eqLabel.appendChild(qmark);
+    }
+    content.appendChild(eqLabel);
+
+    const { nlContainer, line } = buildNumberLine(content, step.min, step.max);
+    content.appendChild(nlContainer);
+
+    addClickablePoint(nlContainer, line, step.min, step.max, () => {
+      checkBtn.className = 'check-btn';
+    });
+
+    checkBtn.onclick = () => {
+      if (checkBtn.classList.contains('disabled')) return;
+      if (pointValue === step.placeValue) {
+        subStep = 1;
+        gems += 2;
+        showFeedback(true);
+        setTimeout(() => renderPlaceAndMoveSub(step), 800);
+      } else {
+        const hint = step.placeValue < 0
+          ? 'Look for the negative side — left of zero.'
+          : 'Look on the positive side — right of zero.';
+        handleWrong(hint, checkBtn, () => {
+          const savedSub = subStep;
+          renderStep();
+          // subStep was reset to 0 by renderStep, which is correct for sub-step 0
+        });
+      }
+    };
+  }
+}
+
+function renderPlaceAndMoveSub(step) {
+  const content = document.getElementById('step-content');
+  const checkBtn = document.getElementById('check-btn');
+  const feedbackBar = document.getElementById('feedback-bar');
+  feedbackBar.className = 'feedback-bar hidden';
+
+  if (subStep === 1) {
+    content.innerHTML = '';
+    checkBtn.className = 'check-btn disabled';
+    checkBtn.textContent = 'CHECK';
+
+    content.appendChild(makeInstruction(step, 'instruction2'));
+
+    // Show equation
+    const eqLabel = document.createElement('div');
+    eqLabel.className = 'equation';
+    const tokens = step.equation.split(/(\s*[+\−\-=]\s*)/);
+    tokens.forEach(tok => {
+      const span = document.createElement('span');
+      const trimmed = tok.trim();
+      if (trimmed === '+' || trimmed === '−' || trimmed === '-' || trimmed === '=') {
+        span.className = 'op';
+      }
+      span.textContent = tok;
+      eqLabel.appendChild(span);
+    });
+    const qmark = document.createElement('span');
+    qmark.textContent = ' ?';
+    qmark.className = 'op';
+    eqLabel.appendChild(qmark);
+    content.appendChild(eqLabel);
+
+    const { nlContainer, line } = buildNumberLine(content, step.min, step.max);
+    content.appendChild(nlContainer);
+
+    addDraggablePoint(nlContainer, line, step.min, step.max, step.placeValue, () => {
+      checkBtn.className = 'check-btn';
+    });
+
+    checkBtn.onclick = () => {
+      if (checkBtn.classList.contains('disabled')) return;
+      if (pointValue === step.answer) {
+        subStep = 2;
+        gems += 2;
+        showFeedback(true);
+        setTimeout(() => renderPlaceAndMoveSub(step), 800);
+      } else {
+        const dir = step.moveBy < 0 ? 'left' : 'right';
+        handleWrong(`Subtracting means move to the ${dir}. Count ${Math.abs(step.moveBy)} spaces.`, checkBtn, () => {
+          subStep = 1;
+          renderPlaceAndMoveSub(step);
+        });
+      }
+    };
+  } else if (subStep === 2) {
+    content.innerHTML = '';
+    checkBtn.className = 'check-btn disabled';
+    checkBtn.textContent = 'CHECK';
+
+    content.appendChild(makeInstruction(step, 'instruction3'));
+
+    const { eqDiv, input } = buildEquation(step.equation, step);
+    content.appendChild(eqDiv);
+
+    // Show number line with the point at the answer
+    const { nlContainer, line } = buildNumberLine(content, step.min, step.max, {
+      highlightValues: [step.placeValue, step.answer]
+    });
+    const range = step.max - step.min;
+    const p = document.createElement('div');
+    p.className = 'point';
+    p.style.left = ((step.answer - step.min) / range) * 100 + '%';
+    p.style.cursor = 'default';
+    line.appendChild(p);
+    content.appendChild(nlContainer);
+
+    input.addEventListener('input', () => {
+      selectedAnswer = input.value.trim();
+      checkBtn.className = selectedAnswer ? 'check-btn' : 'check-btn disabled';
+    });
+
+    checkBtn.onclick = () => {
+      if (checkBtn.classList.contains('disabled')) return;
+      const ans = parseInt(selectedAnswer, 10);
+      if (ans === step.answer) {
+        handleCorrect(checkBtn);
+      } else {
+        handleWrong('Look where the dot ended up on the number line.', checkBtn, () => {
+          subStep = 2;
+          renderPlaceAndMoveSub(step);
+        });
+      }
+    };
+  }
+}
+
+function renderCelebrate(step, content, checkBtn) {
+  gems += step.gems;
+  document.getElementById('gems-count').textContent = gems;
+  document.getElementById('progress-bar').style.width = '100%';
+
+  const cel = document.createElement('div');
+  cel.className = 'celebrate';
+
+  cel.innerHTML = `
+    <div class="trophy">&#127942;</div>
+    <div class="congrats-text">${editMode ? '<span contenteditable class="editable-eq" data-field="instruction">' + step.instruction + '</span>' : step.instruction}</div>
+    <div class="sub-text">${editMode ? '<span contenteditable class="editable-eq" data-field="message">' + step.message + '</span>' : step.message}</div>
+    <div class="gems-earned">&#x1F48E; +${step.gems} gems!</div>
+  `;
+
+  if (editMode) {
+    cel.querySelectorAll('[contenteditable]').forEach(el => {
+      el.addEventListener('blur', () => {
+        step[el.dataset.field] = el.textContent;
+        saveLessons();
+      });
+    });
+  }
+
+  content.appendChild(cel);
+  checkBtn.style.display = 'none';
+  launchConfetti();
+}
+
+// ─── Helpers ───────────────────────────────────────────────
+
+function makeInstruction(step, field) {
+  const el = document.createElement('div');
+  el.className = 'instruction';
+  el.textContent = step[field];
+  if (editMode) {
+    el.contentEditable = true;
+    el.classList.add('editable');
+    el.addEventListener('blur', () => {
+      step[field] = el.textContent;
+      saveLessons();
+    });
+  }
+  return el;
+}
+
+function handleCorrect(checkBtn) {
+  gems += 3;
+  document.getElementById('gems-count').textContent = gems;
+  showFeedback(true);
+  checkBtn.textContent = 'CONTINUE';
+  checkBtn.className = 'check-btn next';
+  checkBtn.onclick = () => {
+    currentStep++;
+    if (currentStep < lessons.steps.length) {
+      renderStep();
+    }
+  };
+}
+
+function handleWrong(hint, checkBtn, rerender) {
+  loseLife();
+  showFeedback(false, hint);
+  checkBtn.textContent = 'TRY AGAIN';
+  checkBtn.className = 'check-btn try-again';
+  checkBtn.onclick = () => {
+    if (rerender) {
+      // Re-render just the current sub-step
+      rerender();
+    } else {
+      // Re-render the same step fresh (keeps currentStep, resets subStep)
+      renderStep();
+    }
+  };
+}
+
+function showFeedback(correct, msg) {
+  const bar = document.getElementById('feedback-bar');
+  if (correct) {
+    bar.className = 'feedback-bar correct';
+    bar.textContent = 'Great job! ✓';
+  } else {
+    bar.className = 'feedback-bar wrong';
+    bar.textContent = msg || 'Not quite. Try again!';
+  }
+}
+
+function launchConfetti() {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  document.body.appendChild(container);
+
+  const colors = ['#FF8C00', '#FFA040', '#ff4b4b', '#ffc800', '#ce82ff', '#58cc02'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    piece.style.animationDelay = (Math.random() * 1) + 's';
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.remove(), 4000);
+}
+
+// ─── Edit Mode ─────────────────────────────────────────────
+
+document.getElementById('edit-toggle').addEventListener('click', () => {
+  editMode = !editMode;
+  document.getElementById('edit-toggle').classList.toggle('active', editMode);
+  renderStep();
+});
+
+// ─── Init ──────────────────────────────────────────────────
+
+loadLessons();

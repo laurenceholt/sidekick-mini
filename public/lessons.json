@@ -1,0 +1,77 @@
+{
+  "steps": [
+    {
+      "id": 1,
+      "type": "place-point",
+      "instruction": "Click where 3 is on this number line.",
+      "target": 3,
+      "min": -5,
+      "max": 5
+    },
+    {
+      "id": 2,
+      "type": "place-point",
+      "instruction": "Put −3 on the number line.",
+      "target": -3,
+      "min": -5,
+      "max": 5
+    },
+    {
+      "id": 3,
+      "type": "move-point",
+      "instruction": "Now add 2 to the point. Move it to where it should be.",
+      "startValue": -3,
+      "moveBy": 2,
+      "target": -1,
+      "min": -5,
+      "max": 5
+    },
+    {
+      "id": 4,
+      "type": "equation-input",
+      "instruction": "What does −3 + 2 equal?",
+      "equation": "−3 + 2 = ",
+      "answer": -1,
+      "showNumberLine": true,
+      "startValue": -3,
+      "endValue": -1,
+      "min": -5,
+      "max": 5
+    },
+    {
+      "id": 5,
+      "type": "multiple-choice",
+      "instruction": "So to add a positive number like +2, you move RIGHT on the number line. Which way do you move to SUBTRACT +2?",
+      "choices": [
+        {
+          "text": "← Left",
+          "correct": true
+        },
+        {
+          "text": "Right →",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "place-and-move",
+      "instruction": "First, put 2 on the number line.",
+      "instruction2": "Now subtract 6. Move the point to the answer.",
+      "instruction3": "What does 2 − 6 equal?",
+      "equation": "2 − 6 = ",
+      "placeValue": 2,
+      "moveBy": -6,
+      "answer": -4,
+      "min": -5,
+      "max": 5
+    },
+    {
+      "id": 7,
+      "type": "celebrate",
+      "instruction": "Amazing work!",
+      "message": "You just learned about negative numbers and how to add and subtract on a number line!",
+      "gems": 15
+    }
+  ]
+}

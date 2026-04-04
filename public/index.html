@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Sidekick</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Top bar -->
+    <div class="top-bar">
+      <button id="close-btn" class="close-btn">&times;</button>
+      <div class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      <div id="lives-display" class="lives-display">
+        <span class="heart" id="heart-0">&#x2764;&#xFE0F;</span>
+        <span class="heart" id="heart-1">&#x2764;&#xFE0F;</span>
+        <span class="heart" id="heart-2">&#x2764;&#xFE0F;</span>
+      </div>
+      <div class="gems-display">
+        <span class="gem-icon">&#x1F48E;</span>
+        <span id="gems-count">0</span>
+      </div>
+    </div>
+
+    <!-- Edit mode toggle -->
+    <button id="edit-toggle" class="edit-toggle" title="Edit lesson text">&#9998;</button>
+
+    <!-- Main content area -->
+    <div id="step-content" class="step-content"></div>
+
+    <!-- Feedback bar -->
+    <div id="feedback-bar" class="feedback-bar hidden"></div>
+
+    <!-- Bottom bar -->
+    <div class="bottom-bar">
+      <button id="check-btn" class="check-btn disabled">CHECK</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
