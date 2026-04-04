@@ -91,6 +91,7 @@ function renderStep() {
   const progress = (currentStep / lessons.steps.length) * 100;
   document.getElementById('progress-bar').style.width = progress + '%';
   document.getElementById('gems-count').textContent = gems;
+  document.getElementById('step-number').textContent = (currentStep + 1) + ' / ' + lessons.steps.length;
   updateLives();
 
   content.innerHTML = '';

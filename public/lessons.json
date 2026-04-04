@@ -3,7 +3,7 @@
     {
       "id": 1,
       "type": "place-point",
-      "instruction": "Click where 3 is on this number line.",
+      "instruction": "Click 3 on this number line.",
       "target": 3,
       "min": -5,
       "max": 5

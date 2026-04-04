@@ -126,8 +126,18 @@ body {
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  padding: 10px 30px 20px;
+  padding: 10px 20px 20px 52px;
   gap: 30px;
+}
+
+/* Step number indicator */
+.step-number {
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #bbb;
 }
 
 .instruction {
