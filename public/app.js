@@ -1,38 +1,269 @@
-let lessons = null;
-let currentStep = 0;
+// ─── State ─────────────────────────────────────────────────
+
+let data = null;         // full module data
+let progress = {};       // { "m1-s1-l1": { completed: true, gems: 5 } }
 let gems = 0;
 let lives = 3;
-let editMode = false;
+
+// Current lesson context
+let curModule = null;
+let curSection = null;
+let curLesson = null;
+let curStepIdx = 0;
+let subStep = 0;
 let selectedAnswer = null;
 let pointValue = null;
-let subStep = 0; // for multi-part steps like place-and-move
 
 const ACCENT = '#57B477';
+const STEP_TYPE_DESC = {
+  'place-point': 'Place a point on a number line',
+  'move-point': 'Drag a point along a number line',
+  'equation-input': 'Type the answer to an equation',
+  'multiple-choice': 'Choose from multiple options',
+  'place-and-move': 'Place, move a point, then solve',
+  'celebrate': 'Celebration screen'
+};
 
-async function loadLessons() {
-  // Try localStorage first (for persisted edits), fall back to static file
+// ─── Data Loading ──────────────────────────────────────────
+
+async function loadData() {
   const saved = localStorage.getItem('sidekick-lessons');
   if (saved) {
-    lessons = JSON.parse(saved);
+    const parsed = JSON.parse(saved);
+    // Check for old flat format and discard it
+    if (parsed.modules) {
+      data = parsed;
+    } else {
+      localStorage.removeItem('sidekick-lessons');
+      const res = await fetch('/lessons.json');
+      data = await res.json();
+    }
   } else {
     const res = await fetch('/lessons.json');
-    lessons = await res.json();
+    data = await res.json();
   }
+  const savedProgress = localStorage.getItem('sidekick-progress');
+  if (savedProgress) progress = JSON.parse(savedProgress);
+  const savedGems = localStorage.getItem('sidekick-gems');
+  if (savedGems) gems = parseInt(savedGems, 10);
+  route();
+}
+
+function saveData() {
+  localStorage.setItem('sidekick-lessons', JSON.stringify(data));
+}
+
+function saveProgress() {
+  localStorage.setItem('sidekick-progress', JSON.stringify(progress));
+  localStorage.setItem('sidekick-gems', gems);
+}
+
+// ─── Routing ───────────────────────────────────────────────
+
+function route() {
+  const hash = location.hash || '#map';
+  document.querySelectorAll('.view').forEach(v => {
+    v.style.display = 'none';
+    v.classList.remove('active');
+  });
+
+  if (hash === '#edit') {
+    showView('view-edit');
+    renderEdit();
+  } else if (hash.startsWith('#lesson/')) {
+    const parts = hash.replace('#lesson/', '').split('/');
+    startLesson(parts[0], parts[1], parts[2]);
+  } else {
+    showView('view-map');
+    renderMap();
+  }
+}
+
+function showView(id) {
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  el.classList.add('active');
+}
+
+window.addEventListener('hashchange', route);
+
+// ─── Helpers to find data ──────────────────────────────────
+
+function findModule(mId) { return data.modules.find(m => m.id === mId); }
+function findSection(mod, sId) { return mod.sections.find(s => s.id === sId); }
+function findLesson(sec, lId) { return sec.lessons.find(l => l.id === lId); }
+
+function lessonKey(mId, sId, lId) { return mId + '-' + sId + '-' + lId; }
+
+function isLessonCompleted(mId, sId, lId) {
+  const p = progress[lessonKey(mId, sId, lId)];
+  return p && p.completed;
+}
+
+function getFirstIncompleteLessonKey(mod) {
+  for (const sec of mod.sections) {
+    for (const les of sec.lessons) {
+      if (!isLessonCompleted(mod.id, sec.id, les.id)) {
+        return { mId: mod.id, sId: sec.id, lId: les.id };
+      }
+    }
+  }
+  return null; // all complete
+}
+
+// ─── MAP VIEW ──────────────────────────────────────────────
+
+function renderMap() {
+  const mod = data.modules[0]; // for now, single module
+  document.getElementById('map-module-title').textContent = mod.title;
+  document.getElementById('map-gems-count').textContent = gems;
+
+  const container = document.getElementById('map-content');
+  container.innerHTML = '';
+
+  const firstIncomplete = getFirstIncompleteLessonKey(mod);
+  let lessonIndex = 0;
+
+  mod.sections.forEach((sec, si) => {
+    // Section header
+    const secDiv = document.createElement('div');
+    secDiv.className = 'map-section';
+    secDiv.innerHTML = '<div class="map-section-title">' + sec.title + '</div>';
+    container.appendChild(secDiv);
+
+    const path = document.createElement('div');
+    path.className = 'map-path';
+
+    sec.lessons.forEach((les, li) => {
+      lessonIndex++;
+      const key = lessonKey(mod.id, sec.id, les.id);
+      const completed = isLessonCompleted(mod.id, sec.id, les.id);
+      const isCurrent = firstIncomplete && firstIncomplete.lId === les.id && firstIncomplete.sId === sec.id;
+      const isAvailable = completed || isCurrent;
+
+      // Connector (not before first)
+      if (li > 0 || si > 0) {
+        const conn = document.createElement('div');
+        conn.className = 'map-connector' + (completed ? ' completed' : '');
+        path.appendChild(conn);
+      }
+
+      const node = document.createElement('div');
+      node.className = 'map-node' + (completed ? ' completed' : '') + (isCurrent ? ' current' : '');
+
+      const circle = document.createElement('div');
+      let circleClass = 'map-node-circle';
+      if (completed) circleClass += ' completed';
+      else if (isCurrent) circleClass += ' current';
+      else if (isAvailable) circleClass += ' available';
+      else circleClass += ' locked';
+      circle.className = circleClass;
+      circle.textContent = completed ? '✓' : lessonIndex;
+
+      const label = document.createElement('div');
+      label.className = 'map-node-label';
+      label.textContent = les.title;
+
+      node.appendChild(circle);
+      node.appendChild(label);
+
+      if (isAvailable) {
+        node.onclick = () => {
+          location.hash = '#lesson/' + mod.id + '/' + sec.id + '/' + les.id;
+        };
+      }
+
+      path.appendChild(node);
+    });
+
+    // Section check node at end of section
+    const allInSection = sec.lessons.every(l => isLessonCompleted(mod.id, sec.id, l.id));
+    const conn = document.createElement('div');
+    conn.className = 'map-connector' + (allInSection ? ' completed' : '');
+    path.appendChild(conn);
+
+    const checkNode = document.createElement('div');
+    checkNode.className = 'map-node' + (allInSection ? ' completed' : '');
+    const checkCircle = document.createElement('div');
+    checkCircle.className = 'map-node-circle section-check' + (allInSection ? ' completed' : '');
+    checkCircle.textContent = allInSection ? '★' : '☆';
+    const checkLabel = document.createElement('div');
+    checkLabel.className = 'map-node-label';
+    checkLabel.textContent = 'Section Check';
+    checkNode.appendChild(checkCircle);
+    checkNode.appendChild(checkLabel);
+    path.appendChild(checkNode);
+
+    container.appendChild(path);
+  });
+}
+
+// ─── LESSON VIEW ───────────────────────────────────────────
+
+function startLesson(mId, sId, lId) {
+  showView('view-lesson');
+  const mod = findModule(mId);
+  const sec = findSection(mod, sId);
+  const les = findLesson(sec, lId);
+
+  curModule = mod;
+  curSection = sec;
+  curLesson = les;
+  curStepIdx = 0;
+  lives = 3;
+  subStep = 0;
+
+  document.getElementById('close-btn').onclick = () => { location.hash = '#map'; };
   renderStep();
 }
 
-function saveLessons() {
-  localStorage.setItem('sidekick-lessons', JSON.stringify(lessons));
+function renderStep() {
+  const steps = curLesson.steps;
+  const step = steps[curStepIdx];
+  const content = document.getElementById('step-content');
+  const checkBtn = document.getElementById('check-btn');
+  const feedbackBar = document.getElementById('feedback-bar');
+
+  feedbackBar.className = 'feedback-bar hidden';
+  checkBtn.textContent = 'CHECK';
+  checkBtn.className = 'check-btn disabled';
+  checkBtn.style.display = '';
+  checkBtn.onclick = null;
+  selectedAnswer = null;
+  pointValue = null;
+  subStep = 0;
+
+  // Progress
+  const pct = (curStepIdx / steps.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('gems-count').textContent = gems;
+
+  // Step number: module-section-lesson-step
+  const mIdx = data.modules.indexOf(curModule) + 1;
+  const sIdx = curModule.sections.indexOf(curSection) + 1;
+  const lIdx = curSection.lessons.indexOf(curLesson) + 1;
+  document.getElementById('step-number').textContent = mIdx + '-' + sIdx + '-' + lIdx + '-' + (curStepIdx + 1);
+
+  updateLives();
+  content.innerHTML = '';
+
+  switch (step.type) {
+    case 'place-point': renderPlacePoint(step, content, checkBtn); break;
+    case 'move-point': renderMovePoint(step, content, checkBtn); break;
+    case 'equation-input': renderEquationInput(step, content, checkBtn); break;
+    case 'multiple-choice': renderMultipleChoice(step, content, checkBtn); break;
+    case 'place-and-move': renderPlaceAndMove(step, content, checkBtn); break;
+    case 'celebrate': renderCelebrate(step, content, checkBtn); break;
+  }
 }
+
+// ─── Lives ─────────────────────────────────────────────────
 
 function updateLives() {
   for (let i = 0; i < 3; i++) {
     const h = document.getElementById('heart-' + i);
-    if (i < lives) {
-      h.classList.remove('lost');
-    } else {
-      h.classList.add('lost');
-    }
+    if (i < lives) h.classList.remove('lost');
+    else h.classList.add('lost');
   }
 }
 
@@ -42,10 +273,7 @@ function loseLife() {
     const h = document.getElementById('heart-' + lives);
     h.classList.add('breaking');
     setTimeout(() => updateLives(), 500);
-
-    if (lives === 0) {
-      setTimeout(showGameOver, 700);
-    }
+    if (lives === 0) setTimeout(showGameOver, 700);
   }
 }
 
@@ -63,156 +291,71 @@ function showGameOver() {
   document.body.appendChild(overlay);
   overlay.querySelector('.restart-btn').onclick = () => {
     overlay.remove();
-    currentStep = 0;
-    gems = 0;
+    curStepIdx = 0;
     lives = 3;
     updateLives();
     renderStep();
   };
 }
 
-function renderStep() {
-  const step = lessons.steps[currentStep];
-  const content = document.getElementById('step-content');
-  const checkBtn = document.getElementById('check-btn');
-  const feedbackBar = document.getElementById('feedback-bar');
-
-  feedbackBar.className = 'feedback-bar hidden';
-  feedbackBar.textContent = '';
-  checkBtn.textContent = 'CHECK';
-  checkBtn.className = 'check-btn disabled';
-  checkBtn.style.display = '';
-  checkBtn.onclick = null;
-  selectedAnswer = null;
-  pointValue = null;
-  subStep = 0;
-
-  // Update progress bar
-  const progress = (currentStep / lessons.steps.length) * 100;
-  document.getElementById('progress-bar').style.width = progress + '%';
-  document.getElementById('gems-count').textContent = gems;
-  document.getElementById('step-number').textContent = (currentStep + 1) + ' / ' + lessons.steps.length;
-  updateLives();
-
-  content.innerHTML = '';
-
-  switch (step.type) {
-    case 'place-point':
-      renderPlacePoint(step, content, checkBtn);
-      break;
-    case 'move-point':
-      renderMovePoint(step, content, checkBtn);
-      break;
-    case 'equation-input':
-      renderEquationInput(step, content, checkBtn);
-      break;
-    case 'multiple-choice':
-      renderMultipleChoice(step, content, checkBtn);
-      break;
-    case 'place-and-move':
-      renderPlaceAndMove(step, content, checkBtn);
-      break;
-    case 'celebrate':
-      renderCelebrate(step, content, checkBtn);
-      break;
-  }
-}
-
-// ─── Number Line Builder ───────────────────────────────────
+// ─── Number Line ───────────────────────────────────────────
 
 function buildNumberLine(container, min, max, options = {}) {
   const nlContainer = document.createElement('div');
   nlContainer.className = 'number-line-container';
-
   const line = document.createElement('div');
   line.className = 'number-line';
-
   const range = max - min;
   for (let i = min; i <= max; i++) {
     const pct = ((i - min) / range) * 100;
-
     const tick = document.createElement('div');
     tick.className = 'tick';
     tick.style.left = pct + '%';
     line.appendChild(tick);
-
     const label = document.createElement('div');
-    label.className = 'tick-label';
-    if (options.highlightValues && options.highlightValues.includes(i)) {
-      label.className += ' highlight';
-    }
+    label.className = 'tick-label' + (options.highlightValues && options.highlightValues.includes(i) ? ' highlight' : '');
     label.style.left = pct + '%';
     label.textContent = i;
     line.appendChild(label);
   }
-
   nlContainer.appendChild(line);
   return { nlContainer, line, range, min, max };
 }
 
 function addClickablePoint(nlContainer, line, min, max, onChange) {
   const range = max - min;
-  let point = null;
-  let isDragging = false;
-
-  function getValueFromX(clientX) {
-    const rect = line.getBoundingClientRect();
-    let pct = (clientX - rect.left) / rect.width;
-    pct = Math.max(0, Math.min(1, pct));
-    const raw = min + pct * range;
-    return Math.round(raw);
+  let point = null, isDragging = false;
+  function valFromX(cx) {
+    const r = line.getBoundingClientRect();
+    return Math.round(min + Math.max(0, Math.min(1, (cx - r.left) / r.width)) * range);
   }
-
-  function setPointValue(val) {
-    pointValue = val;
-    const pct = ((val - min) / range) * 100;
-    if (!point) {
-      point = document.createElement('div');
-      point.className = 'point placed';
-      line.appendChild(point);
-    }
-    point.style.left = pct + '%';
-    if (onChange) onChange(val);
+  function setVal(v) {
+    pointValue = v;
+    if (!point) { point = document.createElement('div'); point.className = 'point placed'; line.appendChild(point); }
+    point.style.left = ((v - min) / range) * 100 + '%';
+    if (onChange) onChange(v);
   }
-
-  const clickZone = document.createElement('div');
-  clickZone.className = 'click-zone';
-  line.appendChild(clickZone);
-
-  clickZone.addEventListener('mousedown', (e) => {
-    setPointValue(getValueFromX(e.clientX));
-    isDragging = true;
-  });
-  clickZone.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    setPointValue(getValueFromX(e.touches[0].clientX));
-    isDragging = true;
-  });
-  document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    setPointValue(getValueFromX(e.clientX));
-  });
-  document.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    setPointValue(getValueFromX(e.touches[0].clientX));
-  });
+  const zone = document.createElement('div');
+  zone.className = 'click-zone';
+  line.appendChild(zone);
+  zone.addEventListener('mousedown', e => { setVal(valFromX(e.clientX)); isDragging = true; });
+  zone.addEventListener('touchstart', e => { e.preventDefault(); setVal(valFromX(e.touches[0].clientX)); isDragging = true; });
+  document.addEventListener('mousemove', e => { if (isDragging) setVal(valFromX(e.clientX)); });
+  document.addEventListener('touchmove', e => { if (isDragging) setVal(valFromX(e.touches[0].clientX)); });
   document.addEventListener('mouseup', () => { isDragging = false; });
   document.addEventListener('touchend', () => { isDragging = false; });
-
-  return { setPointValue };
+  return { setPointValue: setVal };
 }
 
 function addDraggablePoint(nlContainer, line, min, max, startVal, onChange) {
   const range = max - min;
   pointValue = startVal;
 
-  // Ghost dot showing start position
   const ghost = document.createElement('div');
   ghost.className = 'ghost-start';
   ghost.style.left = ((startVal - min) / range) * 100 + '%';
   line.appendChild(ghost);
 
-  // SVG for jump arrows
   const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   arrowSvg.setAttribute('class', 'jump-arrows');
   arrowSvg.setAttribute('viewBox', '0 0 100 100');
@@ -227,155 +370,122 @@ function addDraggablePoint(nlContainer, line, min, max, startVal, onChange) {
   line.appendChild(point);
 
   let isDragging = false;
-
-  function getValueFromX(clientX) {
-    const rect = line.getBoundingClientRect();
-    let pct = (clientX - rect.left) / rect.width;
-    pct = Math.max(0, Math.min(1, pct));
-    return Math.round(min + pct * range);
+  function valFromX(cx) {
+    const r = line.getBoundingClientRect();
+    return Math.round(min + Math.max(0, Math.min(1, (cx - r.left) / r.width)) * range);
   }
 
-  function drawJumpArrows(from, to) {
+  function drawArrows(from, to) {
     arrowSvg.innerHTML = '';
     if (from === to) return;
-
-    const step = from < to ? 1 : -1;
-    const numHops = Math.abs(to - from);
-
-    for (let i = 0; i < numHops; i++) {
-      const hopStart = from + i * step;
-      const hopEnd = hopStart + step;
-
-      const x1 = ((hopStart - min) / range) * 100;
-      const x2 = ((hopEnd - min) / range) * 100;
-      const midX = (x1 + x2) / 2;
-
-      // Arc height scales slightly with hop count for visibility
-      const arcTop = 55; // lower number = higher arc (in SVG coords where 100=bottom)
-
+    const s = from < to ? 1 : -1;
+    for (let i = 0; i < Math.abs(to - from); i++) {
+      const a = from + i * s, b = a + s;
+      const x1 = ((a - min) / range) * 100, x2 = ((b - min) / range) * 100;
+      const sweep = s > 0 ? 1 : 0, rad = Math.abs(x2 - x1) / 2;
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      // Draw a semicircular arc from x1 to x2 above the line
-      const sweepFlag = step > 0 ? 1 : 0;
-      const radius = Math.abs(x2 - x1) / 2;
-      path.setAttribute('d', `M ${x1} 95 A ${radius} ${40} 0 0 ${sweepFlag} ${x2} 95`);
+      path.setAttribute('d', `M ${x1} 95 A ${rad} 40 0 0 ${sweep} ${x2} 95`);
       path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', '#57B477');
+      path.setAttribute('stroke', ACCENT);
       path.setAttribute('stroke-width', '2.5');
       path.setAttribute('vector-effect', 'non-scaling-stroke');
       arrowSvg.appendChild(path);
-
-      // Arrowhead at the end
-      const arrowSize = 2;
-      const arrowTip = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-      if (step > 0) {
-        arrowTip.setAttribute('points', `${x2},95 ${x2 - arrowSize},${95 - arrowSize * 1.5} ${x2 - arrowSize},${95 + arrowSize * 1.5}`);
-      } else {
-        arrowTip.setAttribute('points', `${x2},95 ${x2 + arrowSize},${95 - arrowSize * 1.5} ${x2 + arrowSize},${95 + arrowSize * 1.5}`);
-      }
-      arrowTip.setAttribute('fill', '#57B477');
-      arrowSvg.appendChild(arrowTip);
+      const tip = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      const sz = 2;
+      tip.setAttribute('points', s > 0
+        ? `${x2},95 ${x2-sz},${95-sz*1.5} ${x2-sz},${95+sz*1.5}`
+        : `${x2},95 ${x2+sz},${95-sz*1.5} ${x2+sz},${95+sz*1.5}`);
+      tip.setAttribute('fill', ACCENT);
+      arrowSvg.appendChild(tip);
     }
   }
 
-  function updatePoint(val) {
-    pointValue = val;
-    point.style.left = ((val - min) / range) * 100 + '%';
-    drawJumpArrows(startVal, val);
-    if (onChange) onChange(val);
+  function update(v) {
+    pointValue = v;
+    point.style.left = ((v - min) / range) * 100 + '%';
+    drawArrows(startVal, v);
+    if (onChange) onChange(v);
   }
 
-  point.addEventListener('mousedown', (e) => { e.preventDefault(); isDragging = true; });
-  point.addEventListener('touchstart', (e) => { e.preventDefault(); isDragging = true; });
-  document.addEventListener('mousemove', (e) => { if (isDragging) updatePoint(getValueFromX(e.clientX)); });
-  document.addEventListener('touchmove', (e) => { if (isDragging) updatePoint(getValueFromX(e.touches[0].clientX)); });
+  point.addEventListener('mousedown', e => { e.preventDefault(); isDragging = true; });
+  point.addEventListener('touchstart', e => { e.preventDefault(); isDragging = true; });
+  document.addEventListener('mousemove', e => { if (isDragging) update(valFromX(e.clientX)); });
+  document.addEventListener('touchmove', e => { if (isDragging) update(valFromX(e.touches[0].clientX)); });
   document.addEventListener('mouseup', () => { isDragging = false; });
   document.addEventListener('touchend', () => { isDragging = false; });
-
-  return { point, updatePoint };
+  return { point, updatePoint: update };
 }
 
-// ─── Equation Builder (colorized operators) ────────────────
+// ─── Equation Builder ──────────────────────────────────────
 
-function buildEquation(eqString, step) {
-  const eqDiv = document.createElement('div');
-  eqDiv.className = 'equation';
-
-  if (editMode) {
-    const eqText = document.createElement('span');
-    eqText.textContent = eqString;
-    eqText.contentEditable = true;
-    eqText.className = 'editable-eq';
-    eqText.addEventListener('blur', () => {
-      step.equation = eqText.textContent;
-      saveLessons();
-    });
-    eqDiv.appendChild(eqText);
-  } else {
-    // Parse and colorize operators
-    const tokens = eqString.split(/(\s*[+\−\-=]\s*)/);
-    tokens.forEach(tok => {
-      const span = document.createElement('span');
-      const trimmed = tok.trim();
-      if (trimmed === '+' || trimmed === '−' || trimmed === '-' || trimmed === '=') {
-        span.className = 'op';
-        span.textContent = tok;
-      } else {
-        span.textContent = tok;
-      }
-      eqDiv.appendChild(span);
-    });
-  }
-
+function buildEquation(eqStr, step) {
+  const div = document.createElement('div');
+  div.className = 'equation';
+  const tokens = eqStr.split(/(\s*[+\−\-=]\s*)/);
+  tokens.forEach(tok => {
+    const span = document.createElement('span');
+    const t = tok.trim();
+    if (t === '+' || t === '−' || t === '-' || t === '=') span.className = 'op';
+    span.textContent = tok;
+    div.appendChild(span);
+  });
   const input = document.createElement('input');
   input.className = 'answer-box';
   input.type = 'text';
   input.inputMode = 'numeric';
   input.maxLength = 4;
-  eqDiv.appendChild(input);
+  div.appendChild(input);
+  return { eqDiv: div, input };
+}
 
-  return { eqDiv, input };
+function buildEqLabel(eqStr) {
+  const div = document.createElement('div');
+  div.className = 'equation';
+  const tokens = eqStr.split(/(\s*[+\−\-=]\s*)/);
+  tokens.forEach(tok => {
+    const span = document.createElement('span');
+    const t = tok.trim();
+    if (t === '+' || t === '−' || t === '-' || t === '=') span.className = 'op';
+    span.textContent = tok;
+    div.appendChild(span);
+  });
+  const q = document.createElement('span');
+  q.textContent = ' ?';
+  q.className = 'op';
+  div.appendChild(q);
+  return div;
 }
 
 // ─── Step Renderers ────────────────────────────────────────
 
+function makeInstruction(step, field) {
+  const el = document.createElement('div');
+  el.className = 'instruction';
+  el.textContent = step[field];
+  return el;
+}
+
 function renderPlacePoint(step, content, checkBtn) {
   content.appendChild(makeInstruction(step, 'instruction'));
-
   const { nlContainer, line } = buildNumberLine(content, step.min, step.max);
   content.appendChild(nlContainer);
-
-  addClickablePoint(nlContainer, line, step.min, step.max, () => {
-    checkBtn.className = 'check-btn';
-  });
-
+  addClickablePoint(nlContainer, line, step.min, step.max, () => { checkBtn.className = 'check-btn'; });
   checkBtn.onclick = () => {
     if (checkBtn.classList.contains('disabled')) return;
-    if (pointValue === step.target) {
-      handleCorrect(checkBtn);
-    } else {
-      const hint = step.target < 0
-        ? 'Look for the negative side — it\'s to the LEFT of zero.'
-        : 'Look for the positive side — it\'s to the RIGHT of zero.';
-      handleWrong(hint, checkBtn);
-    }
+    if (pointValue === step.target) handleCorrect(checkBtn);
+    else handleWrong(step.target < 0 ? "Look for the negative side — it's to the LEFT of zero." : "Look for the positive side — it's to the RIGHT of zero.", checkBtn);
   };
 }
 
 function renderMovePoint(step, content, checkBtn) {
   content.appendChild(makeInstruction(step, 'instruction'));
-
   const { nlContainer, line } = buildNumberLine(content, step.min, step.max);
   content.appendChild(nlContainer);
-
-  addDraggablePoint(nlContainer, line, step.min, step.max, step.startValue, () => {
-    checkBtn.className = 'check-btn';
-  });
-
+  addDraggablePoint(nlContainer, line, step.min, step.max, step.startValue, () => { checkBtn.className = 'check-btn'; });
   checkBtn.onclick = () => {
     if (checkBtn.classList.contains('disabled')) return;
-    if (pointValue === step.target) {
-      handleCorrect(checkBtn);
-    } else {
+    if (pointValue === step.target) handleCorrect(checkBtn);
+    else {
       const dir = step.moveBy > 0 ? 'right' : 'left';
       handleWrong(`Adding ${Math.abs(step.moveBy)} means move ${Math.abs(step.moveBy)} spaces to the ${dir}.`, checkBtn);
     }
@@ -384,57 +494,40 @@ function renderMovePoint(step, content, checkBtn) {
 
 function renderEquationInput(step, content, checkBtn) {
   content.appendChild(makeInstruction(step, 'instruction'));
-
   const { eqDiv, input } = buildEquation(step.equation, step);
   content.appendChild(eqDiv);
-
   input.addEventListener('input', () => {
     selectedAnswer = input.value.trim();
     checkBtn.className = selectedAnswer ? 'check-btn' : 'check-btn disabled';
   });
-
-  // Optional number line
   if (step.showNumberLine) {
-    const highlights = [];
-    if (step.startValue !== undefined) highlights.push(step.startValue);
-    if (step.endValue !== undefined) highlights.push(step.endValue);
-    const { nlContainer, line } = buildNumberLine(content, step.min, step.max, {
-      highlightValues: highlights
-    });
-    if (step.startValue !== undefined && !step.showClean) {
-      const range = step.max - step.min;
-      if (step.endValue !== undefined) {
-        const p2 = document.createElement('div');
-        p2.className = 'point';
-        p2.style.left = ((step.endValue - step.min) / range) * 100 + '%';
-        p2.style.cursor = 'default';
-        line.appendChild(p2);
-      }
+    const hl = [];
+    if (step.startValue !== undefined) hl.push(step.startValue);
+    if (step.endValue !== undefined) hl.push(step.endValue);
+    const { nlContainer, line } = buildNumberLine(content, step.min, step.max, { highlightValues: hl });
+    if (step.endValue !== undefined && !step.showClean) {
+      const p2 = document.createElement('div');
+      p2.className = 'point';
+      p2.style.left = ((step.endValue - step.min) / (step.max - step.min)) * 100 + '%';
+      p2.style.cursor = 'default';
+      line.appendChild(p2);
     }
     content.appendChild(nlContainer);
   }
-
   checkBtn.onclick = () => {
     if (checkBtn.classList.contains('disabled')) return;
-    const ans = parseInt(selectedAnswer, 10);
-    if (ans === step.answer) {
-      handleCorrect(checkBtn);
-    } else {
-      handleWrong('Try counting the spaces on the number line.', checkBtn);
-    }
+    parseInt(selectedAnswer, 10) === step.answer ? handleCorrect(checkBtn) : handleWrong('Try counting the spaces on the number line.', checkBtn);
   };
 }
 
 function renderMultipleChoice(step, content, checkBtn) {
   content.appendChild(makeInstruction(step, 'instruction'));
-
   const choicesDiv = document.createElement('div');
   choicesDiv.className = 'choices';
-
-  step.choices.forEach((choice, i) => {
+  step.choices.forEach((ch, i) => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
-    btn.textContent = choice.text;
+    btn.textContent = ch.text;
     btn.onclick = () => {
       choicesDiv.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
@@ -444,233 +537,124 @@ function renderMultipleChoice(step, content, checkBtn) {
     choicesDiv.appendChild(btn);
   });
   content.appendChild(choicesDiv);
-
   checkBtn.onclick = () => {
     if (checkBtn.classList.contains('disabled')) return;
-    const correct = step.choices[selectedAnswer].correct;
-    if (correct) {
-      choicesDiv.querySelectorAll('.choice-btn')[selectedAnswer].classList.add('correct');
-      handleCorrect(checkBtn);
-    } else {
-      choicesDiv.querySelectorAll('.choice-btn')[selectedAnswer].classList.add('wrong');
-      handleWrong('Think about which direction means getting smaller.', checkBtn);
-    }
+    const ok = step.choices[selectedAnswer].correct;
+    choicesDiv.querySelectorAll('.choice-btn')[selectedAnswer].classList.add(ok ? 'correct' : 'wrong');
+    ok ? handleCorrect(checkBtn) : handleWrong('Think about which direction means getting smaller.', checkBtn);
   };
 }
 
 function renderPlaceAndMove(step, content, checkBtn) {
   if (subStep === 0) {
     content.appendChild(makeInstruction(step, 'instruction'));
-
-    // Show equation above number line
-    const eqLabel = document.createElement('div');
-    eqLabel.className = 'equation';
-    if (editMode) {
-      const eqText = document.createElement('span');
-      eqText.textContent = step.equation;
-      eqText.contentEditable = true;
-      eqText.className = 'editable-eq';
-      eqText.addEventListener('blur', () => { step.equation = eqText.textContent; saveLessons(); });
-      eqLabel.appendChild(eqText);
-    } else {
-      const tokens = step.equation.split(/(\s*[+\−\-=]\s*)/);
-      tokens.forEach(tok => {
-        const span = document.createElement('span');
-        const trimmed = tok.trim();
-        if (trimmed === '+' || trimmed === '−' || trimmed === '-' || trimmed === '=') {
-          span.className = 'op';
-        }
-        span.textContent = tok;
-        eqLabel.appendChild(span);
-      });
-      const qmark = document.createElement('span');
-      qmark.textContent = ' ?';
-      qmark.className = 'op';
-      eqLabel.appendChild(qmark);
-    }
-    content.appendChild(eqLabel);
-
+    content.appendChild(buildEqLabel(step.equation));
     const { nlContainer, line } = buildNumberLine(content, step.min, step.max);
     content.appendChild(nlContainer);
-
-    addClickablePoint(nlContainer, line, step.min, step.max, () => {
-      checkBtn.className = 'check-btn';
-    });
-
+    addClickablePoint(nlContainer, line, step.min, step.max, () => { checkBtn.className = 'check-btn'; });
     checkBtn.onclick = () => {
       if (checkBtn.classList.contains('disabled')) return;
       if (pointValue === step.placeValue) {
-        subStep = 1;
-        gems += 2;
+        subStep = 1; gems += 2; saveProgress();
         showFeedback(true);
-        setTimeout(() => renderPlaceAndMoveSub(step), 800);
+        setTimeout(() => renderPAMSub(step), 800);
       } else {
-        const hint = step.placeValue < 0
-          ? 'Look for the negative side — left of zero.'
-          : 'Look on the positive side — right of zero.';
-        handleWrong(hint, checkBtn, () => {
-          const savedSub = subStep;
-          renderStep();
-          // subStep was reset to 0 by renderStep, which is correct for sub-step 0
-        });
+        handleWrong(step.placeValue < 0 ? 'Look for the negative side — left of zero.' : 'Look on the positive side — right of zero.', checkBtn, () => { subStep = 0; renderStep(); });
       }
     };
   }
 }
 
-function renderPlaceAndMoveSub(step) {
+function renderPAMSub(step) {
   const content = document.getElementById('step-content');
   const checkBtn = document.getElementById('check-btn');
-  const feedbackBar = document.getElementById('feedback-bar');
-  feedbackBar.className = 'feedback-bar hidden';
+  document.getElementById('feedback-bar').className = 'feedback-bar hidden';
 
   if (subStep === 1) {
     content.innerHTML = '';
     checkBtn.className = 'check-btn disabled';
     checkBtn.textContent = 'CHECK';
-
     content.appendChild(makeInstruction(step, 'instruction2'));
-
-    // Show equation
-    const eqLabel = document.createElement('div');
-    eqLabel.className = 'equation';
-    const tokens = step.equation.split(/(\s*[+\−\-=]\s*)/);
-    tokens.forEach(tok => {
-      const span = document.createElement('span');
-      const trimmed = tok.trim();
-      if (trimmed === '+' || trimmed === '−' || trimmed === '-' || trimmed === '=') {
-        span.className = 'op';
-      }
-      span.textContent = tok;
-      eqLabel.appendChild(span);
-    });
-    const qmark = document.createElement('span');
-    qmark.textContent = ' ?';
-    qmark.className = 'op';
-    eqLabel.appendChild(qmark);
-    content.appendChild(eqLabel);
-
+    content.appendChild(buildEqLabel(step.equation));
     const { nlContainer, line } = buildNumberLine(content, step.min, step.max);
     content.appendChild(nlContainer);
-
-    addDraggablePoint(nlContainer, line, step.min, step.max, step.placeValue, () => {
-      checkBtn.className = 'check-btn';
-    });
-
+    addDraggablePoint(nlContainer, line, step.min, step.max, step.placeValue, () => { checkBtn.className = 'check-btn'; });
     checkBtn.onclick = () => {
       if (checkBtn.classList.contains('disabled')) return;
       if (pointValue === step.answer) {
-        subStep = 2;
-        gems += 2;
+        subStep = 2; gems += 2; saveProgress();
         showFeedback(true);
-        setTimeout(() => renderPlaceAndMoveSub(step), 800);
+        setTimeout(() => renderPAMSub(step), 800);
       } else {
         const dir = step.moveBy < 0 ? 'left' : 'right';
-        handleWrong(`Subtracting means move to the ${dir}. Count ${Math.abs(step.moveBy)} spaces.`, checkBtn, () => {
-          subStep = 1;
-          renderPlaceAndMoveSub(step);
-        });
+        handleWrong(`Subtracting means move to the ${dir}. Count ${Math.abs(step.moveBy)} spaces.`, checkBtn, () => { subStep = 1; renderPAMSub(step); });
       }
     };
   } else if (subStep === 2) {
     content.innerHTML = '';
     checkBtn.className = 'check-btn disabled';
     checkBtn.textContent = 'CHECK';
-
     content.appendChild(makeInstruction(step, 'instruction3'));
-
     const { eqDiv, input } = buildEquation(step.equation, step);
     content.appendChild(eqDiv);
-
-    // Show number line with the point at the answer
-    const { nlContainer, line } = buildNumberLine(content, step.min, step.max, {
-      highlightValues: [step.placeValue, step.answer]
-    });
-    const range = step.max - step.min;
+    const { nlContainer, line } = buildNumberLine(content, step.min, step.max, { highlightValues: [step.placeValue, step.answer] });
     const p = document.createElement('div');
     p.className = 'point';
-    p.style.left = ((step.answer - step.min) / range) * 100 + '%';
+    p.style.left = ((step.answer - step.min) / (step.max - step.min)) * 100 + '%';
     p.style.cursor = 'default';
     line.appendChild(p);
     content.appendChild(nlContainer);
-
     input.addEventListener('input', () => {
       selectedAnswer = input.value.trim();
       checkBtn.className = selectedAnswer ? 'check-btn' : 'check-btn disabled';
     });
-
     checkBtn.onclick = () => {
       if (checkBtn.classList.contains('disabled')) return;
-      const ans = parseInt(selectedAnswer, 10);
-      if (ans === step.answer) {
-        handleCorrect(checkBtn);
-      } else {
-        handleWrong('Look where the dot ended up on the number line.', checkBtn, () => {
-          subStep = 2;
-          renderPlaceAndMoveSub(step);
-        });
-      }
+      parseInt(selectedAnswer, 10) === step.answer
+        ? handleCorrect(checkBtn)
+        : handleWrong('Look where the dot ended up on the number line.', checkBtn, () => { subStep = 2; renderPAMSub(step); });
     };
   }
 }
 
 function renderCelebrate(step, content, checkBtn) {
-  gems += step.gems;
+  gems += (step.gems || 10);
+  saveProgress();
   document.getElementById('gems-count').textContent = gems;
   document.getElementById('progress-bar').style.width = '100%';
 
+  // Mark lesson completed
+  const key = lessonKey(curModule.id, curSection.id, curLesson.id);
+  progress[key] = { completed: true };
+  saveProgress();
+
   const cel = document.createElement('div');
   cel.className = 'celebrate';
-
   cel.innerHTML = `
     <div class="trophy">&#127942;</div>
-    <div class="congrats-text">${editMode ? '<span contenteditable class="editable-eq" data-field="instruction">' + step.instruction + '</span>' : step.instruction}</div>
-    <div class="sub-text">${editMode ? '<span contenteditable class="editable-eq" data-field="message">' + step.message + '</span>' : step.message}</div>
-    <div class="gems-earned">&#x1F48E; +${step.gems} gems!</div>
+    <div class="congrats-text">${step.instruction || 'Amazing work!'}</div>
+    <div class="sub-text">${step.message || 'Lesson complete!'}</div>
+    <div class="gems-earned">&#x1F48E; +${step.gems || 10} gems!</div>
+    <button class="continue-map-btn">CONTINUE</button>
   `;
-
-  if (editMode) {
-    cel.querySelectorAll('[contenteditable]').forEach(el => {
-      el.addEventListener('blur', () => {
-        step[el.dataset.field] = el.textContent;
-        saveLessons();
-      });
-    });
-  }
-
+  cel.querySelector('.continue-map-btn').onclick = () => { location.hash = '#map'; };
   content.appendChild(cel);
   checkBtn.style.display = 'none';
   launchConfetti();
 }
 
-// ─── Helpers ───────────────────────────────────────────────
-
-function makeInstruction(step, field) {
-  const el = document.createElement('div');
-  el.className = 'instruction';
-  el.textContent = step[field];
-  if (editMode) {
-    el.contentEditable = true;
-    el.classList.add('editable');
-    el.addEventListener('blur', () => {
-      step[field] = el.textContent;
-      saveLessons();
-    });
-  }
-  return el;
-}
+// ─── Answer Handling ───────────────────────────────────────
 
 function handleCorrect(checkBtn) {
   gems += 3;
+  saveProgress();
   document.getElementById('gems-count').textContent = gems;
   showFeedback(true);
   checkBtn.textContent = 'CONTINUE';
   checkBtn.className = 'check-btn next';
   checkBtn.onclick = () => {
-    currentStep++;
-    if (currentStep < lessons.steps.length) {
-      renderStep();
-    }
+    curStepIdx++;
+    if (curStepIdx < curLesson.steps.length) renderStep();
   };
 }
 
@@ -679,56 +663,100 @@ function handleWrong(hint, checkBtn, rerender) {
   showFeedback(false, hint);
   checkBtn.textContent = 'TRY AGAIN';
   checkBtn.className = 'check-btn try-again';
-  checkBtn.onclick = () => {
-    if (rerender) {
-      // Re-render just the current sub-step
-      rerender();
-    } else {
-      // Re-render the same step fresh (keeps currentStep, resets subStep)
-      renderStep();
-    }
-  };
+  checkBtn.onclick = () => { rerender ? rerender() : renderStep(); };
 }
 
-function showFeedback(correct, msg) {
+function showFeedback(ok, msg) {
   const bar = document.getElementById('feedback-bar');
-  if (correct) {
-    bar.className = 'feedback-bar correct';
-    bar.textContent = 'Great job! ✓';
-  } else {
-    bar.className = 'feedback-bar wrong';
-    bar.textContent = msg || 'Not quite. Try again!';
-  }
+  bar.className = 'feedback-bar ' + (ok ? 'correct' : 'wrong');
+  bar.textContent = ok ? 'Great job! ✓' : (msg || 'Not quite. Try again!');
 }
 
 function launchConfetti() {
-  const container = document.createElement('div');
-  container.className = 'confetti-container';
-  document.body.appendChild(container);
-
+  const c = document.createElement('div');
+  c.className = 'confetti-container';
+  document.body.appendChild(c);
   const colors = ['#57B477', '#6EC48E', '#ff4b4b', '#ffc800', '#ce82ff', '#3d9e65'];
   for (let i = 0; i < 60; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti';
-    piece.style.left = Math.random() * 100 + '%';
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.width = (Math.random() * 8 + 6) + 'px';
-    piece.style.height = (Math.random() * 8 + 6) + 'px';
-    piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
-    piece.style.animationDelay = (Math.random() * 1) + 's';
-    container.appendChild(piece);
+    const p = document.createElement('div');
+    p.className = 'confetti';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (Math.random() * 8 + 6) + 'px';
+    p.style.height = (Math.random() * 8 + 6) + 'px';
+    p.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    p.style.animationDelay = Math.random() + 's';
+    c.appendChild(p);
   }
-  setTimeout(() => container.remove(), 4000);
+  setTimeout(() => c.remove(), 4000);
 }
 
-// ─── Edit Mode ─────────────────────────────────────────────
+// ─── EDIT VIEW ─────────────────────────────────────────────
 
-document.getElementById('edit-toggle').addEventListener('click', () => {
-  editMode = !editMode;
-  document.getElementById('edit-toggle').classList.toggle('active', editMode);
-  renderStep();
-});
+function renderEdit() {
+  const container = document.getElementById('edit-content');
+  container.innerHTML = '';
+
+  const table = document.createElement('table');
+  table.className = 'edit-table';
+  table.innerHTML = `<thead><tr>
+    <th>Loc</th>
+    <th>Type</th>
+    <th>Instruction</th>
+    <th></th>
+  </tr></thead>`;
+  const tbody = document.createElement('tbody');
+
+  data.modules.forEach((mod, mi) => {
+    mod.sections.forEach((sec, si) => {
+      sec.lessons.forEach((les, li) => {
+        les.steps.forEach((step, sti) => {
+          const tr = document.createElement('tr');
+
+          // Location
+          const tdLoc = document.createElement('td');
+          tdLoc.className = 'edit-loc';
+          tdLoc.textContent = (mi+1) + '-' + (si+1) + '-' + (li+1) + '-' + (sti+1);
+          tr.appendChild(tdLoc);
+
+          // Type
+          const tdType = document.createElement('td');
+          tdType.className = 'edit-type-desc';
+          tdType.textContent = STEP_TYPE_DESC[step.type] || step.type;
+          tr.appendChild(tdType);
+
+          // Instruction (editable)
+          const tdInstr = document.createElement('td');
+          const instrInput = document.createElement('input');
+          instrInput.className = 'edit-instruction-input';
+          instrInput.value = step.instruction || '';
+          instrInput.addEventListener('change', () => {
+            step.instruction = instrInput.value;
+            saveData();
+            saved.classList.add('show');
+            setTimeout(() => saved.classList.remove('show'), 1500);
+          });
+          tdInstr.appendChild(instrInput);
+          tr.appendChild(tdInstr);
+
+          // Saved indicator
+          const tdSaved = document.createElement('td');
+          const saved = document.createElement('span');
+          saved.className = 'edit-saved';
+          saved.textContent = 'Saved';
+          tdSaved.appendChild(saved);
+          tr.appendChild(tdSaved);
+
+          tbody.appendChild(tr);
+        });
+      });
+    });
+  });
+
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
 
 // ─── Init ──────────────────────────────────────────────────
 
-loadLessons();
+loadData();
