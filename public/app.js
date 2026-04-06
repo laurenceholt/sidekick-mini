@@ -16,6 +16,10 @@ let inFixMistakes = false; // are we in the fix-mistakes replay?
 let fixQueue = [];         // steps to replay
 
 const ACCENT = '#57B477';
+const SUPABASE_URL = 'https://qwqsgfepygsfempjmquq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_0vWmF5y1PwMwXd4vSts_zA_UL4brDcl';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const STEP_TYPE_DESC = {
   'place-point': 'Place a point on a number line',
   'move-point': 'Drag a point along a number line',
@@ -28,20 +32,16 @@ const STEP_TYPE_DESC = {
 // ─── Data Loading ──────────────────────────────────────────
 
 async function loadData() {
-  const fresh = await (await fetch('/lessons.json')).json();
-  const saved = localStorage.getItem('sidekick-lessons');
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    // If saved version matches, use saved (preserves edits). Otherwise use fresh.
-    if (parsed.version && parsed.version === fresh.version) {
-      data = parsed;
-    } else {
-      data = fresh;
-      localStorage.removeItem('sidekick-lessons');
-    }
-  } else {
-    data = fresh;
+  try {
+    // Load lesson content from Supabase
+    const { data: row, error } = await sb.from('lessons_content').select('data').eq('id', 'main').single();
+    if (error) throw error;
+    data = row.data;
+  } catch (e) {
+    console.warn('Supabase load failed, falling back to static file:', e);
+    data = await (await fetch('/lessons.json')).json();
   }
+  // Student progress stays in localStorage (per-device)
   const sp = localStorage.getItem('sidekick-progress');
   if (sp) progress = JSON.parse(sp);
   const sg = localStorage.getItem('sidekick-gems');
@@ -49,8 +49,20 @@ async function loadData() {
   route();
 }
 
-function saveData() { localStorage.setItem('sidekick-lessons', JSON.stringify(data)); }
-function saveProgress() { localStorage.setItem('sidekick-progress', JSON.stringify(progress)); localStorage.setItem('sidekick-gems', gems); }
+async function saveData() {
+  // Save lesson content to Supabase
+  try {
+    const { error } = await sb.from('lessons_content').update({ data: data, updated_at: new Date().toISOString() }).eq('id', 'main');
+    if (error) throw error;
+  } catch (e) {
+    console.error('Failed to save to Supabase:', e);
+  }
+}
+
+function saveProgress() {
+  localStorage.setItem('sidekick-progress', JSON.stringify(progress));
+  localStorage.setItem('sidekick-gems', gems);
+}
 
 // ─── Routing ───────────────────────────────────────────────
 
