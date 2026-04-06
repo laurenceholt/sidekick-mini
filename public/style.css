@@ -50,7 +50,7 @@ body {
   gap: 4px;
   font-weight: 800;
   font-size: 16px;
-  color: #57B477;
+  color: #C4956A;
 }
 
 .map-content {
@@ -253,20 +253,33 @@ body {
   width: 0%;
 }
 
-.lives-display { display: flex; align-items: center; gap: 2px; font-size: 20px; }
-.heart { transition: all 0.3s; }
-.heart.lost { opacity: 0.2; filter: grayscale(1); transform: scale(0.85); }
-.heart.breaking { animation: heartBreak 0.5s ease; }
+.boba-display { display: flex; align-items: center; gap: 4px; font-weight: 800; color: #C4956A; font-size: 16px; }
+.boba-icon { width: 24px; height: 24px; }
 
-@keyframes heartBreak {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.3); }
-  60% { transform: scale(0.7); opacity: 0.5; }
-  100% { transform: scale(0.85); opacity: 0.2; filter: grayscale(1); }
+.streak-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  background: white;
+  border-radius: 20px;
+  padding: 24px 40px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 150;
+  text-align: center;
+  animation: streakPop 0.4s ease forwards;
+  pointer-events: none;
 }
 
-.gems-display { display: flex; align-items: center; gap: 4px; font-weight: 700; color: #57B477; font-size: 16px; }
-.gem-icon { font-size: 18px; }
+@keyframes streakPop {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  60% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.streak-popup .streak-icon { font-size: 40px; }
+.streak-popup .streak-text { font-size: 18px; font-weight: 800; color: #C4956A; margin-top: 4px; }
+.streak-popup .streak-bonus { font-size: 14px; font-weight: 700; color: #999; margin-top: 2px; }
 
 .step-content {
   display: flex;
@@ -509,7 +522,8 @@ body {
 
 .celebrate .congrats-text { font-size: 34px; font-weight: 900; color: #57B477; }
 .celebrate .sub-text { font-size: 18px; color: #444; text-align: center; max-width: 300px; line-height: 1.5; font-weight: 700; }
-.celebrate .gems-earned { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 900; color: #57B477; background: #edf7f0; padding: 16px 32px; border-radius: 16px; }
+.celebrate .gems-earned { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 900; color: #C4956A; background: #fdf5ec; padding: 16px 32px; border-radius: 16px; }
+.celebrate .gems-earned .boba-icon { width: 32px; height: 32px; }
 .celebrate .continue-map-btn {
   margin-top: 8px;
   font-family: 'Nunito', sans-serif;

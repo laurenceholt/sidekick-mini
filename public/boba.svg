@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Cup body -->
+  <path d="M 17 22 L 20 56 C 20 58, 22 60, 24 60 L 40 60 C 42 60, 44 58, 44 56 L 47 22 Z" fill="#F4D5A0" stroke="#C4956A" stroke-width="1.5"/>
+  <!-- Lid -->
+  <path d="M 14 20 L 50 20 C 50 20, 49 24, 47 24 L 17 24 C 15 24, 14 20, 14 20 Z" fill="#E8E8E8" stroke="#BBBBBB" stroke-width="1"/>
+  <!-- Dome lid top -->
+  <ellipse cx="32" cy="20" rx="18" ry="4" fill="#F0F0F0" stroke="#CCCCCC" stroke-width="1"/>
+  <!-- Straw -->
+  <rect x="30" y="6" width="4" height="24" rx="2" fill="#D4A76A" stroke="#B8895A" stroke-width="0.5"/>
+  <!-- Boba pearls -->
+  <circle cx="26" cy="50" r="3" fill="#4A3520" opacity="0.85"/>
+  <circle cx="33" cy="52" r="3" fill="#4A3520" opacity="0.85"/>
+  <circle cx="38" cy="49" r="3" fill="#4A3520" opacity="0.85"/>
+  <circle cx="30" cy="46" r="2.5" fill="#4A3520" opacity="0.75"/>
+  <circle cx="23" cy="54" r="2.5" fill="#4A3520" opacity="0.75"/>
+  <circle cx="40" cy="54" r="2.5" fill="#4A3520" opacity="0.75"/>
+  <!-- Tea color overlay -->
+  <path d="M 18 28 L 20.5 52 C 20.5 54, 22 56, 24 56 L 40 56 C 42 56, 43.5 54, 43.5 52 L 46 28 Z" fill="#D4A06A" opacity="0.35"/>
+</svg>

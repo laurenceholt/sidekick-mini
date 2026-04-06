@@ -2,8 +2,9 @@
 
 let data = null;
 let progress = {};
-let gems = 0;
-let lives = 3;
+let boba = 0;
+let streak = 0;            // consecutive correct answers
+let wasRetry = false;       // was the current attempt a retry?
 
 let curModule = null;
 let curSection = null;
@@ -44,8 +45,8 @@ async function loadData() {
   // Student progress stays in localStorage (per-device)
   const sp = localStorage.getItem('sidekick-progress');
   if (sp) progress = JSON.parse(sp);
-  const sg = localStorage.getItem('sidekick-gems');
-  if (sg) gems = parseInt(sg, 10);
+  const sb2 = localStorage.getItem('sidekick-boba');
+  if (sb2) boba = parseInt(sb2, 10);
   route();
 }
 
@@ -61,7 +62,7 @@ async function saveData() {
 
 function saveProgress() {
   localStorage.setItem('sidekick-progress', JSON.stringify(progress));
-  localStorage.setItem('sidekick-gems', gems);
+  localStorage.setItem('sidekick-boba', boba);
 }
 
 // ─── Routing ───────────────────────────────────────────────
@@ -98,7 +99,7 @@ function getFirstIncompleteLessonKey(mod) {
 function renderMap() {
   const mod = data.modules[0];
   document.getElementById('map-module-title').textContent = mod.title;
-  document.getElementById('map-gems-count').textContent = gems;
+  document.getElementById('map-gems-count').textContent = boba;
   const container = document.getElementById('map-content');
   container.innerHTML = '';
   const firstIncomplete = getFirstIncompleteLessonKey(mod);
@@ -160,7 +161,8 @@ function startLesson(mId, sId, lId) {
   curSection = findSection(curModule, sId);
   curLesson = findLesson(curSection, lId);
   curStepIdx = 0;
-  lives = 3;
+  streak = 0;
+  wasRetry = false;
   wrongSteps = [];
   inFixMistakes = false;
   fixQueue = [];
@@ -192,15 +194,15 @@ function renderStep() {
   checkBtn.onclick = null;
   selectedAnswer = null;
   pointValue = null;
+  // wasRetry is managed by handleWrong/advanceStep, not reset here
 
   const pct = (curStepIdx / total) * 100;
   document.getElementById('progress-bar').style.width = pct + '%';
-  document.getElementById('gems-count').textContent = gems;
+  document.getElementById('boba-count').textContent = boba;
   const mIdx = data.modules.indexOf(curModule) + 1;
   const sIdx = curModule.sections.indexOf(curSection) + 1;
   const lIdx = curSection.lessons.indexOf(curLesson) + 1;
   document.getElementById('step-number').textContent = mIdx + '-' + sIdx + '-' + lIdx + '-' + (curStepIdx + 1);
-  updateLives();
   content.innerHTML = '';
 
   switch (step.type) {
@@ -215,6 +217,7 @@ function renderStep() {
 
 function advanceStep() {
   curStepIdx++;
+  wasRetry = false;
   const total = getTotalSteps();
   if (curStepIdx < total) {
     renderStep();
@@ -239,7 +242,7 @@ function showFixMistakes() {
   card.innerHTML = `
     <div style="font-size:60px">🔧</div>
     <div class="congrats-text" style="color:#1a1a2e;font-size:24px">Let's fix some mistakes!</div>
-    <div class="sub-text">No lives lost this time.</div>
+    <div class="sub-text">Let's go over them one more time.</div>
     <button class="continue-map-btn">CONTINUE</button>
   `;
   card.querySelector('.continue-map-btn').onclick = () => {
@@ -247,7 +250,7 @@ function showFixMistakes() {
     fixQueue = wrongSteps.map(i => curLesson.steps[i]);
     inFixMistakes = true;
     curStepIdx = 0;
-    lives = 3;
+    streak = 0;
     renderStep();
   };
   content.appendChild(card);
@@ -255,7 +258,7 @@ function showFixMistakes() {
 }
 
 function finishLesson() {
-  gems += 15;
+  boba += 20;
   saveProgress();
   const key = lessonKey(curModule.id, curSection.id, curLesson.id);
   progress[key] = { completed: true };
@@ -266,7 +269,7 @@ function finishLesson() {
   content.innerHTML = '';
   document.getElementById('feedback-bar').className = 'feedback-inline hidden';
   document.getElementById('progress-bar').style.width = '100%';
-  document.getElementById('gems-count').textContent = gems;
+  document.getElementById('boba-count').textContent = boba;
 
   const cel = document.createElement('div');
   cel.className = 'celebrate';
@@ -274,7 +277,7 @@ function finishLesson() {
     <div class="trophy">&#127942;</div>
     <div class="congrats-text">Amazing work!</div>
     <div class="sub-text">Lesson complete!</div>
-    <div class="gems-earned">&#x1F48E; +15 gems!</div>
+    <div class="gems-earned"><img src="/boba.svg" class="boba-icon"> +20 boba!</div>
     <button class="continue-map-btn">CONTINUE</button>
   `;
   cel.querySelector('.continue-map-btn').onclick = () => { location.hash = '#map'; };
@@ -283,28 +286,24 @@ function finishLesson() {
   launchConfetti();
 }
 
-// ─── Lives ─────────────────────────────────────────────────
+// ─── Boba & Streak ─────────────────────────────────────────
 
-function updateLives() {
-  for (let i = 0; i < 3; i++) { const h = document.getElementById('heart-' + i); if (i < lives) h.classList.remove('lost'); else h.classList.add('lost'); }
+function addBoba(amount) {
+  boba += amount;
+  saveProgress();
+  document.getElementById('boba-count').textContent = boba;
 }
 
-function loseLife() {
-  if (inFixMistakes) return; // no life loss during fix-mistakes
-  if (lives > 0) {
-    lives--;
-    document.getElementById('heart-' + lives).classList.add('breaking');
-    setTimeout(() => updateLives(), 500);
-    if (lives === 0) setTimeout(showGameOver, 700);
-  }
-}
-
-function showGameOver() {
-  const o = document.createElement('div');
-  o.className = 'game-over-overlay';
-  o.innerHTML = '<div class="game-over-card"><div class="sad-emoji">😢</div><h2>Out of lives!</h2><p>No worries — let\'s try again!</p><button class="restart-btn">START OVER</button></div>';
-  document.body.appendChild(o);
-  o.querySelector('.restart-btn').onclick = () => { o.remove(); curStepIdx = 0; lives = 3; wrongSteps = []; inFixMistakes = false; fixQueue = []; updateLives(); renderStep(); };
+function showStreakBonus() {
+  const popup = document.createElement('div');
+  popup.className = 'streak-popup';
+  popup.innerHTML = `
+    <div class="streak-icon">&#127911;</div>
+    <div class="streak-text">5x Streak!</div>
+    <div class="streak-bonus">+10 boba bonus</div>
+  `;
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1800);
 }
 
 // ─── Number Line ───────────────────────────────────────────
@@ -648,10 +647,17 @@ function renderCelebrate(step, content, checkBtn) {
 // ─── Answer Handling ───────────────────────────────────────
 
 function handleCorrect(checkBtn) {
-  gems += 3;
-  saveProgress();
-  document.getElementById('gems-count').textContent = gems;
-  showFeedback(true);
+  const earned = wasRetry ? 2 : 5;
+  addBoba(earned);
+  streak++;
+
+  // Check for streak bonus
+  if (streak > 0 && streak % 5 === 0) {
+    addBoba(10);
+    showStreakBonus();
+  }
+
+  showFeedback(true, null, earned);
   checkBtn.textContent = 'CONTINUE';
   checkBtn.className = 'check-btn next';
   checkBtn.onclick = () => advanceStep();
@@ -662,17 +668,18 @@ function handleWrong(hint, checkBtn) {
   if (!inFixMistakes) {
     if (!wrongSteps.includes(curStepIdx)) wrongSteps.push(curStepIdx);
   }
-  loseLife();
+  addBoba(1); // consolation boba
+  streak = 0;
   showFeedback(false, hint);
   checkBtn.textContent = 'TRY AGAIN';
   checkBtn.className = 'check-btn try-again';
-  checkBtn.onclick = () => renderStep();
+  checkBtn.onclick = () => { wasRetry = true; renderStep(); };
 }
 
-function showFeedback(ok, msg) {
+function showFeedback(ok, msg, earned) {
   const bar = document.getElementById('feedback-bar');
   bar.className = 'feedback-inline ' + (ok ? 'correct' : 'wrong');
-  bar.textContent = ok ? 'Great job! ✓' : (msg || 'Not quite!');
+  bar.textContent = ok ? 'Great job! +' + (earned || 5) + ' boba' : (msg || 'Not quite!');
 }
 
 function launchConfetti() {
