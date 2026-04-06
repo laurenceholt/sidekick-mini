@@ -307,12 +307,13 @@ body {
 
 .jump-arrows {
   position: absolute;
-  top: 0;
+  bottom: 50%;
   left: 25px;
   right: 25px;
-  height: 70px;
+  height: 60px;
   pointer-events: none;
   overflow: visible;
+  margin-bottom: 14px;
 }
 
 .ghost-start {
@@ -435,11 +436,12 @@ body {
   border-radius: 16px;
   background: white;
   font-family: 'Nunito', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.15s;
   color: #1a1a2e;
+  letter-spacing: 1px;
 }
 
 .choice-btn:hover { border-color: #57B477; background: #f2faf5; }
@@ -447,14 +449,36 @@ body {
 .choice-btn.correct { border-color: #58cc02; background: #eafbe6; color: #58cc02; }
 .choice-btn.wrong { border-color: #ff4b4b; background: #ffecec; color: #ff4b4b; }
 
-/* Feedback */
-.feedback-bar { padding: 16px 24px; font-size: 17px; font-weight: 700; text-align: center; transition: all 0.3s; }
-.feedback-bar.hidden { display: none; }
-.feedback-bar.wrong { background: #ffeaea; color: #ea2b2b; }
-.feedback-bar.correct { background: #e6fbe6; color: #46a302; }
+/* Feedback - inline next to button */
+.feedback-inline {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.3s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.feedback-inline.hidden { display: none; }
+.feedback-inline.wrong { background: #ffeaea; color: #ea2b2b; }
+.feedback-inline.correct { background: #e6fbe6; color: #46a302; }
 
 /* Bottom bar */
-.bottom-bar { padding: 16px 24px 24px; display: flex; justify-content: flex-end; }
+.bottom-bar {
+  padding: 16px 20px 24px 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.bottom-bar .feedback-inline {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
 
 .check-btn {
   padding: 14px 40px;

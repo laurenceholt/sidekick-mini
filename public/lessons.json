@@ -2,15 +2,15 @@
   "modules": [
     {
       "id": "m1",
-      "title": "Number Line Basics",
+      "title": "Rational Numbers",
       "sections": [
         {
           "id": "s1",
-          "title": "Introducing Negatives",
+          "title": "Negatives",
           "lessons": [
             {
               "id": "l1",
-              "title": "Finding Numbers",
+              "title": "Negatives on the number line",
               "steps": [
                 {
                   "type": "place-point",
@@ -41,6 +41,7 @@
                   "equation": "−3 + 2 = ",
                   "answer": -1,
                   "showNumberLine": true,
+                  "ghostAt": -3,
                   "startValue": -3,
                   "endValue": -1,
                   "min": -5,
@@ -50,21 +51,45 @@
                   "type": "multiple-choice",
                   "instruction": "So to add a positive number like +2, you move RIGHT on the number line. Which way do you move to SUBTRACT +2?",
                   "choices": [
-                    { "text": "← Left", "correct": true },
-                    { "text": "Right →", "correct": false }
+                    { "text": "⟵  Left", "correct": true },
+                    { "text": "Right  ⟶", "correct": false }
                   ]
                 },
                 {
-                  "type": "place-and-move",
+                  "type": "place-point",
                   "instruction": "First, put 2 on the number line.",
-                  "instruction2": "Now subtract 6. Move the point to the answer.",
-                  "instruction3": "What does 2 − 6 equal?",
-                  "equation": "2 − 6 = ",
-                  "placeValue": 2,
-                  "moveBy": -6,
-                  "answer": -4,
+                  "equationLabel": "2 − 6 = ",
+                  "target": 2,
                   "min": -5,
                   "max": 5
+                },
+                {
+                  "type": "move-point",
+                  "instruction": "Now subtract 6. Move the point to the answer.",
+                  "equationLabel": "2 − 6 = ",
+                  "startValue": 2,
+                  "moveBy": -6,
+                  "target": -4,
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "equation-input",
+                  "instruction": "What does 2 − 6 equal?",
+                  "equation": "2 − 6 = ",
+                  "answer": -4,
+                  "showNumberLine": true,
+                  "ghostAt": 2,
+                  "startValue": 2,
+                  "endValue": -4,
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "celebrate",
+                  "instruction": "Amazing work!",
+                  "message": "You just learned about negative numbers and how to add and subtract on a number line!",
+                  "gems": 15
                 }
               ]
             }
