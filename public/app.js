@@ -432,19 +432,20 @@ function addDraggablePoint(nlc, line, min, max, startVal, onChange) {
 // ─── SVG Arrow Helpers ─────────────────────────────────────
 
 function makeSvgArrow(direction) {
-  // Draw a fat arrow pointing left or right
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 80 40');
-  svg.setAttribute('width', '80');
-  svg.setAttribute('height', '40');
+  svg.setAttribute('viewBox', '0 0 100 50');
+  svg.setAttribute('width', '120');
+  svg.setAttribute('height', '60');
   svg.style.display = 'block';
   svg.style.margin = '0 auto';
 
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   if (direction === 'left') {
-    path.setAttribute('d', 'M 5 20 L 30 5 L 30 13 L 75 13 L 75 27 L 30 27 L 30 35 Z');
+    // Fat rounded arrow pointing left
+    path.setAttribute('d', 'M 8 25 L 35 4 C 37 2, 40 4, 40 7 L 40 16 L 88 16 C 92 16, 94 18, 94 22 L 94 28 C 94 32, 92 34, 88 34 L 40 34 L 40 43 C 40 46, 37 48, 35 46 L 8 25 Z');
   } else {
-    path.setAttribute('d', 'M 75 20 L 50 5 L 50 13 L 5 13 L 5 27 L 50 27 L 50 35 Z');
+    // Fat rounded arrow pointing right
+    path.setAttribute('d', 'M 92 25 L 65 4 C 63 2, 60 4, 60 7 L 60 16 L 12 16 C 8 16, 6 18, 6 22 L 6 28 C 6 32, 8 34, 12 34 L 60 34 L 60 43 C 60 46, 63 48, 65 46 L 92 25 Z');
   }
   path.setAttribute('fill', 'currentColor');
   svg.appendChild(path);
