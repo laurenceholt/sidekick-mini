@@ -1,4 +1,5 @@
 {
+  "version": 3,
   "modules": [
     {
       "id": "m1",
@@ -16,6 +17,104 @@
                   "type": "place-point",
                   "instruction": "Click 3 on this number line.",
                   "target": 3,
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "place-point",
+                  "instruction": "Put −3 on the number line.",
+                  "target": -3,
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "place-point",
+                  "instruction": "By the way, we read \"-3\" as \"negative 3\". So now plot negative 1.",
+                  "target": -1,
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "number-line-choice",
+                  "instruction": "Everything to the left of 0 is a negative number. The further left you go, the more negative. Which is more negative, −3 or −5?",
+                  "points": [-3, -5],
+                  "choices": [
+                    { "text": "−3", "correct": false },
+                    { "text": "−5", "correct": true }
+                  ],
+                  "hint": "More negative means further to the left.",
+                  "min": -6,
+                  "max": 2
+                },
+                {
+                  "type": "place-point",
+                  "instruction": "Numbers to the right of 0 are positive. You can write \"+4\" or just \"4\". Plot +4.",
+                  "target": 4,
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "number-line-choice",
+                  "instruction": "The further right you go, the more positive the number. Which is more positive, 2 or 5?",
+                  "points": [2, 5],
+                  "choices": [
+                    { "text": "2", "correct": false },
+                    { "text": "5", "correct": true }
+                  ],
+                  "hint": "More positive means further to the right.",
+                  "min": -1,
+                  "max": 7
+                },
+                {
+                  "type": "place-point",
+                  "instruction": "Plot −3.",
+                  "target": -3,
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "move-point",
+                  "instruction": "Add 2 to this point. Move it to where it should be.",
+                  "startValue": -3,
+                  "moveBy": 2,
+                  "target": -1,
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "number-line-choice",
+                  "instruction": "When you add, you make the number greater. Greater is always to the right. Which of these is greater?",
+                  "points": [-2, 2],
+                  "choices": [
+                    { "text": "−2", "correct": false },
+                    { "text": "2", "correct": true }
+                  ],
+                  "hint": "Greater means further to the right on the number line.",
+                  "min": -5,
+                  "max": 5
+                },
+                {
+                  "type": "number-line-choice",
+                  "instruction": "Which of these is greater?",
+                  "points": [-5, -2],
+                  "choices": [
+                    { "text": "−5", "correct": false },
+                    { "text": "−2", "correct": true }
+                  ],
+                  "hint": "Greater means further to the right on the number line.",
+                  "min": -6,
+                  "max": 2
+                }
+              ]
+            },
+            {
+              "id": "l2",
+              "title": "Negative operations",
+              "steps": [
+                {
+                  "type": "place-point",
+                  "instruction": "Plot −3.",
+                  "target": -3,
                   "min": -5,
                   "max": 5
                 },
@@ -51,8 +150,8 @@
                   "type": "multiple-choice",
                   "instruction": "So to add a positive number like +2, you move RIGHT on the number line. Which way do you move to SUBTRACT +2?",
                   "choices": [
-                    { "text": "⟵  Left", "correct": true },
-                    { "text": "Right  ⟶", "correct": false }
+                    { "text": "left", "correct": true, "arrow": "left" },
+                    { "text": "right", "correct": false, "arrow": "right" }
                   ]
                 },
                 {
@@ -84,14 +183,13 @@
                   "endValue": -4,
                   "min": -5,
                   "max": 5
-                },
-                {
-                  "type": "celebrate",
-                  "instruction": "Amazing work!",
-                  "message": "You just learned about negative numbers and how to add and subtract on a number line!",
-                  "gems": 15
                 }
               ]
+            },
+            {
+              "id": "l3",
+              "title": "Negatives in real life",
+              "steps": []
             }
           ]
         }

@@ -11,6 +11,9 @@ let curLesson = null;
 let curStepIdx = 0;
 let selectedAnswer = null;
 let pointValue = null;
+let wrongSteps = [];       // indices of steps answered wrong
+let inFixMistakes = false; // are we in the fix-mistakes replay?
+let fixQueue = [];         // steps to replay
 
 const ACCENT = '#57B477';
 const STEP_TYPE_DESC = {
@@ -18,19 +21,26 @@ const STEP_TYPE_DESC = {
   'move-point': 'Drag a point along a number line',
   'equation-input': 'Type the answer to an equation',
   'multiple-choice': 'Choose from multiple options',
+  'number-line-choice': 'Pick between two points on a number line',
   'celebrate': 'Celebration screen'
 };
 
 // ─── Data Loading ──────────────────────────────────────────
 
 async function loadData() {
+  const fresh = await (await fetch('/lessons.json')).json();
   const saved = localStorage.getItem('sidekick-lessons');
   if (saved) {
     const parsed = JSON.parse(saved);
-    if (parsed.modules) data = parsed;
-    else { localStorage.removeItem('sidekick-lessons'); data = await (await fetch('/lessons.json')).json(); }
+    // If saved version matches, use saved (preserves edits). Otherwise use fresh.
+    if (parsed.version && parsed.version === fresh.version) {
+      data = parsed;
+    } else {
+      data = fresh;
+      localStorage.removeItem('sidekick-lessons');
+    }
   } else {
-    data = await (await fetch('/lessons.json')).json();
+    data = fresh;
   }
   const sp = localStorage.getItem('sidekick-progress');
   if (sp) progress = JSON.parse(sp);
@@ -66,7 +76,7 @@ function isLessonCompleted(mId, sId, lId) { const p = progress[lessonKey(mId, sI
 function getFirstIncompleteLessonKey(mod) {
   for (const sec of mod.sections)
     for (const les of sec.lessons)
-      if (!isLessonCompleted(mod.id, sec.id, les.id))
+      if (!isLessonCompleted(mod.id, sec.id, les.id) && les.steps.length > 0)
         return { mId: mod.id, sId: sec.id, lId: les.id };
   return null;
 }
@@ -91,6 +101,7 @@ function renderMap() {
     path.className = 'map-path';
 
     sec.lessons.forEach((les, li) => {
+      if (les.steps.length === 0) return; // skip empty lessons
       lessonIndex++;
       const completed = isLessonCompleted(mod.id, sec.id, les.id);
       const isCurrent = firstIncomplete && firstIncomplete.lId === les.id && firstIncomplete.sId === sec.id;
@@ -110,7 +121,7 @@ function renderMap() {
       path.appendChild(node);
     });
 
-    const allDone = sec.lessons.every(l => isLessonCompleted(mod.id, sec.id, l.id));
+    const allDone = sec.lessons.filter(l => l.steps.length > 0).every(l => isLessonCompleted(mod.id, sec.id, l.id));
     const conn = document.createElement('div');
     conn.className = 'map-connector' + (allDone ? ' completed' : '');
     path.appendChild(conn);
@@ -138,13 +149,26 @@ function startLesson(mId, sId, lId) {
   curLesson = findLesson(curSection, lId);
   curStepIdx = 0;
   lives = 3;
+  wrongSteps = [];
+  inFixMistakes = false;
+  fixQueue = [];
   document.getElementById('close-btn').onclick = () => { location.hash = '#map'; };
   renderStep();
 }
 
+function getCurrentStep() {
+  if (inFixMistakes) return fixQueue[curStepIdx];
+  return curLesson.steps[curStepIdx];
+}
+
+function getTotalSteps() {
+  if (inFixMistakes) return fixQueue.length;
+  return curLesson.steps.length;
+}
+
 function renderStep() {
-  const steps = curLesson.steps;
-  const step = steps[curStepIdx];
+  const step = getCurrentStep();
+  const total = getTotalSteps();
   const content = document.getElementById('step-content');
   const checkBtn = document.getElementById('check-btn');
   const fb = document.getElementById('feedback-bar');
@@ -157,7 +181,7 @@ function renderStep() {
   selectedAnswer = null;
   pointValue = null;
 
-  const pct = (curStepIdx / steps.length) * 100;
+  const pct = (curStepIdx / total) * 100;
   document.getElementById('progress-bar').style.width = pct + '%';
   document.getElementById('gems-count').textContent = gems;
   const mIdx = data.modules.indexOf(curModule) + 1;
@@ -172,8 +196,79 @@ function renderStep() {
     case 'move-point': renderMovePoint(step, content, checkBtn); break;
     case 'equation-input': renderEquationInput(step, content, checkBtn); break;
     case 'multiple-choice': renderMultipleChoice(step, content, checkBtn); break;
+    case 'number-line-choice': renderNumberLineChoice(step, content, checkBtn); break;
     case 'celebrate': renderCelebrate(step, content, checkBtn); break;
   }
+}
+
+function advanceStep() {
+  curStepIdx++;
+  const total = getTotalSteps();
+  if (curStepIdx < total) {
+    renderStep();
+  } else if (!inFixMistakes && wrongSteps.length > 0) {
+    // Show fix-mistakes interstitial
+    showFixMistakes();
+  } else {
+    // Lesson done — show celebrate
+    finishLesson();
+  }
+}
+
+function showFixMistakes() {
+  const content = document.getElementById('step-content');
+  const checkBtn = document.getElementById('check-btn');
+  content.innerHTML = '';
+  document.getElementById('feedback-bar').className = 'feedback-inline hidden';
+  document.getElementById('progress-bar').style.width = '100%';
+
+  const card = document.createElement('div');
+  card.className = 'celebrate';
+  card.innerHTML = `
+    <div style="font-size:60px">🔧</div>
+    <div class="congrats-text" style="color:#1a1a2e;font-size:24px">Let's fix some mistakes!</div>
+    <div class="sub-text">No lives lost this time.</div>
+    <button class="continue-map-btn">CONTINUE</button>
+  `;
+  card.querySelector('.continue-map-btn').onclick = () => {
+    // Build fix queue from wrong steps
+    fixQueue = wrongSteps.map(i => curLesson.steps[i]);
+    inFixMistakes = true;
+    curStepIdx = 0;
+    lives = 3;
+    renderStep();
+  };
+  content.appendChild(card);
+  checkBtn.style.display = 'none';
+}
+
+function finishLesson() {
+  gems += 15;
+  saveProgress();
+  const key = lessonKey(curModule.id, curSection.id, curLesson.id);
+  progress[key] = { completed: true };
+  saveProgress();
+
+  const content = document.getElementById('step-content');
+  const checkBtn = document.getElementById('check-btn');
+  content.innerHTML = '';
+  document.getElementById('feedback-bar').className = 'feedback-inline hidden';
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('gems-count').textContent = gems;
+
+  const cel = document.createElement('div');
+  cel.className = 'celebrate';
+  cel.innerHTML = `
+    <div class="trophy">&#127942;</div>
+    <div class="congrats-text">Amazing work!</div>
+    <div class="sub-text">Lesson complete!</div>
+    <div class="gems-earned">&#x1F48E; +15 gems!</div>
+    <button class="continue-map-btn">CONTINUE</button>
+  `;
+  cel.querySelector('.continue-map-btn').onclick = () => { location.hash = '#map'; };
+  content.appendChild(cel);
+  checkBtn.style.display = 'none';
+  launchConfetti();
 }
 
 // ─── Lives ─────────────────────────────────────────────────
@@ -183,6 +278,7 @@ function updateLives() {
 }
 
 function loseLife() {
+  if (inFixMistakes) return; // no life loss during fix-mistakes
   if (lives > 0) {
     lives--;
     document.getElementById('heart-' + lives).classList.add('breaking');
@@ -196,7 +292,7 @@ function showGameOver() {
   o.className = 'game-over-overlay';
   o.innerHTML = '<div class="game-over-card"><div class="sad-emoji">😢</div><h2>Out of lives!</h2><p>No worries — let\'s try again!</p><button class="restart-btn">START OVER</button></div>';
   document.body.appendChild(o);
-  o.querySelector('.restart-btn').onclick = () => { o.remove(); curStepIdx = 0; lives = 3; updateLives(); renderStep(); };
+  o.querySelector('.restart-btn').onclick = () => { o.remove(); curStepIdx = 0; lives = 3; wrongSteps = []; inFixMistakes = false; fixQueue = []; updateLives(); renderStep(); };
 }
 
 // ─── Number Line ───────────────────────────────────────────
@@ -214,12 +310,21 @@ function buildNumberLine(container, min, max, options = {}) {
     lbl.className = 'tick-label' + (options.highlightValues && options.highlightValues.includes(i) ? ' highlight' : '');
     lbl.style.left = pct + '%'; lbl.textContent = i; line.appendChild(lbl);
   }
-  // Optional ghost dot
   if (options.ghostAt !== undefined) {
     const ghost = document.createElement('div');
     ghost.className = 'ghost-start';
     ghost.style.left = ((options.ghostAt - min) / range) * 100 + '%';
     line.appendChild(ghost);
+  }
+  // Static dots (for number-line-choice)
+  if (options.staticPoints) {
+    options.staticPoints.forEach(v => {
+      const p = document.createElement('div');
+      p.className = 'point';
+      p.style.left = ((v - min) / range) * 100 + '%';
+      p.style.cursor = 'default';
+      line.appendChild(p);
+    });
   }
   nlc.appendChild(line);
   return { nlContainer: nlc, line, range, min, max };
@@ -248,17 +353,14 @@ function addDraggablePoint(nlc, line, min, max, startVal, onChange) {
   const range = max - min;
   pointValue = startVal;
 
-  // Ghost at start
   const ghost = document.createElement('div');
   ghost.className = 'ghost-start';
   ghost.style.left = ((startVal - min) / range) * 100 + '%';
   line.appendChild(ghost);
 
-  // SVG for jump arcs
+  // SVG for jump arcs — positioned above the number line
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('class', 'jump-arrows');
-  svg.style.width = '100%';
-  svg.style.height = '100%';
   nlc.appendChild(svg);
 
   const point = document.createElement('div');
@@ -272,35 +374,41 @@ function addDraggablePoint(nlc, line, min, max, startVal, onChange) {
   function drawArrows(from, to) {
     svg.innerHTML = '';
     if (from === to) return;
-    // Use a fixed viewBox; the CSS sizes/positions the SVG
-    const vW = 1000;
-    const vH = 600;
-    svg.setAttribute('viewBox', `0 0 ${vW} ${vH}`);
-    svg.setAttribute('preserveAspectRatio', 'none');
+
+    // Get actual pixel positions from the line
+    const lineRect = line.getBoundingClientRect();
+    const svgRect = svg.getBoundingClientRect();
+    const lineW = lineRect.width;
+    const svgW = svgRect.width;
+    const svgH = svgRect.height;
+    if (svgW === 0 || svgH === 0) return;
+
+    svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     const s = from < to ? 1 : -1;
-    const baseY = vH; // bottom edge = where the number line is
+    const offsetX = lineRect.left - svgRect.left; // offset between svg and line
+    const baseY = svgH; // bottom of SVG
 
     for (let i = 0; i < Math.abs(to - from); i++) {
       const a = from + i * s, b = a + s;
-      const x1 = ((a - min) / range) * vW;
-      const x2 = ((b - min) / range) * vW;
+      const x1 = offsetX + ((a - min) / range) * lineW;
+      const x2 = offsetX + ((b - min) / range) * lineW;
       const midX = (x1 + x2) / 2;
-      const peakY = vH * 0.15; // how high the arc goes (small number = higher)
+      const peakY = svgH * 0.1;
 
-      // Quadratic bezier: start at bottom, arc up, land at bottom
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', `M ${x1} ${baseY} Q ${midX} ${peakY} ${x2} ${baseY}`);
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', ACCENT);
-      path.setAttribute('stroke-width', '18');
+      path.setAttribute('stroke-width', '2.5');
       path.setAttribute('stroke-linecap', 'round');
       svg.appendChild(path);
 
-      // Downward-pointing arrowhead at landing
-      const aW = 18, aH = 28;
+      // Small downward arrowhead
+      const aW = 4, aH = 7;
       const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-      arrow.setAttribute('points', `${x2},${baseY + 5} ${x2 - aW},${baseY - aH} ${x2 + aW},${baseY - aH}`);
+      arrow.setAttribute('points', `${x2},${baseY} ${x2 - aW},${baseY - aH} ${x2 + aW},${baseY - aH}`);
       arrow.setAttribute('fill', ACCENT);
       svg.appendChild(arrow);
     }
@@ -319,6 +427,28 @@ function addDraggablePoint(nlc, line, min, max, startVal, onChange) {
   document.addEventListener('touchmove', e => { if (drag) update(val(e.touches[0].clientX)); });
   document.addEventListener('mouseup', () => { drag = false; });
   document.addEventListener('touchend', () => { drag = false; });
+}
+
+// ─── SVG Arrow Helpers ─────────────────────────────────────
+
+function makeSvgArrow(direction) {
+  // Draw a fat arrow pointing left or right
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 80 40');
+  svg.setAttribute('width', '80');
+  svg.setAttribute('height', '40');
+  svg.style.display = 'block';
+  svg.style.margin = '0 auto';
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  if (direction === 'left') {
+    path.setAttribute('d', 'M 5 20 L 30 5 L 30 13 L 75 13 L 75 27 L 30 27 L 30 35 Z');
+  } else {
+    path.setAttribute('d', 'M 75 20 L 50 5 L 50 13 L 5 13 L 5 27 L 50 27 L 50 35 Z');
+  }
+  path.setAttribute('fill', 'currentColor');
+  svg.appendChild(path);
+  return svg;
 }
 
 // ─── Equation Builder ──────────────────────────────────────
@@ -350,19 +480,17 @@ function buildEqLabel(eqStr) {
   const div = document.createElement('div');
   div.className = 'equation';
   colorizeEq(div, eqStr);
-  const q = document.createElement('span');
-  q.textContent = ' ?';
-  q.className = 'op';
+  const q = document.createElement('span'); q.textContent = ' ?'; q.className = 'op';
   div.appendChild(q);
   return div;
 }
 
 // ─── Step Renderers ────────────────────────────────────────
 
-function makeInstruction(step, field) {
+function makeInstruction(step) {
   const el = document.createElement('div');
   el.className = 'instruction';
-  el.textContent = step[field || 'instruction'];
+  el.textContent = step.instruction;
   return el;
 }
 
@@ -433,7 +561,22 @@ function renderMultipleChoice(step, content, checkBtn) {
   step.choices.forEach((ch, i) => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
-    btn.textContent = ch.text;
+    // If choice has an arrow property, draw SVG arrow instead of text
+    if (ch.arrow) {
+      const label = document.createElement('div');
+      label.style.display = 'flex';
+      label.style.flexDirection = 'column';
+      label.style.alignItems = 'center';
+      label.style.gap = '4px';
+      label.appendChild(makeSvgArrow(ch.arrow));
+      const txt = document.createElement('span');
+      txt.textContent = ch.text.charAt(0).toUpperCase() + ch.text.slice(1);
+      txt.style.fontSize = '18px';
+      label.appendChild(txt);
+      btn.appendChild(label);
+    } else {
+      btn.textContent = ch.text;
+    }
     btn.onclick = () => {
       cd.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
@@ -447,31 +590,46 @@ function renderMultipleChoice(step, content, checkBtn) {
     if (checkBtn.classList.contains('disabled')) return;
     const ok = step.choices[selectedAnswer].correct;
     cd.querySelectorAll('.choice-btn')[selectedAnswer].classList.add(ok ? 'correct' : 'wrong');
-    ok ? handleCorrect(checkBtn) : handleWrong('Think about which direction means getting smaller.', checkBtn);
+    ok ? handleCorrect(checkBtn) : handleWrong(step.hint || 'Think about which direction means getting smaller.', checkBtn);
+  };
+}
+
+function renderNumberLineChoice(step, content, checkBtn) {
+  content.appendChild(makeInstruction(step));
+  const { nlContainer } = buildNumberLine(content, step.min, step.max, {
+    staticPoints: step.points,
+    highlightValues: step.points
+  });
+  content.appendChild(nlContainer);
+
+  const cd = document.createElement('div');
+  cd.className = 'choices';
+  step.choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = ch.text;
+    btn.style.fontSize = '28px';
+    btn.onclick = () => {
+      cd.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedAnswer = i;
+      checkBtn.className = 'check-btn';
+    };
+    cd.appendChild(btn);
+  });
+  content.appendChild(cd);
+
+  checkBtn.onclick = () => {
+    if (checkBtn.classList.contains('disabled')) return;
+    const ok = step.choices[selectedAnswer].correct;
+    cd.querySelectorAll('.choice-btn')[selectedAnswer].classList.add(ok ? 'correct' : 'wrong');
+    ok ? handleCorrect(checkBtn) : handleWrong(step.hint || 'Look at the number line carefully.', checkBtn);
   };
 }
 
 function renderCelebrate(step, content, checkBtn) {
-  gems += (step.gems || 10);
-  saveProgress();
-  document.getElementById('gems-count').textContent = gems;
-  document.getElementById('progress-bar').style.width = '100%';
-  const key = lessonKey(curModule.id, curSection.id, curLesson.id);
-  progress[key] = { completed: true };
-  saveProgress();
-  const cel = document.createElement('div');
-  cel.className = 'celebrate';
-  cel.innerHTML = `
-    <div class="trophy">&#127942;</div>
-    <div class="congrats-text">${step.instruction || 'Amazing work!'}</div>
-    <div class="sub-text">${step.message || 'Lesson complete!'}</div>
-    <div class="gems-earned">&#x1F48E; +${step.gems || 10} gems!</div>
-    <button class="continue-map-btn">CONTINUE</button>
-  `;
-  cel.querySelector('.continue-map-btn').onclick = () => { location.hash = '#map'; };
-  content.appendChild(cel);
-  checkBtn.style.display = 'none';
-  launchConfetti();
+  // Old celebrate type — just advance
+  finishLesson();
 }
 
 // ─── Answer Handling ───────────────────────────────────────
@@ -483,10 +641,14 @@ function handleCorrect(checkBtn) {
   showFeedback(true);
   checkBtn.textContent = 'CONTINUE';
   checkBtn.className = 'check-btn next';
-  checkBtn.onclick = () => { curStepIdx++; if (curStepIdx < curLesson.steps.length) renderStep(); };
+  checkBtn.onclick = () => advanceStep();
 }
 
 function handleWrong(hint, checkBtn) {
+  // Track which original step was wrong (only during first pass)
+  if (!inFixMistakes) {
+    if (!wrongSteps.includes(curStepIdx)) wrongSteps.push(curStepIdx);
+  }
   loseLife();
   showFeedback(false, hint);
   checkBtn.textContent = 'TRY AGAIN';
