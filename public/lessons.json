@@ -1,5 +1,17 @@
 {
-  "version": 4,
+  "version": 7,
+  "stories": [
+    {
+      "id": "story-zero",
+      "tag": "1-1-1-2",
+      "offer": "Would you like to hear the very short and weird history of zero?",
+      "pages": [
+        { "image": "/stories/1-1-1-2-page1.png", "text": "People counted with numbers for thousands of years before someone came up with zero." },
+        { "image": "/stories/1-1-1-2-page2.png", "text": "Even the Romans had no symbol for zero." },
+        { "image": "/stories/1-1-1-2-page3.png", "text": "Finally, zero was invented -- twice! Once in India and once among the Maya in the Americas." }
+      ]
+    }
+  ],
   "modules": [
     {
       "id": "m1",
@@ -7,10 +19,14 @@
       "sections": [
         {
           "id": "s1",
-          "title": "Negatives",
+          "title": "Negative Numbers and Absolute Value",
           "lessons": [
             {
               "id": "l1",
+              "title": "Lesson 1",
+              "miniLessons": [
+            {
+              "id": "ml1",
               "title": "Negatives on the number line",
               "steps": [
                 {
@@ -36,7 +52,7 @@
                 },
                 {
                   "type": "number-line-choice",
-                  "instruction": "Everything to the left of 0 is a negative number. The further left you go, the more negative. Which is more negative, −3 or −5?",
+                  "instruction": "Everything to the left of 0 is a **negative number**. The further left you go, the more negative. Which is more negative, −3 or −5?",
                   "points": [-3, -5],
                   "choices": [
                     { "text": "−3", "correct": false },
@@ -48,7 +64,7 @@
                 },
                 {
                   "type": "place-point",
-                  "instruction": "Numbers to the right of 0 are positive. You can write \"+4\" or just \"4\". Plot +4.",
+                  "instruction": "Numbers to the right of 0 are **positive**. You can write \"+4\" or just \"4\". Plot +4.",
                   "target": 4,
                   "min": -5,
                   "max": 5
@@ -108,81 +124,234 @@
               ]
             },
             {
-              "id": "l2",
-              "title": "Negative operations",
+              "id": "ml2",
+              "title": "Comparing numbers",
               "steps": [
                 {
                   "type": "place-point",
-                  "instruction": "Plot −3.",
-                  "target": -3,
-                  "min": -5,
-                  "max": 5
-                },
-                {
-                  "type": "move-point",
-                  "instruction": "Now add 2 to the point. Move it to where it should be.",
-                  "startValue": -3,
-                  "moveBy": 2,
-                  "target": -1,
-                  "min": -5,
-                  "max": 5
-                },
-                {
-                  "type": "equation-input",
-                  "instruction": "What does −3 + 2 equal?",
-                  "equation": "−3 + 2 = ",
-                  "answer": -1,
-                  "showNumberLine": true,
-                  "ghostAt": -3,
-                  "startValue": -3,
-                  "endValue": -1,
-                  "min": -5,
-                  "max": 5
+                  "instruction": "Bigger numbers now. Plot −7.",
+                  "target": -7,
+                  "min": -10,
+                  "max": 10
                 },
                 {
                   "type": "multiple-choice",
-                  "instruction": "So to add a positive number like +2, you move RIGHT on the number line. Which way do you move to SUBTRACT +2?",
+                  "instruction": "Number lines can go on forever in both directions. What number is this?",
+                  "showNumberLine": true,
+                  "min": -100,
+                  "max": 100,
+                  "tickStep": 20,
+                  "staticPoints": [-30],
                   "choices": [
-                    { "text": "left", "correct": true, "arrow": "left" },
-                    { "text": "right", "correct": false, "arrow": "right" }
-                  ]
+                    { "text": "−30", "correct": true },
+                    { "text": "+30", "correct": false }
+                  ],
+                  "hint": "Look at which side of zero the point is on."
+                },
+                {
+                  "type": "number-line-choice",
+                  "instruction": "Which of these two numbers is **greater**? (Remember: numbers to the right are greater.)",
+                  "points": [-80, -20],
+                  "choices": [
+                    { "text": "−80", "correct": false },
+                    { "text": "−20", "correct": true }
+                  ],
+                  "hint": "Greater means further to the right on the number line.",
+                  "min": -100,
+                  "max": 100,
+                  "tickStep": 20
+                },
+                {
+                  "type": "multiple-choice",
+                  "instruction": "Try it without a number line. Which is greater, −10 or +4?",
+                  "choices": [
+                    { "text": "−10", "correct": false },
+                    { "text": "4", "correct": true }
+                  ],
+                  "hint": "Positive numbers are always greater than negative numbers."
+                },
+                {
+                  "type": "multiple-choice",
+                  "instruction": "Numbers to the ____ are *less than*.",
+                  "choices": [
+                    { "text": "Left", "correct": true },
+                    { "text": "Right", "correct": false }
+                  ],
+                  "hint": "On a number line, numbers get smaller as you go left."
                 },
                 {
                   "type": "place-point",
-                  "instruction": "First, put 2 on the number line.",
-                  "equationLabel": "2 − 6 = ",
-                  "target": 2,
-                  "min": -5,
-                  "max": 5
+                  "instruction": "Plot a point **anywhere** on this number line that is less than −4.",
+                  "condition": "lessThan",
+                  "conditionValue": -4,
+                  "referencePoint": -4,
+                  "min": -10,
+                  "max": 10
                 },
                 {
-                  "type": "move-point",
-                  "instruction": "Now subtract 6. Move the point to the answer.",
-                  "equationLabel": "2 − 6 = ",
-                  "startValue": 2,
-                  "moveBy": -6,
-                  "target": -4,
-                  "min": -5,
-                  "max": 5
+                  "type": "number-line-choice",
+                  "instruction": "Which of these is smallest (i.e. less than the other)?",
+                  "points": [-60, 30],
+                  "choices": [
+                    { "text": "−60", "correct": true },
+                    { "text": "30", "correct": false }
+                  ],
+                  "hint": "The smallest number is the one furthest to the left.",
+                  "min": -100,
+                  "max": 100,
+                  "tickStep": 10
                 },
                 {
-                  "type": "equation-input",
-                  "instruction": "What does 2 − 6 equal?",
-                  "equation": "2 − 6 = ",
-                  "answer": -4,
+                  "type": "multiple-choice",
+                  "instruction": "Agree or disagree: −30 is less than −10.",
                   "showNumberLine": true,
-                  "ghostAt": 2,
-                  "startValue": 2,
-                  "endValue": -4,
-                  "min": -5,
-                  "max": 5
+                  "min": -50,
+                  "max": 50,
+                  "tickStep": 10,
+                  "staticPoints": [-30, -10],
+                  "choices": [
+                    { "text": "Agree", "correct": true },
+                    { "text": "Disagree", "correct": false }
+                  ],
+                  "hint": "Less than means further to the left on the number line."
+                },
+                {
+                  "type": "multiple-choice",
+                  "instruction": "Which number is **closer to zero**?",
+                  "showNumberLine": true,
+                  "min": -50,
+                  "max": 50,
+                  "tickStep": 10,
+                  "staticPoints": [-30, 10],
+                  "choices": [
+                    { "text": "−30", "correct": false },
+                    { "text": "10", "correct": true }
+                  ],
+                  "hint": "Count how many spaces each point is from zero."
+                },
+                {
+                  "type": "multiple-choice",
+                  "instruction": "Try without a number line: which is closer to zero, −35 or −10?",
+                  "choices": [
+                    { "text": "−35", "correct": false },
+                    { "text": "−10", "correct": true }
+                  ],
+                  "hint": "−10 is 10 away from zero; −35 is 35 away from zero."
                 }
               ]
             },
             {
-              "id": "l3",
+              "id": "ml3",
               "title": "Negatives in real life",
-              "steps": []
+              "steps": [
+                {
+                  "type": "thermometer",
+                  "instruction": "There are lots of number lines in everyday life. But they often go **down-to-up** instead of left-to-right, like this thermometer. Click on **0°**.",
+                  "target": 0,
+                  "min": -40,
+                  "max": 100,
+                  "tickStep": 10
+                },
+                {
+                  "type": "thermometer",
+                  "instruction": "Set the thermometer to **10 degrees above zero**.",
+                  "target": 10,
+                  "min": -40,
+                  "max": 100,
+                  "tickStep": 10
+                },
+                {
+                  "type": "thermometer",
+                  "instruction": "Set it to **10 degrees below zero**.",
+                  "target": -10,
+                  "min": -40,
+                  "max": 100,
+                  "tickStep": 10
+                },
+                {
+                  "type": "thermometer",
+                  "instruction": "What temperature is 10 degrees below?",
+                  "displayTemp": -10,
+                  "min": -40,
+                  "max": 100,
+                  "tickStep": 10,
+                  "choices": [
+                    { "text": "10", "correct": false },
+                    { "text": "−10", "correct": true }
+                  ],
+                  "hint": "Below zero means negative."
+                },
+                {
+                  "type": "thermometer",
+                  "instruction": "Which direction is *greater than* (i.e. hotter)?",
+                  "displayTemp": -10,
+                  "min": -40,
+                  "max": 100,
+                  "tickStep": 10,
+                  "choices": [
+                    { "text": "Up", "correct": true },
+                    { "text": "Down", "correct": false }
+                  ],
+                  "hint": "Higher on the thermometer means hotter."
+                },
+                {
+                  "type": "thermometer-compare",
+                  "instruction": "Which is warmer?",
+                  "temperatures": [-15, -35],
+                  "min": -40,
+                  "max": 100,
+                  "tickStep": 10,
+                  "choices": [
+                    { "text": "−15°", "correct": true },
+                    { "text": "−35°", "correct": false }
+                  ],
+                  "hint": "The warmer temperature is higher on the thermometer."
+                },
+                {
+                  "type": "elevation",
+                  "instruction": "The height above sea level (known as **\"elevation\"**) is also an up/down number line. Click on **−20 meters**.",
+                  "target": -20,
+                  "min": -100,
+                  "max": 100,
+                  "tickStep": 20
+                },
+                {
+                  "type": "elevation",
+                  "instruction": "Sea level is always 0. Plot **50 meters above** sea level.",
+                  "target": 50,
+                  "min": -100,
+                  "max": 100,
+                  "tickStep": 20
+                },
+                {
+                  "type": "elevation",
+                  "instruction": "Which is closer to sea level, −50 meters or 40 meters?",
+                  "staticPoints": [-50, 40],
+                  "min": -100,
+                  "max": 100,
+                  "tickStep": 20,
+                  "choices": [
+                    { "text": "−50 m", "correct": false },
+                    { "text": "40 m", "correct": true }
+                  ],
+                  "hint": "Count how far each point is from zero (sea level)."
+                },
+                {
+                  "type": "elevation",
+                  "instruction": "Agree or disagree: −80 meters is **greater than** −10 meters.",
+                  "staticPoints": [-80, -10],
+                  "min": -100,
+                  "max": 100,
+                  "tickStep": 20,
+                  "choices": [
+                    { "text": "Agree", "correct": false },
+                    { "text": "Disagree", "correct": true }
+                  ],
+                  "hint": "Greater means higher up on the elevation scale."
+                }
+              ]
+            }
+              ]
             }
           ]
         }
