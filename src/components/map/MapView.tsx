@@ -154,6 +154,7 @@ export default function MapView() {
           );
         })}
       </div>
+      <div className="step-number">astro</div>
     </>
   );
 }

@@ -115,9 +115,7 @@ export default function MultiStepShell({
         </LessonScreen>
       </div>
 
-      {stepIdPrefix && (
-        <div className="step-number">{stepIdPrefix}-{stepIdx + 1}</div>
-      )}
+      <div className="step-number">astro{stepIdPrefix ? ` ${stepIdPrefix}-${stepIdx + 1}` : ""}</div>
 
       <CheckFlow
         buttonState={buttonState}
