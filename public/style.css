@@ -994,6 +994,13 @@ body {
   flex-wrap: wrap;
   justify-content: center;
 }
+.map-lesson-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 10px 0 4px 4px;
+  letter-spacing: 0.2px;
+}
 .celebrate-btn-row .yes-btn { background: #57B477; }
 .celebrate-btn-row .no-btn { background: #fff; color: #888; border: 2px solid #d0d0d0; box-shadow: 0 3px 0 #d0d0d0; }
 

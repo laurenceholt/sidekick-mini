@@ -191,17 +191,25 @@ function renderMap() {
     secDiv.className = 'map-section';
     secDiv.innerHTML = '<div class="map-section-title">' + sec.title + '</div>';
     container.appendChild(secDiv);
-    const path = document.createElement('div');
-    path.className = 'map-path';
 
+    let lastLessonPath = null;
     sec.lessons.forEach((les, li) => {
+      const lesDiv = document.createElement('div');
+      lesDiv.className = 'map-lesson-title';
+      lesDiv.textContent = (li + 1) + '. ' + les.title;
+      container.appendChild(lesDiv);
+      const path = document.createElement('div');
+      path.className = 'map-path';
+      let nodesInLesson = 0;
+
       les.miniLessons.forEach((ml, mli) => {
         if (ml.steps.length === 0) return; // skip empty mini-lessons
         nodeIndex++;
+        nodesInLesson++;
         const completed = isMiniLessonCompleted(mod.id, sec.id, les.id, ml.id);
         const isCurrent = firstIncomplete && firstIncomplete.mlId === ml.id && firstIncomplete.lId === les.id && firstIncomplete.sId === sec.id;
         const isAvailable = completed || isCurrent;
-        if (nodeIndex > 1) { const conn = document.createElement('div'); conn.className = 'map-connector' + (completed ? ' completed' : ''); path.appendChild(conn); }
+        if (nodesInLesson > 1) { const conn = document.createElement('div'); conn.className = 'map-connector' + (completed ? ' completed' : ''); path.appendChild(conn); }
         const node = document.createElement('div');
         node.className = 'map-node' + (completed ? ' completed' : '') + (isCurrent ? ' current' : '');
         const circle = document.createElement('div');
@@ -215,24 +223,27 @@ function renderMap() {
         if (isAvailable) node.onclick = () => { location.hash = '#lesson/' + mod.id + '/' + sec.id + '/' + les.id + '/' + ml.id; };
         path.appendChild(node);
       });
+      container.appendChild(path);
+      lastLessonPath = path;
     });
 
     const allDone = sec.lessons.every(l => l.miniLessons.filter(ml => ml.steps.length > 0).every(ml => isMiniLessonCompleted(mod.id, sec.id, l.id, ml.id)));
-    const conn = document.createElement('div');
-    conn.className = 'map-connector' + (allDone ? ' completed' : '');
-    path.appendChild(conn);
-    const cn = document.createElement('div');
-    cn.className = 'map-node' + (allDone ? ' completed' : '');
-    const cc = document.createElement('div');
-    cc.className = 'map-node-circle section-check' + (allDone ? ' completed' : '');
-    cc.textContent = allDone ? '★' : '☆';
-    const cl = document.createElement('div');
-    cl.className = 'map-node-label';
-    cl.textContent = 'Section Check';
-    cn.appendChild(cc);
-    cn.appendChild(cl);
-    path.appendChild(cn);
-    container.appendChild(path);
+    if (lastLessonPath) {
+      const conn = document.createElement('div');
+      conn.className = 'map-connector' + (allDone ? ' completed' : '');
+      lastLessonPath.appendChild(conn);
+      const cn = document.createElement('div');
+      cn.className = 'map-node' + (allDone ? ' completed' : '');
+      const cc = document.createElement('div');
+      cc.className = 'map-node-circle section-check' + (allDone ? ' completed' : '');
+      cc.textContent = allDone ? '★' : '☆';
+      const cl = document.createElement('div');
+      cl.className = 'map-node-label';
+      cl.textContent = 'Section Check';
+      cn.appendChild(cc);
+      cn.appendChild(cl);
+      lastLessonPath.appendChild(cn);
+    }
   });
 }
 
