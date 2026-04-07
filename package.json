@@ -1,10 +1,36 @@
 {
-  "name": "math-sidekick",
-  "version": "1.0.0",
+  "name": "sidekick-mini",
+  "type": "module",
+  "version": "0.0.1",
   "scripts": {
-    "dev": "node server.js"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "astro check && tsc --noEmit"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "@astrojs/react": "^5.0.0",
+    "@supabase/supabase-js": "^2.98.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^6.0.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.563.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.18",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.7",
+    "@types/node": "^25.0.9",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "vite": "^7"
   }
 }

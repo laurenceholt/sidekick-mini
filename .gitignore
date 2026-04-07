@@ -3,3 +3,6 @@ node_modules/
 IMG_*.PNG
 .vercel
 .env*.local
+dist/
+.astro/
+.DS_Store
