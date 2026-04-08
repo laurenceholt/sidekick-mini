@@ -45,13 +45,13 @@ const EASY_PRAISE = [
 ];
 const LEARNING_PRAISE = [
   "You're getting it.",
-  "Nice — you're picking this up.",
+  "Nice, you're picking this up.",
   "There you go.",
   "That's the idea.",
 ];
 const HARD_PRAISE = [
   "Nice job figuring that out.",
-  "Tricky one — nicely done.",
+  "Tricky one, nicely done.",
   "Good thinking.",
   "Well reasoned.",
 ];
@@ -284,7 +284,7 @@ export default function MultiStepShell({
       setFeedback("correct");
       setFeedbackMessage(
         stepIdx === 0 && !inFixMistakes
-          ? `Nice — +${earned} boba`
+          ? `Nice! +${earned} boba`
           : pickPraise(wasRetry, (step as any).difficulty),
       );
       setButtonState("correct");

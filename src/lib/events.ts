@@ -1,5 +1,9 @@
 import { supabase } from "./supabase";
 
+declare const __COMMIT_SHA__: string;
+const COMMIT_SHA: string =
+  typeof __COMMIT_SHA__ !== "undefined" ? __COMMIT_SHA__ : "dev";
+
 let cachedUserId: string | null = null;
 
 async function getUserId(): Promise<string> {
@@ -45,6 +49,7 @@ export async function logEvent(params: {
       correct: params.correct,
       boba_total: params.bobaTotal,
       et_time: etTime(),
+      commit: COMMIT_SHA,
     });
   } catch (e) {
     console.warn("logEvent failed", e);

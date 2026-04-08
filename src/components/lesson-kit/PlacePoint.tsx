@@ -105,8 +105,8 @@ export function gradePlacePoint(
     } else {
       hint =
         step.target < 0
-          ? "Look for the negative side — it's to the LEFT of zero."
-          : "Look for the positive side — it's to the RIGHT of zero.";
+          ? "Look for the negative side: it's to the LEFT of zero."
+          : "Look for the positive side: it's to the RIGHT of zero.";
     }
     return { correct: false, hint };
   }

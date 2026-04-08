@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { loadContent } from "@/lib/content";
 import type { ContentData, Module } from "@/lib/schemas/lesson";
 
+declare const __COMMIT_SHA__: string;
+const COMMIT_SHA: string =
+  typeof __COMMIT_SHA__ !== "undefined" ? __COMMIT_SHA__ : "dev";
+
 /**
  * Map view — ported from legacy/app.js `renderMap()`.
  *
@@ -160,7 +164,7 @@ export default function MapView() {
           );
         })}
       </div>
-      <div className="step-number">astro</div>
+      <div className="step-number">astro {COMMIT_SHA}</div>
     </>
   );
 }
