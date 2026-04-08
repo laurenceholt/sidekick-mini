@@ -22,6 +22,10 @@ export default function Elevation({
   const hasChoices = !!step.choices?.length;
   const isInteractive = step.target !== undefined && !hasChoices;
   const tickStep = step.tickStep ?? 20;
+  // Snap on half the tick step so values like 50 (on a 20-step grid) still work.
+  const snapStep = step.target !== undefined && step.target % tickStep !== 0
+    ? tickStep / 2
+    : tickStep;
   const range = step.max - step.min;
   const zeroPct = ((0 - step.min) / range) * 100;
 
@@ -35,7 +39,7 @@ export default function Elevation({
     const y = rect.bottom - e.clientY;
     const pct = y / rect.height;
     const raw = step.min + pct * range;
-    const snapped = Math.round(raw / tickStep) * tickStep;
+    const snapped = Math.round(raw / snapStep) * snapStep;
     const clamped = Math.max(step.min, Math.min(step.max, snapped));
     setPicked(clamped);
     onSelect(clamped);
@@ -113,6 +117,21 @@ export default function Elevation({
             );
           })}
         </div>
+        {step.min <= -80 && step.max >= -80 && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: `${((-80 - step.min) / range) * 100}%`,
+              right: 8,
+              fontSize: 22,
+              transform: "translateY(50%)",
+              zIndex: 7,
+              pointerEvents: "none",
+            }}
+          >
+            🐙
+          </div>
+        )}
         {(step.staticPoints ?? []).map((v, i) => {
           const pct = ((v - step.min) / range) * 100;
           return (

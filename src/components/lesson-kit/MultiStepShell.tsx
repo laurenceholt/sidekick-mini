@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { MiniLesson, Step } from "@/lib/schemas/lesson";
+import type { MiniLesson, Step, Story } from "@/lib/schemas/lesson";
 import LessonScreen from "./LessonScreen";
 import CheckFlow, { type CheckButtonState } from "./CheckFlow";
 import type { FeedbackState } from "./FeedbackBox";
@@ -14,19 +14,29 @@ import Thermometer, {
   gradeThermometerCompare,
 } from "./Thermometer";
 import Elevation, { gradeElevation } from "./Elevation";
+import StreakToast from "./StreakToast";
+import Confetti from "./Confetti";
+import StoryOverlay from "./StoryOverlay";
 
 export interface MultiStepShellProps {
   miniLesson: MiniLesson;
   stepIdPrefix?: string;
   initialStepIdx?: number;
+  stories?: Story[];
+  /** The m-s-l-ml id string, used to find matching story by tag. */
+  storyTag?: string;
   onExit?: () => void;
   onComplete?: () => void;
 }
+
+type Phase = "steps" | "fix-intro" | "finish" | "story";
 
 export default function MultiStepShell({
   miniLesson,
   stepIdPrefix,
   initialStepIdx = 0,
+  stories,
+  storyTag,
   onExit,
   onComplete,
 }: MultiStepShellProps) {
@@ -41,6 +51,14 @@ export default function MultiStepShell({
     return parseInt(localStorage.getItem("bobaCount") || "0", 10) || 0;
   });
   const [wasRetry, setWasRetry] = useState(false);
+  const [streak, setStreak] = useState(0);
+  const [showStreak, setShowStreak] = useState(false);
+  const [wrongSteps, setWrongSteps] = useState<number[]>([]);
+  const [inFixMistakes, setInFixMistakes] = useState(false);
+  const [fixQueue, setFixQueue] = useState<Step[]>([]);
+  const [phase, setPhase] = useState<Phase>("steps");
+  const [finishing, setFinishing] = useState(false);
+  const [storyOpen, setStoryOpen] = useState(false);
 
   const addBoba = (n: number) => {
     setBobaCount((c) => {
@@ -52,41 +70,140 @@ export default function MultiStepShell({
     });
   };
 
-  const step = miniLesson.steps[stepIdx] as Step | undefined;
-  const total = miniLesson.steps.length;
+  const steps: Step[] = inFixMistakes ? fixQueue : (miniLesson.steps as Step[]);
+  const total = steps.length;
+  const step = steps[stepIdx];
 
-  if (step && step.type === "celebrate") {
+  const matchingStory: Story | undefined =
+    stories && storyTag ? stories.find((s) => s.tag === storyTag) : undefined;
+
+  // ── Fix Mistakes intro screen ─────────────────────────────
+  if (phase === "fix-intro") {
     return (
-      <div className="celebrate">
-        <div className="trophy">🏆</div>
-        <div className="congrats-text">Amazing work!</div>
-        <div className="sub-text">Mini-lesson complete!</div>
-        <button className="check-btn next" onClick={onComplete}>
-          CONTINUE
-        </button>
-      </div>
+      <Shell
+        bobaCount={bobaCount}
+        onExit={onExit}
+        progressPct={100}
+        stepIdPrefix={stepIdPrefix}
+        stepLabel={stepIdx + 1}
+        hideCheck
+      >
+        <div className="celebrate">
+          <div style={{ fontSize: 60 }}>🔧</div>
+          <div
+            className="congrats-text"
+            style={{ color: "#1a1a2e", fontSize: 24 }}
+          >
+            Let's fix some mistakes!
+          </div>
+          <div className="sub-text">Let's go over them one more time.</div>
+          <button
+            className="continue-map-btn"
+            onClick={() => {
+              setFixQueue(wrongSteps.map((i) => miniLesson.steps[i] as Step));
+              setInFixMistakes(true);
+              setStepIdx(0);
+              setStreak(0);
+              setWrongSteps([]);
+              resetAnswerState();
+              setPhase("steps");
+            }}
+          >
+            CONTINUE
+          </button>
+        </div>
+      </Shell>
     );
   }
 
-  if (!step) {
+  // ── Finish Lesson screen ───────────────────────────────────
+  if (phase === "finish") {
     return (
-      <div className="celebrate">
-        <div className="trophy">🏆</div>
-        <div className="congrats-text">Amazing work!</div>
-        <div className="sub-text">Mini-lesson complete!</div>
-        <button className="check-btn next" onClick={onComplete}>
-          CONTINUE
-        </button>
-      </div>
+      <>
+        <Shell
+          bobaCount={bobaCount}
+          onExit={onExit}
+          progressPct={100}
+          stepIdPrefix={stepIdPrefix}
+          stepLabel={stepIdx + 1}
+          hideCheck
+        >
+          <div className="celebrate">
+            <div className="trophy">🏆</div>
+            <div className="congrats-text">Amazing work!</div>
+            <div className="sub-text">Mini-lesson complete!</div>
+            <div className="gems-earned">
+              <img src="/boba.svg" className="boba-icon" alt="boba" /> +20 boba!
+            </div>
+            {matchingStory ? (
+              <>
+                <div className="story-offer-text">{matchingStory.offer}</div>
+                <div className="celebrate-btn-row">
+                  <button
+                    className="continue-map-btn yes-btn"
+                    onClick={() => setStoryOpen(true)}
+                  >
+                    YES
+                  </button>
+                  <button
+                    className="continue-map-btn no-btn"
+                    onClick={onComplete}
+                  >
+                    NO, CONTINUE
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button className="continue-map-btn" onClick={onComplete}>
+                CONTINUE
+              </button>
+            )}
+          </div>
+        </Shell>
+        <Confetti />
+        {storyOpen && matchingStory && (
+          <StoryOverlay story={matchingStory} onClose={onComplete ?? (() => {})} />
+        )}
+      </>
     );
   }
 
-  const reset = () => {
+  if (!step || step.type === "celebrate") {
+    // Ran off the end without hitting advanceStep (edge case) — just finish.
+    if (!finishing) {
+      setFinishing(true);
+      finishLessonNow();
+    }
+    return null;
+  }
+
+  function resetAnswerState() {
     setAnswer(null);
     setButtonState("disabled");
     setFeedback("idle");
     setFeedbackMessage(undefined);
-  };
+  }
+
+  function finishLessonNow() {
+    addBoba(20);
+    setPhase("finish");
+  }
+
+  function advance() {
+    resetAnswerState();
+    setWasRetry(false);
+    const next = stepIdx + 1;
+    if (next < total) {
+      setStepIdx(next);
+      return;
+    }
+    // End of queue
+    if (!inFixMistakes && wrongSteps.length > 0) {
+      setPhase("fix-intro");
+      return;
+    }
+    finishLessonNow();
+  }
 
   const handleSelect = (v: unknown) => {
     setAnswer(v);
@@ -96,45 +213,49 @@ export default function MultiStepShell({
   const handleCheck = () => {
     if (answer === null || answer === undefined) return;
     let result: { correct: boolean; hint?: string } = { correct: false };
-    if (step.type === "place-point") {
-      result = gradePlacePoint(step as any, answer as number);
-    } else if (step.type === "multiple-choice") {
-      result = gradeMultipleChoice(step as any, answer as number);
-    } else if (step.type === "equation-input") {
-      result = gradeEquationInput(step as any, answer as string);
-    } else if (step.type === "move-point") {
-      result = gradeMovePoint(step as any, answer as number);
-    } else if (step.type === "number-line-choice") {
-      result = gradeNumberLineChoice(step as any, answer as number);
-    } else if (step.type === "thermometer") {
-      result = gradeThermometer(step as any, answer as number);
-    } else if (step.type === "thermometer-compare") {
-      result = gradeThermometerCompare(step as any, answer as number);
-    } else if (step.type === "elevation") {
-      result = gradeElevation(step as any, answer as number);
-    }
+    const s = step as any;
+    if (s.type === "place-point") result = gradePlacePoint(s, answer as number);
+    else if (s.type === "multiple-choice")
+      result = gradeMultipleChoice(s, answer as number);
+    else if (s.type === "equation-input")
+      result = gradeEquationInput(s, answer as string);
+    else if (s.type === "move-point") result = gradeMovePoint(s, answer as number);
+    else if (s.type === "number-line-choice")
+      result = gradeNumberLineChoice(s, answer as number);
+    else if (s.type === "thermometer")
+      result = gradeThermometer(s, answer as number);
+    else if (s.type === "thermometer-compare")
+      result = gradeThermometerCompare(s, answer as number);
+    else if (s.type === "elevation") result = gradeElevation(s, answer as number);
+
     if (result.correct) {
       const earned = wasRetry ? 2 : 5;
       addBoba(earned);
+      const newStreak = streak + 1;
+      setStreak(newStreak);
+      if (newStreak > 0 && newStreak % 5 === 0) {
+        addBoba(10);
+        setShowStreak(true);
+      }
       setFeedback("correct");
       setFeedbackMessage(`Great job! +${earned} boba`);
       setButtonState("correct");
     } else {
+      if (!inFixMistakes && !wrongSteps.includes(stepIdx)) {
+        setWrongSteps((w) => [...w, stepIdx]);
+      }
       addBoba(1);
+      setStreak(0);
       setFeedback("wrong");
       setFeedbackMessage(result.hint);
       setButtonState("wrong");
     }
   };
 
-  const handleContinue = () => {
-    reset();
-    setWasRetry(false);
-    setStepIdx((i) => i + 1);
-  };
+  const handleContinue = () => advance();
 
   const handleRetry = () => {
-    reset();
+    resetAnswerState();
     setWasRetry(true);
     setAttemptKey((k) => k + 1);
   };
@@ -142,16 +263,146 @@ export default function MultiStepShell({
   const locked = buttonState === "wrong";
 
   return (
+    <Shell
+      bobaCount={bobaCount}
+      onExit={onExit}
+      progressPct={(stepIdx / total) * 100}
+      stepIdPrefix={stepIdPrefix}
+      stepLabel={stepIdx + 1}
+      buttonState={buttonState}
+      feedback={feedback}
+      feedbackMessage={feedbackMessage}
+      onCheck={handleCheck}
+      onContinue={handleContinue}
+      onRetry={handleRetry}
+    >
+      <LessonScreen prompt={step.instruction as string | undefined}>
+        {step.type === "place-point" && (
+          <PlacePoint
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+            onAnswer={() => {}}
+          />
+        )}
+        {step.type === "multiple-choice" && (
+          <MultipleChoice
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            selectedIdx={answer as number | null}
+            result={buttonState === "correct" ? "correct" : buttonState === "wrong" ? "wrong" : null}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "equation-input" && (
+          <EquationInput
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "move-point" && (
+          <MovePoint
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "number-line-choice" && (
+          <NumberLineChoice
+            key={stepIdx}
+            step={step as any}
+            locked={locked}
+            selectedIdx={answer as number | null}
+            result={buttonState === "correct" ? "correct" : buttonState === "wrong" ? "wrong" : null}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "thermometer" && (
+          <Thermometer
+            key={stepIdx}
+            step={step as any}
+            locked={locked}
+            selectedIdx={answer as number | null}
+            result={buttonState === "correct" ? "correct" : buttonState === "wrong" ? "wrong" : null}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "thermometer-compare" && (
+          <ThermometerCompare
+            key={stepIdx}
+            step={step as any}
+            locked={locked}
+            selectedIdx={answer as number | null}
+            result={buttonState === "correct" ? "correct" : buttonState === "wrong" ? "wrong" : null}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "elevation" && (
+          <Elevation
+            key={stepIdx}
+            step={step as any}
+            locked={locked}
+            selectedIdx={answer as number | null}
+            result={buttonState === "correct" ? "correct" : buttonState === "wrong" ? "wrong" : null}
+            onSelect={handleSelect}
+          />
+        )}
+      </LessonScreen>
+      {showStreak && <StreakToast onDone={() => setShowStreak(false)} />}
+    </Shell>
+  );
+}
+
+// ─── Chrome shell (top bar, step badge, bottom bar) ──────────
+
+interface ShellProps {
+  bobaCount: number;
+  onExit?: () => void;
+  progressPct: number;
+  stepIdPrefix?: string;
+  stepLabel: number;
+  hideCheck?: boolean;
+  buttonState?: CheckButtonState;
+  feedback?: FeedbackState;
+  feedbackMessage?: string;
+  onCheck?: () => void;
+  onContinue?: () => void;
+  onRetry?: () => void;
+  children: React.ReactNode;
+}
+
+function Shell({
+  bobaCount,
+  onExit,
+  progressPct,
+  stepIdPrefix,
+  stepLabel,
+  hideCheck,
+  buttonState,
+  feedback,
+  feedbackMessage,
+  onCheck,
+  onContinue,
+  onRetry,
+  children,
+}: ShellProps) {
+  return (
     <div className="flex min-h-screen flex-col">
       <div className="top-bar">
         <button className="close-btn" onClick={onExit} aria-label="Close">
           ×
         </button>
         <div className="progress-bar-container">
-          <div
-            className="progress-bar"
-            style={{ width: `${(stepIdx / total) * 100}%` }}
-          />
+          <div className="progress-bar" style={{ width: `${progressPct}%` }} />
         </div>
         <div className="boba-display">
           <img src="/boba.svg" className="boba-icon" alt="boba" />
@@ -159,130 +410,22 @@ export default function MultiStepShell({
         </div>
       </div>
 
-      <div>
-        <LessonScreen prompt={step.instruction as string | undefined}>
-          {step.type === "place-point" && (
-            <PlacePoint
-              key={stepIdx}
-              step={step as any}
-              attemptKey={attemptKey}
-              locked={locked}
-              onSelect={handleSelect}
-              onAnswer={() => {}}
-            />
-          )}
-          {step.type === "multiple-choice" && (
-            <MultipleChoice
-              key={stepIdx}
-              step={step as any}
-              attemptKey={attemptKey}
-              locked={locked}
-              selectedIdx={answer as number | null}
-              result={
-                buttonState === "correct"
-                  ? "correct"
-                  : buttonState === "wrong"
-                  ? "wrong"
-                  : null
-              }
-              onSelect={handleSelect}
-            />
-          )}
-          {step.type === "equation-input" && (
-            <EquationInput
-              key={stepIdx}
-              step={step as any}
-              attemptKey={attemptKey}
-              locked={locked}
-              onSelect={handleSelect}
-            />
-          )}
-          {step.type === "move-point" && (
-            <MovePoint
-              key={stepIdx}
-              step={step as any}
-              attemptKey={attemptKey}
-              locked={locked}
-              onSelect={handleSelect}
-            />
-          )}
-          {step.type === "number-line-choice" && (
-            <NumberLineChoice
-              key={stepIdx}
-              step={step as any}
-              locked={locked}
-              selectedIdx={answer as number | null}
-              result={
-                buttonState === "correct"
-                  ? "correct"
-                  : buttonState === "wrong"
-                  ? "wrong"
-                  : null
-              }
-              onSelect={handleSelect}
-            />
-          )}
-          {step.type === "thermometer" && (
-            <Thermometer
-              key={stepIdx}
-              step={step as any}
-              locked={locked}
-              selectedIdx={answer as number | null}
-              result={
-                buttonState === "correct"
-                  ? "correct"
-                  : buttonState === "wrong"
-                  ? "wrong"
-                  : null
-              }
-              onSelect={handleSelect}
-            />
-          )}
-          {step.type === "thermometer-compare" && (
-            <ThermometerCompare
-              key={stepIdx}
-              step={step as any}
-              locked={locked}
-              selectedIdx={answer as number | null}
-              result={
-                buttonState === "correct"
-                  ? "correct"
-                  : buttonState === "wrong"
-                  ? "wrong"
-                  : null
-              }
-              onSelect={handleSelect}
-            />
-          )}
-          {step.type === "elevation" && (
-            <Elevation
-              key={stepIdx}
-              step={step as any}
-              locked={locked}
-              selectedIdx={answer as number | null}
-              result={
-                buttonState === "correct"
-                  ? "correct"
-                  : buttonState === "wrong"
-                  ? "wrong"
-                  : null
-              }
-              onSelect={handleSelect}
-            />
-          )}
-        </LessonScreen>
+      <div>{children}</div>
+
+      <div className="step-number">
+        astro{stepIdPrefix ? ` ${stepIdPrefix}-${stepLabel}` : ""}
       </div>
 
-      <div className="step-number">astro{stepIdPrefix ? ` ${stepIdPrefix}-${stepIdx + 1}` : ""}</div>
-
-      <CheckFlow
-        buttonState={buttonState}
-        feedback={feedback}
-        feedbackMessage={feedbackMessage}
-        onCheck={handleCheck}
-        onContinue={handleContinue}
-        onRetry={handleRetry}
-      />
+      {!hideCheck && buttonState && (
+        <CheckFlow
+          buttonState={buttonState}
+          feedback={feedback!}
+          feedbackMessage={feedbackMessage}
+          onCheck={onCheck!}
+          onContinue={onContinue!}
+          onRetry={onRetry!}
+        />
+      )}
     </div>
   );
 }

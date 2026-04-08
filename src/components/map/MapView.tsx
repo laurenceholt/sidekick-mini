@@ -34,9 +34,13 @@ export default function MapView() {
   if (!mod) return <div className="map-content">No modules.</div>;
 
   const key = (sId: string, lId: string, mlId: string) =>
-    `${mod.id}/${sId}/${lId}/${mlId}`;
-  const isCompleted = (sId: string, lId: string, mlId: string) =>
-    !!progress[key(sId, lId, mlId)];
+    `${mod.id}-${sId}-${lId}-${mlId}`;
+  const isCompleted = (sId: string, lId: string, mlId: string) => {
+    const v = progress[key(sId, lId, mlId)];
+    if (typeof v === "boolean") return v;
+    if (v && typeof v === "object") return !!(v as any).completed;
+    return false;
+  };
 
   // First incomplete mini-lesson (the "current" node).
   let current: { sId: string; lId: string; mlId: string } | null = null;
@@ -53,7 +57,10 @@ export default function MapView() {
   }
 
   let nodeIndex = 0;
-  const boba = 0; // spike
+  const boba =
+    typeof window !== "undefined"
+      ? parseInt(localStorage.getItem("bobaCount") || "0", 10) || 0
+      : 0;
 
   return (
     <>

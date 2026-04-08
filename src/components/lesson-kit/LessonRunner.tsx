@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { loadContent } from "@/lib/content";
-import type { MiniLesson } from "@/lib/schemas/lesson";
+import type { MiniLesson, Story } from "@/lib/schemas/lesson";
 import MultiStepShell from "./MultiStepShell";
+import { markCompleted } from "@/lib/progress";
 
 export interface LessonRunnerProps {
   moduleId?: string;
@@ -17,6 +18,7 @@ export interface LessonRunnerProps {
 export default function LessonRunner(props: LessonRunnerProps) {
   const [mini, setMini] = useState<MiniLesson | null>(null);
   const [prefix, setPrefix] = useState<string | undefined>();
+  const [stories, setStories] = useState<Story[] | undefined>();
   const [error, setError] = useState<string | null>(null);
 
   // Fall back to query string so the page works as a static /lesson?m=…&s=…&l=…&ml=…
@@ -48,6 +50,7 @@ export default function LessonRunner(props: LessonRunnerProps) {
         if (!ml) return setError("Mini-lesson not found");
         setMini(ml);
         setPrefix(`${mi + 1}-${si + 1}-${li + 1}-${mli + 1}`);
+        setStories(content.stories);
       })
       .catch((e) => alive && setError(String(e.message || e)));
     return () => {
@@ -67,8 +70,13 @@ export default function LessonRunner(props: LessonRunnerProps) {
       miniLesson={mini}
       stepIdPrefix={prefix}
       initialStepIdx={initialStepIdx}
+      stories={stories}
+      storyTag={prefix}
       onExit={() => (window.location.href = "/")}
-      onComplete={() => (window.location.href = "/")}
+      onComplete={() => {
+        markCompleted(moduleId, sectionId, lessonId, miniId);
+        window.location.href = "/";
+      }}
     />
   );
 }
