@@ -2,18 +2,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { ContentData, Story } from "@/lib/schemas/lesson";
 
-const STEP_TYPE_DESC: Record<string, string> = {
-  "place-point": "Place a point on a number line",
-  "move-point": "Drag a point along a number line",
-  "equation-input": "Type the answer to an equation",
-  "multiple-choice": "Choose from multiple options",
-  "number-line-choice": "Pick between two points on a number line",
-  thermometer: "Thermometer interaction",
-  "thermometer-compare": "Compare two thermometers",
-  elevation: "Elevation diagram interaction",
-  celebrate: "Celebration screen",
-};
-
 export default function EditView() {
   const [data, setData] = useState<ContentData | null>(null);
   const [tab, setTab] = useState<"steps" | "stories">("steps");
@@ -82,12 +70,50 @@ function StepsTab({
   data: ContentData;
   save: (d: ContentData) => void;
 }) {
+  // Build list of all mini-lesson ids (m-s-l-ml)
+  const miniIds: string[] = [];
+  data.modules.forEach((mod, mi) =>
+    mod.sections.forEach((sec, si) =>
+      sec.lessons.forEach((les, li) =>
+        les.miniLessons.forEach((_ml, mli) => {
+          miniIds.push(`${mi + 1}-${si + 1}-${li + 1}-${mli + 1}`);
+        }),
+      ),
+    ),
+  );
+  const [filter, setFilter] = useState<string>("all");
+
   return (
-    <table className="edit-table">
+    <>
+      <div style={{ margin: "0 0 14px", display: "flex", alignItems: "center", gap: 10 }}>
+        <label style={{ fontSize: 13, fontWeight: 700, color: "#666" }}>
+          Mini-lesson:
+        </label>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          style={{
+            padding: "6px 10px",
+            border: "2px solid #e5e5e5",
+            borderRadius: 8,
+            fontFamily: "inherit",
+            fontSize: 13,
+            fontWeight: 700,
+          }}
+        >
+          <option value="all">All</option>
+          {miniIds.map((id) => (
+            <option key={id} value={id}>
+              {id}
+            </option>
+          ))}
+        </select>
+      </div>
+      <table className="edit-table">
       <thead>
         <tr>
           <th>Loc</th>
-          <th>Type</th>
+          <th style={{ width: "12%" }}>Type</th>
           <th>Instruction</th>
           <th></th>
         </tr>
@@ -96,14 +122,16 @@ function StepsTab({
         {data.modules.map((mod, mi) =>
           mod.sections.map((sec, si) =>
             sec.lessons.map((les, li) =>
-              les.miniLessons.map((ml, mli) =>
-                ml.steps.map((step, sti) => (
+              les.miniLessons.map((ml, mli) => {
+                const mlId = `${mi + 1}-${si + 1}-${li + 1}-${mli + 1}`;
+                if (filter !== "all" && filter !== mlId) return null;
+                return ml.steps.map((step, sti) => (
                   <tr key={`${mi}-${si}-${li}-${mli}-${sti}`}>
                     <td className="edit-loc">
                       {mi + 1}-{si + 1}-{li + 1}-{mli + 1}-{sti + 1}
                     </td>
-                    <td className="edit-type-desc">
-                      {STEP_TYPE_DESC[(step as any).type] || (step as any).type}
+                    <td className="edit-type-desc" style={{ width: "12%", whiteSpace: "normal" }}>
+                      {(step as any).type}
                     </td>
                     <td>
                       <textarea
@@ -120,13 +148,14 @@ function StepsTab({
                       <span className="edit-saved show">Saved</span>
                     </td>
                   </tr>
-                )),
-              ),
+                ));
+              }),
             ),
           ),
         )}
       </tbody>
     </table>
+    </>
   );
 }
 

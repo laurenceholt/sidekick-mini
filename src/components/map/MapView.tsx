@@ -149,7 +149,6 @@ export default function MapView() {
                             >
                               {allDone ? "★" : "☆"}
                             </div>
-                            <div className="map-node-label">Section Check</div>
                           </div>
                         </>
                       )}

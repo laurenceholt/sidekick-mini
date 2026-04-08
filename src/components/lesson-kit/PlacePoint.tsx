@@ -27,6 +27,12 @@ export default function PlacePoint({ step, onSelect, attemptKey = 0, locked }: P
   // Reset on new attempt
   const resetKey = `${attemptKey}`;
 
+  // If the target has a fractional part, snap to a finer grid than tickStep
+  // so the student can place the dot anywhere on the line.
+  const targetFrac =
+    step.target !== undefined && Math.abs(step.target - Math.round(step.target)) > 1e-9;
+  const snapStep = (step as any).snapStep ?? (targetFrac ? 0.1 : step.tickStep ?? 1);
+
   return (
     <div key={resetKey}>
       <NumberLine
@@ -38,7 +44,7 @@ export default function PlacePoint({ step, onSelect, attemptKey = 0, locked }: P
         extraTickValues={
           step.referencePoint !== undefined ? [step.referencePoint] : undefined
         }
-        snapStep={step.tickStep ?? 1}
+        snapStep={snapStep}
         onLineClick={
           locked
             ? undefined
@@ -49,7 +55,7 @@ export default function PlacePoint({ step, onSelect, attemptKey = 0, locked }: P
         }
       >
         {(step.staticPoints ?? []).map((sv, i) => (
-          <NumberLinePoint key={`s${i}`} value={sv} min={step.min} max={step.max} />
+          <NumberLinePoint key={`s${i}`} value={sv} min={step.min} max={step.max} ghost />
         ))}
         {value !== null && (
           <NumberLinePoint

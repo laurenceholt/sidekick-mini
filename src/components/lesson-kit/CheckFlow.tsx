@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import FeedbackBox, { type FeedbackState } from "./FeedbackBox";
 
 export type CheckButtonState = "disabled" | "ready" | "correct" | "wrong";
@@ -47,6 +48,20 @@ export default function CheckFlow({
       : buttonState === "disabled"
       ? "check-btn disabled"
       : "check-btn";
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      const t = e.target as HTMLElement | null;
+      // Allow Enter inside multiline textareas to insert newlines.
+      if (t && t.tagName === "TEXTAREA") return;
+      if (!onClick) return;
+      e.preventDefault();
+      onClick();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClick]);
 
   return (
     <div className="bottom-bar">

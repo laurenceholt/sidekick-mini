@@ -7,8 +7,15 @@ export default function StreakToast({ onDone }: { onDone: () => void }) {
   }, [onDone]);
   return (
     <div className="streak-popup">
-      <div className="streak-icon">
-        <img src="/boba.svg" alt="boba" style={{ width: 48, height: 48 }} />
+      <div
+        className="streak-icon"
+        style={{ display: "flex", justifyContent: "center" }}
+      >
+        <img
+          src="/boba.svg"
+          alt="boba"
+          style={{ width: 48, height: 48, display: "block" }}
+        />
       </div>
       <div className="streak-text">5x Streak!</div>
       <div className="streak-bonus">+10 boba bonus</div>

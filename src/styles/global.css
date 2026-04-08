@@ -216,6 +216,12 @@ button { font-family: inherit; }
   background: #aaa;
   transform: translateX(-50%);
 }
+.tick.minor {
+  top: -4px;
+  width: 1px;
+  height: 12px;
+  background: #c9c9c9;
+}
 .tick-label {
   position: absolute;
   top: -32px;
@@ -233,8 +239,8 @@ button { font-family: inherit; }
 .point {
   position: absolute;
   top: 50%;
-  width: 24px;
-  height: 24px;
+  width: 19px;
+  height: 19px;
   background: #57B477;
   border-radius: 50%;
   transform: translate(-50%, -50%);
@@ -244,6 +250,7 @@ button { font-family: inherit; }
   box-shadow: 0 3px 10px rgba(87, 180, 119, 0.45);
 }
 .point.placed { animation: pop 0.3s ease; }
+.point.ghost { opacity: 0.28; box-shadow: none; pointer-events: none; }
 @keyframes pop {
   0% { transform: translate(-50%, -50%) scale(0.5); }
   60% { transform: translate(-50%, -50%) scale(1.2); }
@@ -569,6 +576,7 @@ button { font-family: inherit; }
   left: 0;
   display: flex;
   align-items: center;
+  transform: translateY(50%);
 }
 
 .elev-tick-label {
@@ -658,10 +666,10 @@ button { font-family: inherit; }
 .thermo-tick-label {
   position: absolute; left: 28px; font-size: 13px; font-weight: 800; color: #1a1a2e;
 }
-.thermo-tick-label:first-letter { font-size: 1.2em; }
+.thermo-tick-label { font-variant-numeric: lining-nums tabular-nums; font-feature-settings: "lnum", "tnum"; }
 
 /* === Story overlay text sizing polish === */
-.story-text { font-size: 26px; padding: 28px 36px; }
+.story-text { font-size: 26px; padding: 60px 64px 32px; }
 .story-close { top: 14px; right: 18px; }
 
 /* === streak popup === */
@@ -691,6 +699,19 @@ button { font-family: inherit; }
 .streak-popup .streak-bonus { font-size: 14px; font-weight: 700; color: #999; margin-top: 2px; }
 
 /* === celebrate extras === */
+.celebrate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 18px;
+  padding: 48px 24px;
+  min-height: 70vh;
+}
+.celebrate .trophy { font-size: 120px; line-height: 1; }
+.celebrate .congrats-text { font-size: 32px; font-weight: 900; color: #1a1a2e; }
+.celebrate .sub-text { font-size: 18px; font-weight: 700; color: #666; }
 .celebrate .gems-earned { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 900; color: #C4956A; background: #fdf5ec; padding: 16px 32px; border-radius: 16px; }
 .celebrate .gems-earned .boba-icon { width: 32px; height: 32px; }
 .celebrate .continue-map-btn {
@@ -944,7 +965,7 @@ button { font-family: inherit; }
 .story-text {
   position: absolute;
   top: 0; left: 0; right: 0;
-  padding: 22px 26px;
+  padding: 60px 64px 32px;
   font-family: inherit;
   font-size: 22px;
   font-weight: 800;

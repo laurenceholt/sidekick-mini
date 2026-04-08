@@ -75,36 +75,47 @@ export default function MovePoint({ step, onSelect, locked }: MovePointProps) {
         onPointerMove={onPointerMove}
         style={{ touchAction: "none", position: "relative" }}
       >
-        {arcs.length > 0 && (
-          <svg
-            className="jump-arrows"
-            viewBox="0 0 100 44"
-            preserveAspectRatio="none"
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: "60%",
-              width: "100%",
-              height: 44,
-              overflow: "visible",
-              pointerEvents: "none",
-            }}
-          >
-            {arcs.map((a, i) => (
-              <g key={i} stroke="#57B477" strokeWidth={0.6} fill="none" strokeLinecap="round">
-                <path d={a.d} />
-              </g>
-            ))}
-          </svg>
-        )}
         <NumberLine
           min={step.min}
           max={step.max}
           tickStep={step.tickStep}
           labelStep={step.labelStep}
         >
-          <NumberLinePoint value={step.startValue} min={step.min} max={step.max} />
+          {arcs.length > 0 && (
+            <svg
+              className="jump-arrows"
+              viewBox="0 0 100 44"
+              preserveAspectRatio="none"
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: "100%",
+                width: "100%",
+                height: 44,
+                overflow: "visible",
+                pointerEvents: "none",
+              }}
+            >
+              {arcs.map((a, i) => (
+                <g
+                  key={i}
+                  stroke="#57B477"
+                  strokeWidth={0.6}
+                  fill="none"
+                  strokeLinecap="round"
+                >
+                  <path d={a.d} />
+                </g>
+              ))}
+            </svg>
+          )}
+          <NumberLinePoint
+            value={step.startValue}
+            min={step.min}
+            max={step.max}
+            ghost={value !== step.startValue}
+          />
           <NumberLinePoint value={value} min={step.min} max={step.max} placed />
         </NumberLine>
       </div>

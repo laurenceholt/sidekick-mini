@@ -33,6 +33,41 @@ export interface MultiStepShellProps {
 
 type Phase = "steps" | "fix-intro" | "finish" | "story";
 
+const EASY_PRAISE = [
+  "Correct.",
+  "Nice work.",
+  "That works.",
+  "Yep.",
+  "Right.",
+  "Got it.",
+  "Exactly.",
+  "Nice.",
+];
+const LEARNING_PRAISE = [
+  "You're getting it.",
+  "Nice — you're picking this up.",
+  "There you go.",
+  "That's the idea.",
+];
+const HARD_PRAISE = [
+  "Nice job figuring that out.",
+  "Tricky one — nicely done.",
+  "Good thinking.",
+  "Well reasoned.",
+];
+
+function pickPraise(wasRetry: boolean, difficulty?: "easy" | "medium" | "hard"): string {
+  const pool =
+    difficulty === "hard"
+      ? HARD_PRAISE
+      : wasRetry
+        ? LEARNING_PRAISE
+        : Math.random() < 0.2
+          ? LEARNING_PRAISE
+          : EASY_PRAISE;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 export default function MultiStepShell({
   miniLesson,
   stepIdPrefix,
@@ -91,7 +126,7 @@ export default function MultiStepShell({
         hideCheck
       >
         <div className="celebrate">
-          <div style={{ fontSize: 60 }}>🔧</div>
+          <div style={{ fontSize: 80, lineHeight: 1 }}>🥤</div>
           <div
             className="congrats-text"
             style={{ color: "#1a1a2e", fontSize: 24 }}
@@ -247,7 +282,11 @@ export default function MultiStepShell({
         playCorrect();
       }
       setFeedback("correct");
-      setFeedbackMessage(`Great job! +${earned} boba`);
+      setFeedbackMessage(
+        stepIdx === 0 && !inFixMistakes
+          ? `Nice — +${earned} boba`
+          : pickPraise(wasRetry, (step as any).difficulty),
+      );
       setButtonState("correct");
       logEvent({ stepId: stepIdStr, answer: ansStr, correct: true, bobaTotal: bobaCount + earned });
     } else {

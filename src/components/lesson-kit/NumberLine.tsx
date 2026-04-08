@@ -68,7 +68,10 @@ export default function NumberLine({
             Math.abs(v / labelStep - Math.round(v / labelStep)) < 1e-6;
           return (
             <div key={v}>
-              <div className="tick" style={{ left: `${pct}%` }} />
+              <div
+                className={`tick${Math.abs(v - Math.round(v)) > 1e-6 ? " minor" : ""}`}
+                style={{ left: `${pct}%` }}
+              />
               {showLabel && (
                 <div
                   className={`tick-label${isHighlight ? " highlight" : ""}`}
@@ -92,13 +95,14 @@ export interface NumberLinePointProps {
   max: number;
   variant?: "default" | "selected" | "correct" | "wrong";
   placed?: boolean;
+  ghost?: boolean;
 }
 
-export function NumberLinePoint({ value, min, max, placed }: NumberLinePointProps) {
+export function NumberLinePoint({ value, min, max, placed, ghost }: NumberLinePointProps) {
   const pct = ((value - min) / (max - min)) * 100;
   return (
     <div
-      className={`point${placed ? " placed" : ""}`}
+      className={`point${placed ? " placed" : ""}${ghost ? " ghost" : ""}`}
       style={{ left: `${pct}%` }}
     />
   );
