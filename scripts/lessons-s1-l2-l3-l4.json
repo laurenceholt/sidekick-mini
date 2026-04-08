@@ -1,0 +1,499 @@
+{
+  "lessons": [
+    {
+      "id": "l2",
+      "title": "Decimals and opposites",
+      "miniLessons": [
+        {
+          "id": "ml1",
+          "title": "Decimals on the number line",
+          "steps": [
+            {
+              "type": "place-point",
+              "instruction": "If you zoom into a number line, you can see decimal numbers. Here is **2.5**. Plot **2.1**. (Each tick is a tenth: 0.1.)",
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "staticPoints": [2.5],
+              "target": 2.1
+            },
+            {
+              "type": "place-point",
+              "instruction": "Plot **2.7**.",
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "target": 2.7
+            },
+            {
+              "type": "place-point",
+              "instruction": "Plot **−2.0**.",
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "target": -2.0
+            },
+            {
+              "type": "place-point",
+              "instruction": "Plot **−2.4**.",
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "target": -2.4
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Which is greater: −2.0 or −2.4? (Remember: the greater number is to the right.)",
+              "showNumberLine": true,
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "staticPoints": [-2.0, -2.4],
+              "choices": [
+                { "text": "−2.0", "correct": true },
+                { "text": "−2.4", "correct": false }
+              ],
+              "hint": "The greater number is farther to the right."
+            },
+            {
+              "type": "place-point",
+              "instruction": "When the tenths aren't shown, you have to estimate. Where would you put **3.2** on this number line?",
+              "min": -5,
+              "max": 5,
+              "tickStep": 1,
+              "target": 3.2,
+              "tolerance": 0.2
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Agree or disagree: −6.5 is halfway between −6 and −5.",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "choices": [
+                { "text": "Agree", "correct": false },
+                { "text": "Disagree", "correct": true }
+              ],
+              "hint": "−6.5 is between −6 and −7, not −6 and −5."
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Which of these numbers is closer to 0?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-5.6, 3.0],
+              "choices": [
+                { "text": "−5.6", "correct": false },
+                { "text": "3.0", "correct": true }
+              ],
+              "hint": "3.0 is only 3 units from 0; −5.6 is 5.6 units from 0."
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Notice that the number closer to 0 is just the smaller number if you ignore the + or − sign. Which of these is closer to 0?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-2.5, 7.3],
+              "choices": [
+                { "text": "−2.5", "correct": true },
+                { "text": "7.3", "correct": false }
+              ],
+              "hint": "Ignore the sign: 2.5 is less than 7.3, so −2.5 is closer to 0."
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Try it without the number line (but draw your own if it helps). Which of these is closer to 0: −20 or 15?",
+              "choices": [
+                { "text": "−20", "correct": false },
+                { "text": "15", "correct": true }
+              ],
+              "hint": "Ignore the sign: 15 is less than 20, so 15 is closer to 0."
+            }
+          ]
+        },
+        {
+          "id": "ml2",
+          "title": "Opposites",
+          "steps": [
+            {
+              "type": "multiple-choice",
+              "instruction": "Two numbers that are the same distance from 0 on opposite sides of the number line are called **opposites**. Are these two opposites?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-3, 3],
+              "choices": [
+                { "text": "Yes", "correct": true },
+                { "text": "No", "correct": false }
+              ]
+            },
+            {
+              "type": "place-point",
+              "instruction": "Plot the **opposite of 7**.",
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [7],
+              "target": -7,
+              "hint": "7 is 7 units from 0, so its opposite is 7 units from 0 in the opposite direction."
+            },
+            {
+              "type": "place-point",
+              "instruction": "Plot the **opposite of −4**.",
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-4],
+              "target": 4
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "What do you think the opposite of **0** is? Take a guess.",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [0],
+              "choices": [
+                { "text": "0", "correct": true },
+                { "text": "Infinity", "correct": false }
+              ],
+              "hint": "0 is the only number that is its own opposite."
+            },
+            {
+              "type": "place-point",
+              "instruction": "Bigger numbers now. What's the **opposite of 20**?",
+              "min": -50,
+              "max": 50,
+              "tickStep": 5,
+              "labelStep": 10,
+              "staticPoints": [20],
+              "target": -20
+            },
+            {
+              "type": "place-point",
+              "instruction": "Fractions have opposites too. What's the **opposite of −½**?",
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.5,
+              "labelStep": 1,
+              "staticPoints": [-0.5],
+              "target": 0.5
+            },
+            {
+              "type": "equation-input",
+              "instruction": "Write the **opposite of 2**.",
+              "showNumberLine": true,
+              "min": -3,
+              "max": 3,
+              "tickStep": 1,
+              "staticPoints": [2],
+              "target": -2,
+              "acceptable": ["-2"]
+            },
+            {
+              "type": "place-point",
+              "instruction": "Plot the **opposite of −2.2**. Remember it should be the same distance from 0.",
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "staticPoints": [-2.2],
+              "target": 2.2
+            },
+            {
+              "type": "equation-input",
+              "instruction": "Write the **opposite of −2.2**. (To make an opposite, just change the sign from − to + or from + to −.)",
+              "showNumberLine": true,
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "staticPoints": [-2.2],
+              "target": 2.2,
+              "acceptable": ["2.2", "+2.2"]
+            },
+            {
+              "type": "equation-input",
+              "instruction": "What is the **opposite of 4.3**?",
+              "target": -4.3,
+              "acceptable": ["-4.3"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "l3",
+      "title": "Comparing negatives",
+      "miniLessons": [
+        {
+          "id": "ml1",
+          "title": "Which is greater?",
+          "steps": [
+            {
+              "type": "place-point",
+              "instruction": "Plot **−7**.",
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "target": -7
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Which of these two is greater: **−7** or **2**? (Remember, the number farther to the right is greater. The number farther to the left is less.)",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-7, 2],
+              "choices": [
+                { "text": "−7", "correct": false },
+                { "text": "2", "correct": true }
+              ]
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Agree or disagree: **−5 is less than −8**? (The number farther to the left is less.)",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-5, -8],
+              "choices": [
+                { "text": "Agree", "correct": false },
+                { "text": "Disagree", "correct": true }
+              ],
+              "hint": "−5 is to the right of −8, so −5 is greater, not less."
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Try this without a number line. (Draw one if you want.) Which is greater: **−3** or **−7**?",
+              "choices": [
+                { "text": "−3", "correct": true },
+                { "text": "−7", "correct": false }
+              ]
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Which is less: **−1** or **−9**?",
+              "choices": [
+                { "text": "−1", "correct": false },
+                { "text": "−9", "correct": true }
+              ]
+            },
+            {
+              "type": "place-point",
+              "instruction": "Here is **−1.6**. Plot **−1.2**.",
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "staticPoints": [-1.6],
+              "target": -1.2
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Which is less: **−1.2** or **−1.6**?",
+              "showNumberLine": true,
+              "min": -3,
+              "max": 3,
+              "tickStep": 0.1,
+              "labelStep": 1,
+              "staticPoints": [-1.6, -1.2],
+              "choices": [
+                { "text": "−1.2", "correct": false },
+                { "text": "−1.6", "correct": true }
+              ]
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Which is greatest: **−5.5**, **−1.0**, or **1.0**?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-5.5, -1.0, 1.0],
+              "choices": [
+                { "text": "−5.5", "correct": false },
+                { "text": "−1.0", "correct": false },
+                { "text": "1.0", "correct": true }
+              ]
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Now try without a number line. Which is greatest: **−40**, **−17**, or **−16**?",
+              "choices": [
+                { "text": "−40", "correct": false },
+                { "text": "−17", "correct": false },
+                { "text": "−16", "correct": true }
+              ]
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "This one is tough but you know the math to solve it. Which is less: **−3.2** or **−3.4**? It may help to picture the number line in your head.",
+              "choices": [
+                { "text": "−3.2", "correct": false },
+                { "text": "−3.4", "correct": true }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "l4",
+      "title": "Absolute value",
+      "miniLessons": [
+        {
+          "id": "ml1",
+          "title": "Distance from zero",
+          "steps": [
+            {
+              "type": "multiple-choice",
+              "instruction": "Which of these numbers is closer to **0**?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-5, 3],
+              "choices": [
+                { "text": "−5", "correct": false },
+                { "text": "3", "correct": true }
+              ]
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Notice that the number closer to 0 is just the smaller number if you ignore the + or − sign. Which of these is closer to 0?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-3.5, 4.3],
+              "choices": [
+                { "text": "−3.5", "correct": true },
+                { "text": "4.3", "correct": false }
+              ]
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Mathematicians call the distance from 0 the **absolute value**. What is the absolute value of **−4**?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-4],
+              "choices": [
+                { "text": "4", "correct": true },
+                { "text": "−4", "correct": false }
+              ],
+              "hint": "Distance is always positive."
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "What is the absolute value of **4**?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [4],
+              "choices": [
+                { "text": "4", "correct": true },
+                { "text": "−4", "correct": false }
+              ]
+            },
+            {
+              "type": "equation-input",
+              "instruction": "What is the absolute value of **−3.2**?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-3.2],
+              "target": 3.2,
+              "acceptable": ["3.2", "+3.2"]
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Agree or disagree: the absolute value of a number can never be negative.",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "choices": [
+                { "text": "Agree", "correct": true },
+                { "text": "Disagree", "correct": false }
+              ],
+              "hint": "Distance can't be negative."
+            },
+            {
+              "type": "equation-input",
+              "instruction": "There is a quick way to write \"absolute value\": two vertical lines. So the absolute value of −5 is |−5|. What is it?",
+              "prefix": "|−5| = ",
+              "target": 5,
+              "acceptable": ["5", "+5"]
+            },
+            {
+              "type": "equation-input",
+              "instruction": "What is **|−12.9|**?",
+              "prefix": "|−12.9| = ",
+              "target": 12.9,
+              "acceptable": ["12.9", "+12.9"]
+            },
+            {
+              "type": "equation-input",
+              "instruction": "**−7** and **+7** are opposites because they are the same distance from 0. What is the absolute value of each?",
+              "prefix": "|−7| = ",
+              "target": 7,
+              "acceptable": ["7", "+7"],
+              "hint": "Both have the same absolute value: 7."
+            },
+            {
+              "type": "multiple-choice",
+              "instruction": "Agree or disagree: Two numbers that are opposites can have **different** absolute values?",
+              "showNumberLine": true,
+              "min": -10,
+              "max": 10,
+              "tickStep": 1,
+              "labelStep": 2,
+              "staticPoints": [-7, 7],
+              "choices": [
+                { "text": "Agree", "correct": false },
+                { "text": "Disagree", "correct": true }
+              ],
+              "hint": "Opposites are the same distance from 0, so their absolute values are equal."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
