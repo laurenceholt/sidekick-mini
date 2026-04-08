@@ -343,7 +343,10 @@ button { font-family: inherit; }
   color: #1a1a2e;
   letter-spacing: 1px;
 }
-.choice-btn:hover { border-color: #57B477; background: #f2faf5; }
+@media (hover: hover) {
+  .choice-btn:hover { border-color: #57B477; background: #f2faf5; }
+}
+.choice-btn:focus { outline: none; }
 .choice-btn.selected { border-color: #57B477; background: #e5f5eb; color: #57B477; }
 .choice-btn.correct { border-color: #58cc02; background: #eafbe6; color: #58cc02; }
 .choice-btn.wrong { border-color: #ff4b4b; background: #ffecec; color: #ff4b4b; }
