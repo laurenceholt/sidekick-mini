@@ -28,7 +28,21 @@ export default function MultiStepShell({
   const [buttonState, setButtonState] = useState<CheckButtonState>("disabled");
   const [feedback, setFeedback] = useState<FeedbackState>("idle");
   const [feedbackMessage, setFeedbackMessage] = useState<string | undefined>();
-  const [bobaCount] = useState(0);
+  const [bobaCount, setBobaCount] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    return parseInt(localStorage.getItem("bobaCount") || "0", 10) || 0;
+  });
+  const [wasRetry, setWasRetry] = useState(false);
+
+  const addBoba = (n: number) => {
+    setBobaCount((c) => {
+      const next = c + n;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("bobaCount", String(next));
+      }
+      return next;
+    });
+  };
 
   const step = miniLesson.steps[stepIdx] as Step | undefined;
   const total = miniLesson.steps.length;
@@ -69,10 +83,13 @@ export default function MultiStepShell({
       result = gradeEquationInput(step as any, answer as string);
     }
     if (result.correct) {
+      const earned = wasRetry ? 2 : 5;
+      addBoba(earned);
       setFeedback("correct");
-      setFeedbackMessage("Great job!");
+      setFeedbackMessage(`Great job! +${earned} boba`);
       setButtonState("correct");
     } else {
+      addBoba(1);
       setFeedback("wrong");
       setFeedbackMessage(result.hint);
       setButtonState("wrong");
@@ -81,11 +98,13 @@ export default function MultiStepShell({
 
   const handleContinue = () => {
     reset();
+    setWasRetry(false);
     setStepIdx((i) => i + 1);
   };
 
   const handleRetry = () => {
     reset();
+    setWasRetry(true);
     setAttemptKey((k) => k + 1);
   };
 
