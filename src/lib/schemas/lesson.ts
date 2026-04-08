@@ -63,6 +63,61 @@ export interface EquationInputStep extends BaseStep {
   staticPoints?: number[];
 }
 
+export interface MovePointStep extends BaseStep {
+  type: "move-point";
+  min: number;
+  max: number;
+  tickStep?: number;
+  labelStep?: number;
+  startValue: number;
+  target: number;
+  moveBy?: number;
+  equationLabel?: string;
+}
+
+export interface NumberLineChoiceStep extends BaseStep {
+  type: "number-line-choice";
+  min: number;
+  max: number;
+  tickStep?: number;
+  labelStep?: number;
+  points: number[];
+  choices: { text: string; correct: boolean }[];
+}
+
+export interface ThermometerStep extends BaseStep {
+  type: "thermometer";
+  min: number;
+  max: number;
+  tickStep?: number;
+  target?: number;
+  displayTemp?: number;
+  choices?: { text: string; correct: boolean }[];
+}
+
+export interface ThermometerCompareStep extends BaseStep {
+  type: "thermometer-compare";
+  min: number;
+  max: number;
+  tickStep?: number;
+  temperatures: number[];
+  choices: { text: string; correct: boolean }[];
+}
+
+export interface ElevationStep extends BaseStep {
+  type: "elevation";
+  min: number;
+  max: number;
+  tickStep?: number;
+  target?: number;
+  staticPoints?: number[];
+  choices?: { text: string; correct: boolean }[];
+}
+
+export interface CelebrateStep extends BaseStep {
+  type: "celebrate";
+}
+
 export type Step = BaseStep & Record<string, unknown>;
 
 export interface MiniLesson {

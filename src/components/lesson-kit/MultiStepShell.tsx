@@ -6,6 +6,14 @@ import type { FeedbackState } from "./FeedbackBox";
 import PlacePoint, { gradePlacePoint } from "./PlacePoint";
 import MultipleChoice, { gradeMultipleChoice } from "./MultipleChoice";
 import EquationInput, { gradeEquationInput } from "./EquationInput";
+import MovePoint, { gradeMovePoint } from "./MovePoint";
+import NumberLineChoice, { gradeNumberLineChoice } from "./NumberLineChoice";
+import Thermometer, {
+  gradeThermometer,
+  ThermometerCompare,
+  gradeThermometerCompare,
+} from "./Thermometer";
+import Elevation, { gradeElevation } from "./Elevation";
 
 export interface MultiStepShellProps {
   miniLesson: MiniLesson;
@@ -47,6 +55,19 @@ export default function MultiStepShell({
   const step = miniLesson.steps[stepIdx] as Step | undefined;
   const total = miniLesson.steps.length;
 
+  if (step && step.type === "celebrate") {
+    return (
+      <div className="celebrate">
+        <div className="trophy">🏆</div>
+        <div className="congrats-text">Amazing work!</div>
+        <div className="sub-text">Mini-lesson complete!</div>
+        <button className="check-btn next" onClick={onComplete}>
+          CONTINUE
+        </button>
+      </div>
+    );
+  }
+
   if (!step) {
     return (
       <div className="celebrate">
@@ -81,6 +102,16 @@ export default function MultiStepShell({
       result = gradeMultipleChoice(step as any, answer as number);
     } else if (step.type === "equation-input") {
       result = gradeEquationInput(step as any, answer as string);
+    } else if (step.type === "move-point") {
+      result = gradeMovePoint(step as any, answer as number);
+    } else if (step.type === "number-line-choice") {
+      result = gradeNumberLineChoice(step as any, answer as number);
+    } else if (step.type === "thermometer") {
+      result = gradeThermometer(step as any, answer as number);
+    } else if (step.type === "thermometer-compare") {
+      result = gradeThermometerCompare(step as any, answer as number);
+    } else if (step.type === "elevation") {
+      result = gradeElevation(step as any, answer as number);
     }
     if (result.correct) {
       const earned = wasRetry ? 2 : 5;
@@ -166,13 +197,79 @@ export default function MultiStepShell({
               onSelect={handleSelect}
             />
           )}
-          {step.type !== "place-point" &&
-            step.type !== "multiple-choice" &&
-            step.type !== "equation-input" && (
-              <div className="text-sm font-bold text-neutral-500">
-                Step type <code>{step.type}</code> not yet ported.
-              </div>
-            )}
+          {step.type === "move-point" && (
+            <MovePoint
+              key={stepIdx}
+              step={step as any}
+              attemptKey={attemptKey}
+              locked={locked}
+              onSelect={handleSelect}
+            />
+          )}
+          {step.type === "number-line-choice" && (
+            <NumberLineChoice
+              key={stepIdx}
+              step={step as any}
+              locked={locked}
+              selectedIdx={answer as number | null}
+              result={
+                buttonState === "correct"
+                  ? "correct"
+                  : buttonState === "wrong"
+                  ? "wrong"
+                  : null
+              }
+              onSelect={handleSelect}
+            />
+          )}
+          {step.type === "thermometer" && (
+            <Thermometer
+              key={stepIdx}
+              step={step as any}
+              locked={locked}
+              selectedIdx={answer as number | null}
+              result={
+                buttonState === "correct"
+                  ? "correct"
+                  : buttonState === "wrong"
+                  ? "wrong"
+                  : null
+              }
+              onSelect={handleSelect}
+            />
+          )}
+          {step.type === "thermometer-compare" && (
+            <ThermometerCompare
+              key={stepIdx}
+              step={step as any}
+              locked={locked}
+              selectedIdx={answer as number | null}
+              result={
+                buttonState === "correct"
+                  ? "correct"
+                  : buttonState === "wrong"
+                  ? "wrong"
+                  : null
+              }
+              onSelect={handleSelect}
+            />
+          )}
+          {step.type === "elevation" && (
+            <Elevation
+              key={stepIdx}
+              step={step as any}
+              locked={locked}
+              selectedIdx={answer as number | null}
+              result={
+                buttonState === "correct"
+                  ? "correct"
+                  : buttonState === "wrong"
+                  ? "wrong"
+                  : null
+              }
+              onSelect={handleSelect}
+            />
+          )}
         </LessonScreen>
       </div>
 
