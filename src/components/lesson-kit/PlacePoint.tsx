@@ -87,14 +87,22 @@ export function gradePlacePoint(
   if (step.target !== undefined) {
     const tol = step.tolerance ?? 0;
     if (Math.abs(value - step.target) <= tol + 1e-9) return { correct: true };
-    return {
-      correct: false,
-      hint:
-        step.hint ||
-        (step.target < 0
+    const sameSide =
+      (step.target < 0 && value < 0) ||
+      (step.target > 0 && value > 0) ||
+      step.target === 0;
+    let hint: string;
+    if (step.hint) {
+      hint = step.hint;
+    } else if (sameSide) {
+      hint = "You're on the correct side of zero, but not quite right.";
+    } else {
+      hint =
+        step.target < 0
           ? "Look for the negative side — it's to the LEFT of zero."
-          : "Look for the positive side — it's to the RIGHT of zero."),
-    };
+          : "Look for the positive side — it's to the RIGHT of zero.";
+    }
+    return { correct: false, hint };
   }
   return { correct: true };
 }
