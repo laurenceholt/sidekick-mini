@@ -587,6 +587,19 @@ button { font-family: inherit; }
   margin-left: 2px;
 }
 
+.elev-tick.highlight .elev-tick-line {
+  background: #57B477;
+  height: 3px;
+  width: 14px;
+  box-shadow: 0 0 6px rgba(87,180,119,0.8);
+}
+.elev-tick.highlight .elev-tick-label {
+  color: #fff;
+  background: #57B477;
+  padding: 1px 6px;
+  border-radius: 6px;
+  text-shadow: none;
+}
 .elev-click-zone {
   position: absolute;
   inset: 0;

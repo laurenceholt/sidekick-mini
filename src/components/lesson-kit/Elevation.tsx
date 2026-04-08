@@ -105,7 +105,11 @@ export default function Elevation({
           {ticks.map((t) => {
             const pct = ((t - step.min) / range) * 100;
             return (
-              <div key={t} className="elev-tick" style={{ bottom: `${pct}%` }}>
+              <div
+                key={t}
+                className={`elev-tick${picked === t ? " highlight" : ""}`}
+                style={{ bottom: `${pct}%` }}
+              >
                 <span
                   className="elev-tick-label"
                   style={t === 0 ? { fontWeight: 900, color: "#1a1a2e" } : {}}

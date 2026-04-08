@@ -28,18 +28,9 @@ function tone(freq: number, dur: number, type: OscillatorType = "sine", delay = 
   osc.stop(t0 + dur + 0.05);
 }
 
-export function playCorrect() {
-  tone(660, 0.12, "triangle", 0);
-  tone(880, 0.18, "triangle", 0.08);
-}
-
-export function playWrong() {
-  tone(220, 0.2, "square", 0, 0.08);
-  tone(180, 0.2, "square", 0.05, 0.08);
-}
-
-export function playBonus() {
-  tone(660, 0.1, "triangle", 0);
-  tone(880, 0.1, "triangle", 0.1);
-  tone(1100, 0.2, "triangle", 0.2);
-}
+// Sounds disabled for now — stubs so callers don't need to change.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _ = tone;
+export function playCorrect() {}
+export function playWrong() {}
+export function playBonus() {}
