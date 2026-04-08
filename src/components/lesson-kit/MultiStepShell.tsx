@@ -17,6 +17,8 @@ import Elevation, { gradeElevation } from "./Elevation";
 import StreakToast from "./StreakToast";
 import Confetti from "./Confetti";
 import StoryOverlay from "./StoryOverlay";
+import { playCorrect, playWrong, playBonus } from "@/lib/sounds";
+import { logEvent } from "@/lib/events";
 
 export interface MultiStepShellProps {
   miniLesson: MiniLesson;
@@ -228,6 +230,10 @@ export default function MultiStepShell({
       result = gradeThermometerCompare(s, answer as number);
     else if (s.type === "elevation") result = gradeElevation(s, answer as number);
 
+    const stepIdStr = `${stepIdPrefix ?? ""}-${stepIdx + 1}`;
+    const ansStr =
+      answer === null || answer === undefined ? null : String(answer);
+
     if (result.correct) {
       const earned = wasRetry ? 2 : 5;
       addBoba(earned);
@@ -236,19 +242,25 @@ export default function MultiStepShell({
       if (newStreak > 0 && newStreak % 5 === 0) {
         addBoba(10);
         setShowStreak(true);
+        playBonus();
+      } else {
+        playCorrect();
       }
       setFeedback("correct");
       setFeedbackMessage(`Great job! +${earned} boba`);
       setButtonState("correct");
+      logEvent({ stepId: stepIdStr, answer: ansStr, correct: true, bobaTotal: bobaCount + earned });
     } else {
       if (!inFixMistakes && !wrongSteps.includes(stepIdx)) {
         setWrongSteps((w) => [...w, stepIdx]);
       }
       addBoba(1);
       setStreak(0);
+      playWrong();
       setFeedback("wrong");
       setFeedbackMessage(result.hint);
       setButtonState("wrong");
+      logEvent({ stepId: stepIdStr, answer: ansStr, correct: false, bobaTotal: bobaCount + 1 });
     }
   };
 

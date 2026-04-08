@@ -302,6 +302,7 @@ button { font-family: inherit; }
 .check-btn.try-again { background: #ff4b4b; box-shadow: 0 4px 0 #d63b3b; }
 
 /* Equation input */
+.equation .op { color: #57B477; }
 .equation-row {
   display: flex;
   align-items: center;

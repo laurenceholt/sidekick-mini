@@ -56,12 +56,33 @@ export default function MultipleChoice({
                 onSelect(i);
               }}
             >
-              {ch.text}
+              {ch.arrow ? (
+                <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <SvgArrow direction={ch.arrow} />
+                  <span style={{ fontSize: 18 }}>
+                    {ch.text.charAt(0).toUpperCase() + ch.text.slice(1)}
+                  </span>
+                </span>
+              ) : (
+                ch.text
+              )}
             </button>
           );
         })}
       </div>
     </div>
+  );
+}
+
+function SvgArrow({ direction }: { direction: "left" | "right" }) {
+  const d =
+    direction === "left"
+      ? "M 8 25 L 35 4 C 37 2, 40 4, 40 7 L 40 16 L 88 16 C 92 16, 94 18, 94 22 L 94 28 C 94 32, 92 34, 88 34 L 40 34 L 40 43 C 40 46, 37 48, 35 46 L 8 25 Z"
+      : "M 92 25 L 65 4 C 63 2, 60 4, 60 7 L 60 16 L 12 16 C 8 16, 6 18, 6 22 L 6 28 C 6 32, 8 34, 12 34 L 60 34 L 60 43 C 60 46, 63 48, 65 46 L 92 25 Z";
+  return (
+    <svg viewBox="0 0 100 50" width="120" height="60" style={{ display: "block", margin: "0 auto" }}>
+      <path d={d} fill="currentColor" />
+    </svg>
   );
 }
 

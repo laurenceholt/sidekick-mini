@@ -41,7 +41,7 @@ export interface PlacePointStep extends BaseStep {
 
 export interface MultipleChoiceStep extends BaseStep {
   type: "multiple-choice";
-  choices: { text: string; correct: boolean }[];
+  choices: { text: string; correct: boolean; arrow?: "left" | "right" }[];
   showNumberLine?: boolean;
   min?: number;
   max?: number;

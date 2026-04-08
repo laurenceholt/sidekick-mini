@@ -37,8 +37,8 @@ export default function EquationInput({
           ))}
         </NumberLine>
       )}
-      <div className="equation-row">
-        {step.prefix && <span className="eq-prefix">{step.prefix}</span>}
+      <div className="equation equation-row">
+        {step.prefix && <ColorizedEq text={step.prefix} />}
         <input
           className="answer-box"
           type="text"
@@ -53,6 +53,23 @@ export default function EquationInput({
         />
       </div>
     </div>
+  );
+}
+
+function ColorizedEq({ text }: { text: string }) {
+  const parts = text.split(/(\s*[+\−\-=]\s*)/);
+  return (
+    <>
+      {parts.map((tok, i) => {
+        const t = tok.trim();
+        const isOp = t === "+" || t === "−" || t === "-" || t === "=";
+        return (
+          <span key={i} className={isOp ? "op" : undefined}>
+            {tok}
+          </span>
+        );
+      })}
+    </>
   );
 }
 
