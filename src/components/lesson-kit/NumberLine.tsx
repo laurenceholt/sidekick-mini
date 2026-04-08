@@ -34,7 +34,11 @@ export default function NumberLine({
 
   const ticks = useMemo(() => {
     const set = new Set<number>();
-    for (let i = min; i <= max; i += tickStep) set.add(i);
+    const steps = Math.round((max - min) / tickStep);
+    for (let i = 0; i <= steps; i++) {
+      const v = Math.round((min + i * tickStep) * 1e6) / 1e6;
+      set.add(v);
+    }
     (highlightValues ?? []).forEach((v) => set.add(v));
     (extraTickValues ?? []).forEach((v) => set.add(v));
     return [...set].sort((a, b) => a - b);
@@ -59,7 +63,9 @@ export default function NumberLine({
         {ticks.map((v) => {
           const pct = ((v - min) / range) * 100;
           const isHighlight = highlightValues?.includes(v);
-          const showLabel = !labelStep || v % labelStep === 0;
+          const showLabel =
+            !labelStep ||
+            Math.abs(v / labelStep - Math.round(v / labelStep)) < 1e-6;
           return (
             <div key={v}>
               <div className="tick" style={{ left: `${pct}%` }} />

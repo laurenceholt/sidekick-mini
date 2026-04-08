@@ -113,6 +113,7 @@ export default function MultiStepShell({
         <LessonScreen prompt={step.instruction as string | undefined}>
           {step.type === "place-point" && (
             <PlacePoint
+              key={stepIdx}
               step={step as any}
               attemptKey={attemptKey}
               locked={locked}
@@ -122,6 +123,7 @@ export default function MultiStepShell({
           )}
           {step.type === "multiple-choice" && (
             <MultipleChoice
+              key={stepIdx}
               step={step as any}
               attemptKey={attemptKey}
               locked={locked}
@@ -138,6 +140,7 @@ export default function MultiStepShell({
           )}
           {step.type === "equation-input" && (
             <EquationInput
+              key={stepIdx}
               step={step as any}
               attemptKey={attemptKey}
               locked={locked}
