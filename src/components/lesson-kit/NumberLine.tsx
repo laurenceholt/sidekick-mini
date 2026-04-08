@@ -4,6 +4,8 @@ export interface NumberLineProps {
   min: number;
   max: number;
   tickStep?: number;
+  /** If set, labels only show on multiples of labelStep (ticks still drawn at tickStep). */
+  labelStep?: number;
   highlightValues?: number[];
   extraTickValues?: number[];
   children?: ReactNode;
@@ -20,6 +22,7 @@ export default function NumberLine({
   min,
   max,
   tickStep = 1,
+  labelStep,
   highlightValues,
   extraTickValues,
   children,
@@ -56,15 +59,18 @@ export default function NumberLine({
         {ticks.map((v) => {
           const pct = ((v - min) / range) * 100;
           const isHighlight = highlightValues?.includes(v);
+          const showLabel = !labelStep || v % labelStep === 0;
           return (
             <div key={v}>
               <div className="tick" style={{ left: `${pct}%` }} />
-              <div
-                className={`tick-label${isHighlight ? " highlight" : ""}`}
-                style={{ left: `${pct}%` }}
-              >
-                {v}
-              </div>
+              {showLabel && (
+                <div
+                  className={`tick-label${isHighlight ? " highlight" : ""}`}
+                  style={{ left: `${pct}%` }}
+                >
+                  {v}
+                </div>
+              )}
             </div>
           );
         })}

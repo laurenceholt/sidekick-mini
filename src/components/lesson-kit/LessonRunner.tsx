@@ -25,6 +25,9 @@ export default function LessonRunner(props: LessonRunnerProps) {
   const sectionId = props.sectionId ?? qs?.get("s") ?? "s1";
   const lessonId = props.lessonId ?? qs?.get("l") ?? "l1";
   const miniId = props.miniId ?? qs?.get("ml") ?? "ml1";
+  // Optional 1-based step deep-link: /lesson?...&step=3
+  const stepParam = qs?.get("step");
+  const initialStepIdx = stepParam ? Math.max(0, parseInt(stepParam, 10) - 1) : 0;
 
   useEffect(() => {
     let alive = true;
@@ -63,6 +66,7 @@ export default function LessonRunner(props: LessonRunnerProps) {
     <MultiStepShell
       miniLesson={mini}
       stepIdPrefix={prefix}
+      initialStepIdx={initialStepIdx}
       onExit={() => (window.location.href = "/")}
       onComplete={() => (window.location.href = "/")}
     />

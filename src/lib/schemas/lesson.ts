@@ -28,6 +28,8 @@ export interface PlacePointStep extends BaseStep {
   min: number;
   max: number;
   tickStep?: number;
+  /** If set, only ticks at multiples of `labelStep` show numeric labels. Defaults to tickStep. */
+  labelStep?: number;
   target?: number;
   condition?: "lessThan" | "greaterThan";
   conditionValue?: number;

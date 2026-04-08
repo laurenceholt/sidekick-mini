@@ -10,6 +10,8 @@ export interface PlacePointProps {
   onSelect: (value: number | null) => void;
   /** Incremented by parent to force a fresh attempt (TRY AGAIN). */
   attemptKey?: number;
+  /** When true, ignore further clicks (e.g. while showing wrong feedback). */
+  locked?: boolean;
 }
 
 /**
@@ -19,7 +21,7 @@ export interface PlacePointProps {
  * Mirrors mathkcs/src/components/lesson-kit pattern: one component per
  * step type, pure presentation + a narrow answer callback.
  */
-export default function PlacePoint({ step, onSelect, attemptKey = 0 }: PlacePointProps) {
+export default function PlacePoint({ step, onSelect, attemptKey = 0, locked }: PlacePointProps) {
   const [value, setValue] = useState<number | null>(null);
 
   // Reset on new attempt
@@ -31,15 +33,20 @@ export default function PlacePoint({ step, onSelect, attemptKey = 0 }: PlacePoin
         min={step.min}
         max={step.max}
         tickStep={step.tickStep}
+        labelStep={step.labelStep}
         highlightValues={step.highlightValues}
         extraTickValues={
           step.referencePoint !== undefined ? [step.referencePoint] : undefined
         }
         snapStep={step.tickStep ?? 1}
-        onLineClick={(v) => {
-          setValue(v);
-          onSelect(v);
-        }}
+        onLineClick={
+          locked
+            ? undefined
+            : (v) => {
+                setValue(v);
+                onSelect(v);
+              }
+        }
       >
         {value !== null && (
           <NumberLinePoint

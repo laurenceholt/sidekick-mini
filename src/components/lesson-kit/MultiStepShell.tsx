@@ -9,6 +9,8 @@ export interface MultiStepShellProps {
   miniLesson: MiniLesson;
   /** e.g. "1-1-1-1" — the mini-lesson path; step index is appended for display. */
   stepIdPrefix?: string;
+  /** 0-based step index to start from (for deep links). */
+  initialStepIdx?: number;
   onExit?: () => void;
   onComplete?: () => void;
 }
@@ -16,10 +18,11 @@ export interface MultiStepShellProps {
 export default function MultiStepShell({
   miniLesson,
   stepIdPrefix,
+  initialStepIdx = 0,
   onExit,
   onComplete,
 }: MultiStepShellProps) {
-  const [stepIdx, setStepIdx] = useState(0);
+  const [stepIdx, setStepIdx] = useState(initialStepIdx);
   const [attemptKey, setAttemptKey] = useState(0);
   const [selectedValue, setSelectedValue] = useState<number | null>(null);
   const [buttonState, setButtonState] = useState<CheckButtonState>("disabled");
@@ -100,6 +103,7 @@ export default function MultiStepShell({
             <PlacePoint
               step={step as any}
               attemptKey={attemptKey}
+              locked={buttonState === "wrong"}
               onSelect={(v) => {
                 setSelectedValue(v);
                 setButtonState(v === null ? "disabled" : "ready");
