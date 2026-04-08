@@ -300,3 +300,50 @@ button { font-family: inherit; }
 .check-btn.disabled { background: #e0e0e0; color: #aaa; box-shadow: 0 4px 0 #ccc; cursor: not-allowed; }
 .check-btn.next { background: #57B477; box-shadow: 0 4px 0 #44905F; }
 .check-btn.try-again { background: #ff4b4b; box-shadow: 0 4px 0 #d63b3b; }
+
+/* Equation input */
+.equation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 48px;
+  font-weight: 900;
+  color: #1a1a2e;
+  margin-top: 12px;
+}
+.eq-prefix { font-size: 48px; font-weight: 900; }
+.answer-box {
+  width: 110px;
+  height: 72px;
+  border: 3px solid #57B477;
+  border-radius: 14px;
+  background: #f2faf5;
+  font-family: 'Nunito', sans-serif;
+  font-size: 48px;
+  font-weight: 900;
+  text-align: center;
+  color: #1a1a2e;
+  outline: none;
+}
+.answer-box:focus { border-color: #57B477; box-shadow: 0 0 0 3px rgba(87,180,119,.2); }
+
+/* Multiple choice */
+.choices { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; align-self: center; margin: 16px auto 0; }
+.choice-btn {
+  padding: 18px 24px;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  background: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #1a1a2e;
+  letter-spacing: 1px;
+}
+.choice-btn:hover { border-color: #57B477; background: #f2faf5; }
+.choice-btn.selected { border-color: #57B477; background: #e5f5eb; color: #57B477; }
+.choice-btn.correct { border-color: #58cc02; background: #eafbe6; color: #58cc02; }
+.choice-btn.wrong { border-color: #ff4b4b; background: #ffecec; color: #ff4b4b; }

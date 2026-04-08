@@ -48,6 +48,9 @@ export default function PlacePoint({ step, onSelect, attemptKey = 0, locked }: P
               }
         }
       >
+        {(step.staticPoints ?? []).map((sv, i) => (
+          <NumberLinePoint key={`s${i}`} value={sv} min={step.min} max={step.max} />
+        ))}
         {value !== null && (
           <NumberLinePoint
             value={value}
@@ -82,7 +85,8 @@ export function gradePlacePoint(
     };
   }
   if (step.target !== undefined) {
-    if (value === step.target) return { correct: true };
+    const tol = step.tolerance ?? 0;
+    if (Math.abs(value - step.target) <= tol + 1e-9) return { correct: true };
     return {
       correct: false,
       hint:

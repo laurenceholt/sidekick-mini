@@ -4,12 +4,12 @@ import LessonScreen from "./LessonScreen";
 import CheckFlow, { type CheckButtonState } from "./CheckFlow";
 import type { FeedbackState } from "./FeedbackBox";
 import PlacePoint, { gradePlacePoint } from "./PlacePoint";
+import MultipleChoice, { gradeMultipleChoice } from "./MultipleChoice";
+import EquationInput, { gradeEquationInput } from "./EquationInput";
 
 export interface MultiStepShellProps {
   miniLesson: MiniLesson;
-  /** e.g. "1-1-1-1" — the mini-lesson path; step index is appended for display. */
   stepIdPrefix?: string;
-  /** 0-based step index to start from (for deep links). */
   initialStepIdx?: number;
   onExit?: () => void;
   onComplete?: () => void;
@@ -24,7 +24,7 @@ export default function MultiStepShell({
 }: MultiStepShellProps) {
   const [stepIdx, setStepIdx] = useState(initialStepIdx);
   const [attemptKey, setAttemptKey] = useState(0);
-  const [selectedValue, setSelectedValue] = useState<number | null>(null);
+  const [answer, setAnswer] = useState<unknown>(null);
   const [buttonState, setButtonState] = useState<CheckButtonState>("disabled");
   const [feedback, setFeedback] = useState<FeedbackState>("idle");
   const [feedbackMessage, setFeedbackMessage] = useState<string | undefined>();
@@ -47,25 +47,35 @@ export default function MultiStepShell({
   }
 
   const reset = () => {
-    setSelectedValue(null);
+    setAnswer(null);
     setButtonState("disabled");
     setFeedback("idle");
     setFeedbackMessage(undefined);
   };
 
+  const handleSelect = (v: unknown) => {
+    setAnswer(v);
+    setButtonState(v === null || v === undefined ? "disabled" : "ready");
+  };
+
   const handleCheck = () => {
-    if (selectedValue === null) return;
+    if (answer === null || answer === undefined) return;
+    let result: { correct: boolean; hint?: string } = { correct: false };
     if (step.type === "place-point") {
-      const result = gradePlacePoint(step as any, selectedValue);
-      if (result.correct) {
-        setFeedback("correct");
-        setFeedbackMessage("Great job!");
-        setButtonState("correct");
-      } else {
-        setFeedback("wrong");
-        setFeedbackMessage(result.hint);
-        setButtonState("wrong");
-      }
+      result = gradePlacePoint(step as any, answer as number);
+    } else if (step.type === "multiple-choice") {
+      result = gradeMultipleChoice(step as any, answer as number);
+    } else if (step.type === "equation-input") {
+      result = gradeEquationInput(step as any, answer as string);
+    }
+    if (result.correct) {
+      setFeedback("correct");
+      setFeedbackMessage("Great job!");
+      setButtonState("correct");
+    } else {
+      setFeedback("wrong");
+      setFeedbackMessage(result.hint);
+      setButtonState("wrong");
     }
   };
 
@@ -78,6 +88,8 @@ export default function MultiStepShell({
     reset();
     setAttemptKey((k) => k + 1);
   };
+
+  const locked = buttonState === "wrong";
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -103,19 +115,42 @@ export default function MultiStepShell({
             <PlacePoint
               step={step as any}
               attemptKey={attemptKey}
-              locked={buttonState === "wrong"}
-              onSelect={(v) => {
-                setSelectedValue(v);
-                setButtonState(v === null ? "disabled" : "ready");
-              }}
+              locked={locked}
+              onSelect={handleSelect}
               onAnswer={() => {}}
             />
           )}
-          {step.type !== "place-point" && (
-            <div className="text-sm font-bold text-neutral-500">
-              Step type <code>{step.type}</code> not yet ported in this spike.
-            </div>
+          {step.type === "multiple-choice" && (
+            <MultipleChoice
+              step={step as any}
+              attemptKey={attemptKey}
+              locked={locked}
+              selectedIdx={answer as number | null}
+              result={
+                buttonState === "correct"
+                  ? "correct"
+                  : buttonState === "wrong"
+                  ? "wrong"
+                  : null
+              }
+              onSelect={handleSelect}
+            />
           )}
+          {step.type === "equation-input" && (
+            <EquationInput
+              step={step as any}
+              attemptKey={attemptKey}
+              locked={locked}
+              onSelect={handleSelect}
+            />
+          )}
+          {step.type !== "place-point" &&
+            step.type !== "multiple-choice" &&
+            step.type !== "equation-input" && (
+              <div className="text-sm font-bold text-neutral-500">
+                Step type <code>{step.type}</code> not yet ported.
+              </div>
+            )}
         </LessonScreen>
       </div>
 

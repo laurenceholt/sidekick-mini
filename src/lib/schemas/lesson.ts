@@ -35,6 +35,32 @@ export interface PlacePointStep extends BaseStep {
   conditionValue?: number;
   referencePoint?: number;
   highlightValues?: number[];
+  staticPoints?: number[];
+  tolerance?: number;
+}
+
+export interface MultipleChoiceStep extends BaseStep {
+  type: "multiple-choice";
+  choices: { text: string; correct: boolean }[];
+  showNumberLine?: boolean;
+  min?: number;
+  max?: number;
+  tickStep?: number;
+  labelStep?: number;
+  staticPoints?: number[];
+}
+
+export interface EquationInputStep extends BaseStep {
+  type: "equation-input";
+  prefix?: string;
+  target: number;
+  acceptable?: string[];
+  showNumberLine?: boolean;
+  min?: number;
+  max?: number;
+  tickStep?: number;
+  labelStep?: number;
+  staticPoints?: number[];
 }
 
 export type Step = BaseStep & Record<string, unknown>;
