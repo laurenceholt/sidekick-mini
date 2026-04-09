@@ -339,7 +339,7 @@ export default function MultiStepShell({
       buttonState={buttonState}
       feedback={feedback}
       feedbackMessage={feedbackMessage}
-      hintText={(step as any).hint || undefined}
+      hintText={(step as any).hintButton || undefined}
       hintKey={`${inFixMistakes ? "f" : "m"}-${stepIdx}`}
       onCheck={handleCheck}
       onContinue={handleContinue}
