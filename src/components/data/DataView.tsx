@@ -42,6 +42,7 @@ export default function DataView() {
   const [from, setFrom] = useState<string>(fmt(weekAgo));
   const [to, setTo] = useState<string>(fmt(today));
   const [attemptFilter, setAttemptFilter] = useState<AttemptFilter>("first");
+  const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
     supabase
@@ -61,12 +62,19 @@ export default function DataView() {
     const toD = to ? new Date(to + "T23:59:59") : null;
     return rows.filter((r) => {
       if (attemptFilter === "first" && !isFirstTry(r.step_id)) return false;
+      if (userId && r.user_id !== userId) return false;
       const d = toDate(r);
       if (fromD && (!d || d < fromD)) return false;
       if (toD && (!d || d > toD)) return false;
       return true;
     });
-  }, [rows, from, to, attemptFilter]);
+  }, [rows, from, to, attemptFilter, userId]);
+
+  const userIds = useMemo(() => {
+    const s = new Set<string>();
+    for (const r of rows ?? []) if (r.user_id) s.add(r.user_id);
+    return [...s].sort();
+  }, [rows]);
 
   // Group by base step_id → {correct, wrong}
   const byStep = useMemo(() => {
@@ -137,6 +145,14 @@ export default function DataView() {
           >
             <option value="first">First try only</option>
             <option value="all">All tries</option>
+          </select>
+        </Field>
+        <Field label="User">
+          <select value={userId} onChange={(e) => setUserId(e.target.value)}>
+            <option value="">All users</option>
+            {userIds.map((u) => (
+              <option key={u} value={u}>{u}</option>
+            ))}
           </select>
         </Field>
         <div style={{ flex: 1 }} />
