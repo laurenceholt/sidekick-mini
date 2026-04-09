@@ -115,6 +115,7 @@ function StepsTab({
           <th>Loc</th>
           <th style={{ width: "12%" }}>Type</th>
           <th>Instruction</th>
+          <th>Hint</th>
           <th></th>
         </tr>
       </thead>
@@ -140,6 +141,19 @@ function StepsTab({
                         defaultValue={(step as any).instruction || ""}
                         onBlur={(e) => {
                           (step as any).instruction = e.target.value;
+                          save(data);
+                        }}
+                      />
+                    </td>
+                    <td>
+                      <textarea
+                        className="edit-instruction-input"
+                        rows={2}
+                        defaultValue={(step as any).hint || ""}
+                        onBlur={(e) => {
+                          const v = e.target.value;
+                          if (v) (step as any).hint = v;
+                          else delete (step as any).hint;
                           save(data);
                         }}
                       />

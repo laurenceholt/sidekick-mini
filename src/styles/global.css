@@ -313,6 +313,37 @@ button { font-family: inherit; }
 .check-btn.next { background: #57B477; box-shadow: 0 4px 0 #44905F; }
 .check-btn.try-again { background: #ff4b4b; box-shadow: 0 4px 0 #d63b3b; }
 
+.hint-btn {
+  padding: 14px 28px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: #fff;
+  color: #57B477;
+  border: 2px solid #57B477;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #cfe7d5;
+  transition: all 0.15s;
+  margin-right: auto;
+}
+.hint-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #cfe7d5; }
+.hint-text {
+  flex: 1;
+  background: #fff;
+  border: 2px solid #57B477;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1.3;
+  max-width: 55%;
+  margin-right: auto;
+}
+
 /* Equation input */
 .equation .op { color: #57B477; }
 .equation-row {

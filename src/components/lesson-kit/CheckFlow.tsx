@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import FeedbackBox, { type FeedbackState } from "./FeedbackBox";
 
 export type CheckButtonState = "disabled" | "ready" | "correct" | "wrong";
@@ -7,6 +7,9 @@ export interface CheckFlowProps {
   buttonState: CheckButtonState;
   feedback: FeedbackState;
   feedbackMessage?: string;
+  hintText?: string;
+  /** Step index — used to reset revealed hint when moving between steps. */
+  hintKey?: number | string;
   onCheck: () => void;
   onContinue: () => void;
   onRetry: () => void;
@@ -20,10 +23,16 @@ export default function CheckFlow({
   buttonState,
   feedback,
   feedbackMessage,
+  hintText,
+  hintKey,
   onCheck,
   onContinue,
   onRetry,
 }: CheckFlowProps) {
+  const [hintShown, setHintShown] = useState(false);
+  useEffect(() => {
+    setHintShown(false);
+  }, [hintKey]);
   const label =
     buttonState === "correct"
       ? "CONTINUE"
@@ -63,9 +72,27 @@ export default function CheckFlow({
     return () => window.removeEventListener("keydown", handler);
   }, [onClick]);
 
+  const showHintCtrl =
+    !!hintText && (buttonState === "disabled" || buttonState === "ready");
+
   return (
     <div className="bottom-bar">
       <FeedbackBox state={feedback} message={feedbackMessage} />
+      {showHintCtrl && (
+        hintShown ? (
+          <div className="hint-text" role="note">
+            {hintText}
+          </div>
+        ) : (
+          <button
+            className="hint-btn"
+            type="button"
+            onClick={() => setHintShown(true)}
+          >
+            HINT
+          </button>
+        )
+      )}
       <button className={cls} disabled={buttonState === "disabled"} onClick={onClick}>
         {label}
       </button>

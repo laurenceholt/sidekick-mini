@@ -339,6 +339,8 @@ export default function MultiStepShell({
       buttonState={buttonState}
       feedback={feedback}
       feedbackMessage={feedbackMessage}
+      hintText={(step as any).hint || undefined}
+      hintKey={`${inFixMistakes ? "f" : "m"}-${stepIdx}`}
       onCheck={handleCheck}
       onContinue={handleContinue}
       onRetry={handleRetry}
@@ -441,6 +443,8 @@ interface ShellProps {
   buttonState?: CheckButtonState;
   feedback?: FeedbackState;
   feedbackMessage?: string;
+  hintText?: string;
+  hintKey?: number | string;
   onCheck?: () => void;
   onContinue?: () => void;
   onRetry?: () => void;
@@ -457,6 +461,8 @@ function Shell({
   buttonState,
   feedback,
   feedbackMessage,
+  hintText,
+  hintKey,
   onCheck,
   onContinue,
   onRetry,
@@ -488,6 +494,8 @@ function Shell({
           buttonState={buttonState}
           feedback={feedback!}
           feedbackMessage={feedbackMessage}
+          hintText={hintText}
+          hintKey={hintKey}
           onCheck={onCheck!}
           onContinue={onContinue!}
           onRetry={onRetry!}
