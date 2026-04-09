@@ -12,44 +12,75 @@ export interface MovePointProps {
 export default function MovePoint({ step, onSelect, locked }: MovePointProps) {
   const [value, setValue] = useState<number>(step.startValue);
   const lineRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
 
   useEffect(() => {
     onSelect(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setFromEvent = (clientX: number) => {
-    if (!lineRef.current) return;
-    const rect = lineRef.current.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const snap = step.tickStep ?? 1;
-    let v = step.min + pct * (step.max - step.min);
-    v = Math.round(v / snap) * snap;
-    v = Math.max(step.min, Math.min(step.max, v));
-    setValue(v);
-    onSelect(v);
-  };
+  // Native event listeners with {passive:false} so preventDefault() actually
+  // stops the browser from claiming the gesture as a scroll/pan. React's
+  // synthetic touch handlers are registered as passive in recent versions,
+  // which made touchmove unresponsive on iOS/Android.
+  useEffect(() => {
+    const el = lineRef.current;
+    if (!el) return;
 
-  const onPointerDown = (e: React.PointerEvent) => {
-    if (locked) return;
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {}
-    setFromEvent(e.clientX);
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (locked) return;
-    // On touch, pressure/buttons may report 0 even while dragging — use
-    // pointerType instead and always move while captured.
-    if (e.pointerType === "mouse" && e.buttons === 0) return;
-    e.preventDefault();
-    setFromEvent(e.clientX);
-  };
-  const onPointerUp = (e: React.PointerEvent) => {
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {}
-  };
+    const setFromClientX = (clientX: number) => {
+      const rect = el.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const snap = step.tickStep ?? 1;
+      let v = step.min + pct * (step.max - step.min);
+      v = Math.round(v / snap) * snap;
+      v = Math.max(step.min, Math.min(step.max, v));
+      setValue(v);
+      onSelect(v);
+    };
+
+    const onDown = (e: PointerEvent | TouchEvent | MouseEvent) => {
+      if (locked) return;
+      draggingRef.current = true;
+      let x: number | undefined;
+      if ("touches" in e && e.touches.length) x = e.touches[0].clientX;
+      else if ("clientX" in e) x = e.clientX;
+      if (x !== undefined) {
+        e.preventDefault();
+        setFromClientX(x);
+      }
+    };
+    const onMove = (e: PointerEvent | TouchEvent | MouseEvent) => {
+      if (locked || !draggingRef.current) return;
+      let x: number | undefined;
+      if ("touches" in e && e.touches.length) x = e.touches[0].clientX;
+      else if ("clientX" in e) x = e.clientX;
+      if (x !== undefined) {
+        e.preventDefault();
+        setFromClientX(x);
+      }
+    };
+    const onUp = () => {
+      draggingRef.current = false;
+    };
+
+    el.addEventListener("touchstart", onDown, { passive: false });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend", onUp);
+    el.addEventListener("touchcancel", onUp);
+    el.addEventListener("mousedown", onDown);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+
+    return () => {
+      el.removeEventListener("touchstart", onDown);
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend", onUp);
+      el.removeEventListener("touchcancel", onUp);
+      el.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [locked, step.min, step.max, step.tickStep, onSelect]);
 
   const range = step.max - step.min;
   const arcs: { d: string; ax: number; ay: number }[] = [];
@@ -82,10 +113,6 @@ export default function MovePoint({ step, onSelect, locked }: MovePointProps) {
       <div
         ref={lineRef}
         className="move-point-drag"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
         style={{ touchAction: "none", position: "relative" }}
       >
         <NumberLine
