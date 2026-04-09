@@ -88,6 +88,7 @@ export default function MultiStepShell({
     return parseInt(localStorage.getItem("bobaCount") || "0", 10) || 0;
   });
   const [wasRetry, setWasRetry] = useState(false);
+  const [attempt, setAttempt] = useState(1);
   const [streak, setStreak] = useState(0);
   const [showStreak, setShowStreak] = useState(false);
   const [wrongSteps, setWrongSteps] = useState<number[]>([]);
@@ -126,7 +127,11 @@ export default function MultiStepShell({
         hideCheck
       >
         <div className="celebrate">
-          <div style={{ fontSize: 80, lineHeight: 1 }}>🥤</div>
+          <img
+            src="/boba-spilled.svg"
+            alt="spilled boba"
+            style={{ width: 160, height: 120 }}
+          />
           <div
             className="congrats-text"
             style={{ color: "#1a1a2e", fontSize: 24 }}
@@ -140,6 +145,7 @@ export default function MultiStepShell({
               setFixQueue(wrongSteps.map((i) => miniLesson.steps[i] as Step));
               setInFixMistakes(true);
               setStepIdx(0);
+              setAttempt(1);
               setStreak(0);
               setWrongSteps([]);
               resetAnswerState();
@@ -229,6 +235,7 @@ export default function MultiStepShell({
   function advance() {
     resetAnswerState();
     setWasRetry(false);
+    setAttempt(1);
     const next = stepIdx + 1;
     if (next < total) {
       setStepIdx(next);
@@ -265,7 +272,15 @@ export default function MultiStepShell({
       result = gradeThermometerCompare(s, answer as number);
     else if (s.type === "elevation") result = gradeElevation(s, answer as number);
 
-    const stepIdStr = `${stepIdPrefix ?? ""}-${stepIdx + 1}`;
+    // Event id extension:
+    //   first try          → 1-1-1-1-1
+    //   retry in main pass → 1-1-1-1-1.r2, .r3, …
+    //   fix-mistakes pass  → 1-1-1-1-1.fix (+ .fix.r2 on retries)
+    const base = `${stepIdPrefix ?? ""}-${stepIdx + 1}`;
+    let suffix = "";
+    if (inFixMistakes) suffix += ".fix";
+    if (attempt > 1) suffix += `.r${attempt}`;
+    const stepIdStr = base + suffix;
     const ansStr =
       answer === null || answer === undefined ? null : String(answer);
 
@@ -308,6 +323,7 @@ export default function MultiStepShell({
   const handleRetry = () => {
     resetAnswerState();
     setWasRetry(true);
+    setAttempt((a) => a + 1);
     setAttemptKey((k) => k + 1);
   };
 

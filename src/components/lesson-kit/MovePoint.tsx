@@ -32,13 +32,23 @@ export default function MovePoint({ step, onSelect, locked }: MovePointProps) {
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (locked) return;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
     setFromEvent(e.clientX);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (locked) return;
-    if (e.buttons === 0) return;
+    // On touch, pressure/buttons may report 0 even while dragging — use
+    // pointerType instead and always move while captured.
+    if (e.pointerType === "mouse" && e.buttons === 0) return;
+    e.preventDefault();
     setFromEvent(e.clientX);
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
   };
 
   const range = step.max - step.min;
@@ -71,8 +81,11 @@ export default function MovePoint({ step, onSelect, locked }: MovePointProps) {
       )}
       <div
         ref={lineRef}
+        className="move-point-drag"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
         style={{ touchAction: "none", position: "relative" }}
       >
         <NumberLine

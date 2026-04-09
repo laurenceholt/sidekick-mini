@@ -251,6 +251,11 @@ button { font-family: inherit; }
 }
 .point.placed { animation: pop 0.3s ease; }
 .point.ghost { opacity: 0.28; box-shadow: none; pointer-events: none; }
+
+/* Move-point drag: disable native touch gestures on the number line and
+   all its children so horizontal drags reach pointermove handlers. */
+.move-point-drag,
+.move-point-drag * { touch-action: none; -webkit-user-select: none; user-select: none; }
 @keyframes pop {
   0% { transform: translate(-50%, -50%) scale(0.5); }
   60% { transform: translate(-50%, -50%) scale(1.2); }

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120">
+  <!-- puddle -->
+  <ellipse cx="105" cy="95" rx="52" ry="12" fill="#c9a27a" opacity="0.55"/>
+  <ellipse cx="105" cy="93" rx="46" ry="9" fill="#b78a5c" opacity="0.75"/>
+  <!-- stray tapioca pearls in puddle -->
+  <circle cx="80"  cy="96" r="3" fill="#2d1a0f"/>
+  <circle cx="92"  cy="99" r="3" fill="#2d1a0f"/>
+  <circle cx="104" cy="95" r="3" fill="#2d1a0f"/>
+  <circle cx="117" cy="99" r="3" fill="#2d1a0f"/>
+  <circle cx="129" cy="96" r="3" fill="#2d1a0f"/>
+  <circle cx="138" cy="92" r="3" fill="#2d1a0f"/>
+  <circle cx="72"  cy="92" r="2.5" fill="#2d1a0f"/>
+  <circle cx="150" cy="95" r="2.5" fill="#2d1a0f"/>
+  <!-- cup tipped to the left -->
+  <g transform="rotate(-70 55 70)">
+    <!-- cup body -->
+    <path d="M30 30 L74 30 L70 92 L34 92 Z" fill="#f4e5d0" stroke="#1a1a2e" stroke-width="3" stroke-linejoin="round"/>
+    <!-- drink inside -->
+    <path d="M34 36 L70 36 L67 86 L37 86 Z" fill="#b78a5c"/>
+    <!-- dome lid -->
+    <path d="M26 30 Q52 8 78 30 Z" fill="#ffffff" stroke="#1a1a2e" stroke-width="3" stroke-linejoin="round"/>
+    <!-- straw -->
+    <rect x="48" y="2" width="8" height="30" rx="2" fill="#ff69a0" stroke="#1a1a2e" stroke-width="2"/>
+  </g>
+  <!-- spill streak from cup opening -->
+  <path d="M78 62 Q92 78 108 86" fill="none" stroke="#b78a5c" stroke-width="7" stroke-linecap="round" opacity="0.8"/>
+</svg>
