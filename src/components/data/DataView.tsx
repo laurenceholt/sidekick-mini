@@ -103,7 +103,7 @@ export default function DataView() {
       : 0;
 
   return (
-    <div style={{ padding: 24, fontFamily: "inherit", maxWidth: 1100, margin: "0 auto" }}>
+    <div className="data-view" style={{ padding: 24, fontFamily: "inherit", maxWidth: 1100, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 18 }}>
         <a href="/" style={{ color: "#57B477", fontWeight: 700, textDecoration: "none" }}>
           ← Back to map

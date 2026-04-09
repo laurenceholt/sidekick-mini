@@ -28,6 +28,9 @@ button { font-family: inherit; }
   margin: 0 auto;
   position: relative;
 }
+#app:has(.edit-content, .data-view) {
+  max-width: 1200px;
+}
 
 /* ═══════════════════════════════════════════
    MAP VIEW
