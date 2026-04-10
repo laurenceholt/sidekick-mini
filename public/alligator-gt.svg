@@ -1,31 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="200" height="160">
-  <!-- Upper jaw -->
-  <path d="M170,60 L30,10" stroke="#4CAF50" stroke-width="22" stroke-linecap="round" fill="none"/>
-  <!-- Lower jaw -->
-  <path d="M170,60 L30,150" stroke="#4CAF50" stroke-width="22" stroke-linecap="round" fill="none"/>
-  <!-- Upper jaw highlight -->
-  <path d="M170,60 L30,10" stroke="#66BB6A" stroke-width="16" stroke-linecap="round" fill="none"/>
-  <!-- Lower jaw highlight -->
-  <path d="M170,60 L30,150" stroke="#66BB6A" stroke-width="16" stroke-linecap="round" fill="none"/>
-  <!-- Upper teeth -->
-  <polygon points="55,22 65,20 55,38" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="72,28 82,25 72,44" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="89,34 99,31 89,50" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="106,40 116,37 106,56" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="123,46 133,43 123,62" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="140,52 150,49 140,68" fill="#666" stroke="#555" stroke-width="1"/>
-  <!-- Lower teeth -->
-  <polygon points="55,138 65,140 55,122" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="72,132 82,134 72,116" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="89,126 99,128 89,110" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="106,120 116,122 106,104" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="123,114 133,116 123,98" fill="#666" stroke="#555" stroke-width="1"/>
-  <polygon points="140,108 150,110 140,92" fill="#666" stroke="#555" stroke-width="1"/>
-  <!-- Eye bump -->
-  <circle cx="172" cy="60" r="16" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
-  <circle cx="172" cy="60" r="13" fill="#66BB6A"/>
-  <!-- Eye -->
-  <circle cx="172" cy="58" r="8" fill="white" stroke="#388E3C" stroke-width="1.5"/>
-  <circle cx="174" cy="57" r="4" fill="#1a1a2e"/>
-  <circle cx="175.5" cy="55.5" r="1.5" fill="white"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 160" width="360" height="160">
+  <!-- Big 10 on the left -->
+  <text x="52" y="95" font-family="Nunito, sans-serif" font-size="64" font-weight="900" fill="#1a1a2e" text-anchor="middle">10</text>
+
+  <!-- Alligator mouth in the middle -->
+  <g transform="translate(100,0)">
+    <!-- Upper jaw -->
+    <path d="M130,60 L20,15" stroke="#4CAF50" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M130,60 L20,15" stroke="#66BB6A" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <!-- Lower jaw -->
+    <path d="M130,60 L20,145" stroke="#4CAF50" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M130,60 L20,145" stroke="#66BB6A" stroke-width="14" stroke-linecap="round" fill="none"/>
+
+    <!-- Upper teeth -->
+    <g transform="translate(20,15) rotate(21.8)">
+      <polygon points="16,10 24,10 20,22" fill="#666" stroke="#555" stroke-width="0.5"/>
+      <polygon points="32,10 40,10 36,22" fill="#666" stroke="#555" stroke-width="0.5"/>
+      <polygon points="48,10 56,10 52,22" fill="#666" stroke="#555" stroke-width="0.5"/>
+      <polygon points="64,10 72,10 68,22" fill="#666" stroke="#555" stroke-width="0.5"/>
+      <polygon points="80,10 88,10 84,22" fill="#666" stroke="#555" stroke-width="0.5"/>
+    </g>
+
+    <!-- Lower teeth -->
+    <g transform="translate(20,145) rotate(-36.3)">
+      <polygon points="18,-10 26,-10 22,-22" fill="#666" stroke="#555" stroke-width="0.5"/>
+      <polygon points="36,-10 44,-10 40,-22" fill="#666" stroke="#555" stroke-width="0.5"/>
+      <polygon points="54,-10 62,-10 58,-22" fill="#666" stroke="#555" stroke-width="0.5"/>
+      <polygon points="72,-10 80,-10 76,-22" fill="#666" stroke="#555" stroke-width="0.5"/>
+      <polygon points="90,-10 98,-10 94,-22" fill="#666" stroke="#555" stroke-width="0.5"/>
+    </g>
+
+    <!-- Eye bump -->
+    <circle cx="132" cy="60" r="14" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
+    <circle cx="132" cy="60" r="11" fill="#66BB6A"/>
+    <!-- Eye -->
+    <circle cx="132" cy="58" r="7" fill="white" stroke="#388E3C" stroke-width="1.5"/>
+    <circle cx="134" cy="57" r="3.5" fill="#1a1a2e"/>
+    <circle cx="135" cy="55.5" r="1.2" fill="white"/>
+  </g>
+
+  <!-- Big 0 on the right -->
+  <text x="310" y="95" font-family="Nunito, sans-serif" font-size="64" font-weight="900" fill="#1a1a2e" text-anchor="middle">0</text>
 </svg>
