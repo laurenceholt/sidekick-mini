@@ -15,6 +15,8 @@ export type StepType =
   | "thermometer"
   | "thermometer-compare"
   | "elevation"
+  | "compare-sign"
+  | "inequality-input"
   | "celebrate";
 
 export interface BaseStep {
@@ -112,6 +114,28 @@ export interface ElevationStep extends BaseStep {
   target?: number;
   staticPoints?: number[];
   choices?: { text: string; correct: boolean }[];
+}
+
+export interface CompareSignStep extends BaseStep {
+  type: "compare-sign";
+  left: number | string;
+  right: number | string;
+  target: ">" | "<";
+  showNumberLine?: boolean;
+  min?: number;
+  max?: number;
+  tickStep?: number;
+  labelStep?: number;
+  staticPoints?: number[];
+  image?: string;
+  sentence?: string;
+}
+
+export interface InequalityInputStep extends BaseStep {
+  type: "inequality-input";
+  leftValue?: number;
+  rightValue?: number;
+  sign: ">" | "<";
 }
 
 export interface CelebrateStep extends BaseStep {

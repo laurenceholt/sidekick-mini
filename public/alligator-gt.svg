@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" width="320" height="120">
+  <!-- Big 10 -->
+  <text x="40" y="78" font-family="Nunito, sans-serif" font-size="60" font-weight="900" fill="#1a1a2e" text-anchor="middle">10</text>
+  <!-- Alligator mouth (>) pointing left toward 10 -->
+  <g transform="translate(160,60)">
+    <!-- Jaws -->
+    <polygon points="-30,-35 30,0 -30,35" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
+    <!-- Teeth top -->
+    <polygon points="-25,-30 -15,-20 -20,-28" fill="white"/>
+    <polygon points="-12,-22 -2,-12 -8,-20" fill="white"/>
+    <polygon points="2,-12 12,-4 6,-10" fill="white"/>
+    <!-- Teeth bottom -->
+    <polygon points="-25,30 -15,20 -20,28" fill="white"/>
+    <polygon points="-12,22 -2,12 -8,20" fill="white"/>
+    <polygon points="2,12 12,4 6,10" fill="white"/>
+    <!-- Eye -->
+    <circle cx="-18" cy="-22" r="6" fill="white" stroke="#388E3C" stroke-width="1.5"/>
+    <circle cx="-16" cy="-22" r="3" fill="#1a1a2e"/>
+  </g>
+  <!-- Big 0 -->
+  <text x="280" y="78" font-family="Nunito, sans-serif" font-size="60" font-weight="900" fill="#1a1a2e" text-anchor="middle">0</text>
+</svg>

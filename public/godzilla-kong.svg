@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+  <!-- Ground -->
+  <rect x="0" y="170" width="300" height="30" fill="#8BC34A" rx="4"/>
+
+  <!-- Kong (shorter, on left) -->
+  <g transform="translate(70,170)">
+    <!-- Body -->
+    <ellipse cx="0" cy="-30" rx="22" ry="28" fill="#5D4037"/>
+    <!-- Head -->
+    <circle cx="0" cy="-68" r="18" fill="#6D4C41"/>
+    <!-- Face -->
+    <ellipse cx="0" cy="-62" rx="12" ry="10" fill="#8D6E63"/>
+    <!-- Eyes -->
+    <circle cx="-6" cy="-72" r="3" fill="white"/>
+    <circle cx="6" cy="-72" r="3" fill="white"/>
+    <circle cx="-5" cy="-72" r="1.5" fill="#1a1a2e"/>
+    <circle cx="7" cy="-72" r="1.5" fill="#1a1a2e"/>
+    <!-- Arms -->
+    <rect x="-30" y="-48" width="12" height="28" rx="5" fill="#5D4037" transform="rotate(-15,-30,-48)"/>
+    <rect x="18" y="-48" width="12" height="28" rx="5" fill="#5D4037" transform="rotate(15,18,-48)"/>
+    <!-- Legs -->
+    <rect x="-14" y="-10" width="10" height="14" rx="4" fill="#5D4037"/>
+    <rect x="4" y="-10" width="10" height="14" rx="4" fill="#5D4037"/>
+    <!-- Label -->
+    <text x="0" y="18" font-family="Nunito, sans-serif" font-size="12" font-weight="800" fill="#666" text-anchor="middle">104 ft</text>
+  </g>
+
+  <!-- Godzilla (much taller, on right) -->
+  <g transform="translate(210,170)">
+    <!-- Body -->
+    <ellipse cx="0" cy="-70" rx="28" ry="65" fill="#546E7A"/>
+    <!-- Head -->
+    <ellipse cx="0" cy="-142" rx="16" ry="20" fill="#607D8B"/>
+    <!-- Spikes -->
+    <polygon points="-8,-130 0,-155 8,-130" fill="#78909C"/>
+    <polygon points="-12,-108 -4,-130 4,-108" fill="#78909C"/>
+    <polygon points="-10,-80 -2,-102 6,-80" fill="#78909C"/>
+    <!-- Eyes -->
+    <circle cx="-7" cy="-148" r="3" fill="#FFC107"/>
+    <circle cx="7" cy="-148" r="3" fill="#FFC107"/>
+    <circle cx="-7" cy="-148" r="1.5" fill="#1a1a2e"/>
+    <circle cx="7" cy="-148" r="1.5" fill="#1a1a2e"/>
+    <!-- Mouth -->
+    <path d="M-8,-136 Q0,-132 8,-136" fill="none" stroke="#1a1a2e" stroke-width="1.5"/>
+    <!-- Arms (short T-rex style) -->
+    <rect x="-34" y="-90" width="10" height="18" rx="4" fill="#546E7A" transform="rotate(-20,-34,-90)"/>
+    <rect x="24" y="-90" width="10" height="18" rx="4" fill="#546E7A" transform="rotate(20,24,-90)"/>
+    <!-- Legs -->
+    <rect x="-16" y="-14" width="14" height="20" rx="5" fill="#546E7A"/>
+    <rect x="2" y="-14" width="14" height="20" rx="5" fill="#546E7A"/>
+    <!-- Tail -->
+    <path d="M15,-20 Q40,-30 55,-15 Q65,-8 70,-20" fill="none" stroke="#546E7A" stroke-width="10" stroke-linecap="round"/>
+    <!-- Label -->
+    <text x="0" y="28" font-family="Nunito, sans-serif" font-size="12" font-weight="800" fill="#666" text-anchor="middle">393 ft</text>
+  </g>
+</svg>

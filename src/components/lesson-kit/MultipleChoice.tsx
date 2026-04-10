@@ -24,6 +24,15 @@ export default function MultipleChoice({
 
   return (
     <div key={attemptKey}>
+      {(step as any).image && (
+        <div style={{ display: "flex", justifyContent: "center", margin: "12px 0" }}>
+          <img
+            src={(step as any).image}
+            alt=""
+            style={{ maxWidth: "100%", maxHeight: 180, objectFit: "contain" }}
+          />
+        </div>
+      )}
       {step.showNumberLine && step.min !== undefined && step.max !== undefined && (
         <NumberLine
           min={step.min}

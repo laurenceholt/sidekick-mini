@@ -14,6 +14,8 @@ import Thermometer, {
   gradeThermometerCompare,
 } from "./Thermometer";
 import Elevation, { gradeElevation } from "./Elevation";
+import CompareSign, { gradeCompareSign } from "./CompareSign";
+import InequalityInput, { gradeInequalityInput } from "./InequalityInput";
 import StreakToast from "./StreakToast";
 import Confetti from "./Confetti";
 import StoryOverlay from "./StoryOverlay";
@@ -271,6 +273,8 @@ export default function MultiStepShell({
     else if (s.type === "thermometer-compare")
       result = gradeThermometerCompare(s, answer as number);
     else if (s.type === "elevation") result = gradeElevation(s, answer as number);
+    else if (s.type === "compare-sign") result = gradeCompareSign(s, answer as string);
+    else if (s.type === "inequality-input") result = gradeInequalityInput(s, answer as string);
 
     // Event id extension:
     //   first try          → 1-1-1-1-1
@@ -422,6 +426,24 @@ export default function MultiStepShell({
             locked={locked}
             selectedIdx={answer as number | null}
             result={buttonState === "correct" ? "correct" : buttonState === "wrong" ? "wrong" : null}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "compare-sign" && (
+          <CompareSign
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "inequality-input" && (
+          <InequalityInput
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
             onSelect={handleSelect}
           />
         )}

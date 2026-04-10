@@ -1024,3 +1024,63 @@ button { font-family: inherit; }
 .story-nav button:disabled { background: #d0d0d0; box-shadow: 0 3px 0 #b0b0b0; cursor: default; }
 .story-nav button:not(:disabled):active { transform: translateY(2px); box-shadow: 0 1px 0 #3d9e65; }
 .story-counter { font-weight: 800; color: #888; font-size: 14px; }
+
+/* ═══════════════════════════════════════════
+   COMPARE SIGN & INEQUALITY INPUT
+   ═══════════════════════════════════════════ */
+.compare-sign-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 20px 0;
+}
+.compare-sign-value {
+  font-size: 48px;
+  font-weight: 900;
+  color: #1a1a2e;
+  line-height: 1;
+}
+.compare-sign-select {
+  font-family: inherit;
+  font-size: 36px;
+  font-weight: 900;
+  text-align: center;
+  width: 64px;
+  padding: 4px 0;
+  border: 3px solid var(--accent);
+  border-radius: 12px;
+  color: var(--accent);
+  background: #fff;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.compare-sign-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(87,180,119,0.3);
+}
+.compare-sign-fixed {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--accent);
+}
+.compare-sign-input {
+  width: 80px;
+  font-size: 36px;
+  font-weight: 900;
+  text-align: center;
+}
+.compare-sign-sentence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 20px 16px;
+  text-align: center;
+  line-height: 1.5;
+}
