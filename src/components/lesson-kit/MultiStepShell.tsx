@@ -331,7 +331,7 @@ export default function MultiStepShell({
     setAttemptKey((k) => k + 1);
   };
 
-  const locked = buttonState === "wrong";
+  const locked = buttonState === "wrong" || buttonState === "correct";
 
   return (
     <Shell

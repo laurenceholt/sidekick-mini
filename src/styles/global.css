@@ -1036,16 +1036,18 @@ button { font-family: inherit; }
   margin: 20px 0;
 }
 .compare-sign-value {
+  font-family: 'Nunito', sans-serif;
   font-size: 48px;
   font-weight: 900;
   color: #1a1a2e;
   line-height: 1;
 }
 .compare-sign-select {
-  font-family: inherit;
+  font-family: 'Nunito', sans-serif;
   font-size: 36px;
   font-weight: 900;
   text-align: center;
+  text-align-last: center;
   width: 64px;
   padding: 4px 0;
   border: 3px solid var(--accent);
@@ -1055,21 +1057,26 @@ button { font-family: inherit; }
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
 }
 .compare-sign-select:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(87,180,119,0.3);
 }
 .compare-sign-fixed {
-  font-size: 36px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 48px;
   font-weight: 900;
   color: var(--accent);
 }
-.compare-sign-input {
-  width: 80px;
-  font-size: 36px;
+.compare-sign-input.answer-box {
+  width: 110px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 48px;
   font-weight: 900;
   text-align: center;
+  height: 72px;
 }
 .compare-sign-sentence {
   display: flex;
@@ -1077,6 +1084,7 @@ button { font-family: inherit; }
   align-items: center;
   justify-content: center;
   gap: 10px;
+  font-family: 'Nunito', sans-serif;
   font-size: 24px;
   font-weight: 800;
   color: #1a1a2e;

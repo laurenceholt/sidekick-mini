@@ -1,22 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" width="320" height="120">
-  <!-- Big 10 -->
-  <text x="40" y="78" font-family="Nunito, sans-serif" font-size="60" font-weight="900" fill="#1a1a2e" text-anchor="middle">10</text>
-  <!-- Alligator mouth (>) pointing left toward 10 -->
-  <g transform="translate(160,60)">
-    <!-- Jaws -->
-    <polygon points="-30,-35 30,0 -30,35" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
-    <!-- Teeth top -->
-    <polygon points="-25,-30 -15,-20 -20,-28" fill="white"/>
-    <polygon points="-12,-22 -2,-12 -8,-20" fill="white"/>
-    <polygon points="2,-12 12,-4 6,-10" fill="white"/>
-    <!-- Teeth bottom -->
-    <polygon points="-25,30 -15,20 -20,28" fill="white"/>
-    <polygon points="-12,22 -2,12 -8,20" fill="white"/>
-    <polygon points="2,12 12,4 6,10" fill="white"/>
-    <!-- Eye -->
-    <circle cx="-18" cy="-22" r="6" fill="white" stroke="#388E3C" stroke-width="1.5"/>
-    <circle cx="-16" cy="-22" r="3" fill="#1a1a2e"/>
-  </g>
-  <!-- Big 0 -->
-  <text x="280" y="78" font-family="Nunito, sans-serif" font-size="60" font-weight="900" fill="#1a1a2e" text-anchor="middle">0</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="200" height="160">
+  <!-- Upper jaw -->
+  <path d="M170,60 L30,10" stroke="#4CAF50" stroke-width="22" stroke-linecap="round" fill="none"/>
+  <!-- Lower jaw -->
+  <path d="M170,60 L30,150" stroke="#4CAF50" stroke-width="22" stroke-linecap="round" fill="none"/>
+  <!-- Upper jaw highlight -->
+  <path d="M170,60 L30,10" stroke="#66BB6A" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <!-- Lower jaw highlight -->
+  <path d="M170,60 L30,150" stroke="#66BB6A" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <!-- Upper teeth -->
+  <polygon points="55,22 65,20 55,38" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="72,28 82,25 72,44" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="89,34 99,31 89,50" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="106,40 116,37 106,56" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="123,46 133,43 123,62" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="140,52 150,49 140,68" fill="#666" stroke="#555" stroke-width="1"/>
+  <!-- Lower teeth -->
+  <polygon points="55,138 65,140 55,122" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="72,132 82,134 72,116" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="89,126 99,128 89,110" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="106,120 116,122 106,104" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="123,114 133,116 123,98" fill="#666" stroke="#555" stroke-width="1"/>
+  <polygon points="140,108 150,110 140,92" fill="#666" stroke="#555" stroke-width="1"/>
+  <!-- Eye bump -->
+  <circle cx="172" cy="60" r="16" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
+  <circle cx="172" cy="60" r="13" fill="#66BB6A"/>
+  <!-- Eye -->
+  <circle cx="172" cy="58" r="8" fill="white" stroke="#388E3C" stroke-width="1.5"/>
+  <circle cx="174" cy="57" r="4" fill="#1a1a2e"/>
+  <circle cx="175.5" cy="55.5" r="1.5" fill="white"/>
 </svg>
