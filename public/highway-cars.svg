@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+  <!-- Sky -->
+  <defs>
+    <linearGradient id="skyH" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#81D4FA"/>
+      <stop offset="1" stop-color="#FFCCBC"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="180" fill="url(#skyH)"/>
+
+  <!-- Distant mountains -->
+  <path d="M0,110 L40,85 L80,100 L130,80 L180,95 L230,78 L280,92 L320,88 L320,130 L0,130 Z" fill="#9FA8DA" opacity="0.5"/>
+
+  <!-- Road -->
+  <rect x="0" y="125" width="320" height="55" fill="#424242"/>
+  <!-- Road dashes -->
+  <g fill="#FFEB3B">
+    <rect x="10" y="150" width="20" height="4"/>
+    <rect x="50" y="150" width="20" height="4"/>
+    <rect x="90" y="150" width="20" height="4"/>
+    <rect x="130" y="150" width="20" height="4"/>
+    <rect x="170" y="150" width="20" height="4"/>
+    <rect x="210" y="150" width="20" height="4"/>
+    <rect x="250" y="150" width="20" height="4"/>
+    <rect x="290" y="150" width="20" height="4"/>
+  </g>
+
+  <!-- Speed limit sign -->
+  <g transform="translate(30,110)">
+    <rect x="-2" y="0" width="4" height="20" fill="#555"/>
+    <rect x="-16" y="-30" width="32" height="34" rx="4" fill="#fff" stroke="#1a1a2e" stroke-width="2"/>
+    <text x="0" y="-18" font-family="Nunito, sans-serif" font-size="7" font-weight="900" text-anchor="middle" fill="#1a1a2e">SPEED</text>
+    <text x="0" y="-11" font-family="Nunito, sans-serif" font-size="6" font-weight="900" text-anchor="middle" fill="#1a1a2e">LIMIT</text>
+    <text x="0" y="0" font-family="Nunito, sans-serif" font-size="14" font-weight="900" text-anchor="middle" fill="#1a1a2e">65</text>
+  </g>
+
+  <!-- Front car (50s style - pink Cadillac with fins) -->
+  <g transform="translate(110,150)">
+    <!-- Shadow -->
+    <ellipse cx="0" cy="18" rx="60" ry="4" fill="#1a1a2e" opacity="0.25"/>
+    <!-- Body lower -->
+    <path d="M-60,10 L-55,-5 Q-50,-15 -35,-18 L35,-18 Q50,-15 55,-5 L60,10 Z" fill="#F48FB1"/>
+    <!-- Body upper (cabin/windshield) -->
+    <path d="M-28,-18 Q-22,-32 -8,-34 L14,-34 Q28,-30 32,-18 Z" fill="#F8BBD0"/>
+    <!-- Windshield -->
+    <path d="M-22,-18 Q-18,-30 -6,-32 L12,-32 Q24,-28 28,-18 Z" fill="#B3E5FC"/>
+    <!-- Window divider -->
+    <line x1="2" y1="-32" x2="2" y2="-18" stroke="#F48FB1" stroke-width="1.5"/>
+    <!-- Tail fin (rear) -->
+    <polygon points="55,-5 60,10 62,12 60,-12 52,-12" fill="#EC407A"/>
+    <!-- Chrome stripe -->
+    <rect x="-55" y="-6" width="110" height="3" fill="#fff"/>
+    <!-- Headlight (front of car, right side since facing right) -->
+    <circle cx="55" cy="0" r="4" fill="#FFF59D" stroke="#FBC02D" stroke-width="1"/>
+    <!-- Wheels -->
+    <circle cx="-35" cy="10" r="10" fill="#1a1a2e"/>
+    <circle cx="-35" cy="10" r="5" fill="#9E9E9E"/>
+    <circle cx="35" cy="10" r="10" fill="#1a1a2e"/>
+    <circle cx="35" cy="10" r="5" fill="#9E9E9E"/>
+    <!-- Door handle -->
+    <rect x="-6" y="-8" width="8" height="2" rx="1" fill="#fff"/>
+  </g>
+
+  <!-- Back car (smaller, further back - teal) -->
+  <g transform="translate(230,155)">
+    <ellipse cx="0" cy="14" rx="45" ry="3" fill="#1a1a2e" opacity="0.2"/>
+    <path d="M-45,6 L-40,-5 Q-35,-13 -22,-15 L26,-15 Q38,-13 40,-5 L45,6 Z" fill="#4DD0E1"/>
+    <path d="M-20,-15 Q-16,-26 -4,-28 L12,-28 Q22,-25 26,-15 Z" fill="#80DEEA"/>
+    <path d="M-16,-15 Q-14,-24 -4,-26 L10,-26 Q20,-23 22,-15 Z" fill="#B3E5FC"/>
+    <rect x="-40" y="-2" width="80" height="2" fill="#fff"/>
+    <polygon points="40,-4 44,7 46,8 45,-10 38,-10" fill="#00ACC1"/>
+    <circle cx="40" cy="3" r="3" fill="#FFF59D" stroke="#FBC02D" stroke-width="1"/>
+    <circle cx="-25" cy="8" r="8" fill="#1a1a2e"/>
+    <circle cx="-25" cy="8" r="4" fill="#9E9E9E"/>
+    <circle cx="25" cy="8" r="8" fill="#1a1a2e"/>
+    <circle cx="25" cy="8" r="4" fill="#9E9E9E"/>
+  </g>
+
+  <!-- Palm tree -->
+  <g transform="translate(290,128)">
+    <rect x="-2" y="0" width="4" height="-26" fill="#6D4C41" transform="scale(1,-1)"/>
+    <path d="M0,-24 Q-16,-34 -18,-22 M0,-24 Q-10,-42 -4,-38 M0,-24 Q12,-40 4,-36 M0,-24 Q18,-32 16,-22 M0,-24 Q0,-38 0,-38" stroke="#43A047" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Sun -->
+  <circle cx="270" cy="40" r="16" fill="#FFEE58"/>
+  <circle cx="270" cy="40" r="20" fill="#FFEE58" opacity="0.3"/>
+</svg>

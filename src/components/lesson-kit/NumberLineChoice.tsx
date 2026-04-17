@@ -28,6 +28,7 @@ export default function NumberLineChoice({
         tickStep={step.tickStep}
         labelStep={step.labelStep}
         highlightValues={step.points}
+        inequalityLine={(step as any).inequalityLine}
       >
         {step.points.map((v, i) => (
           <NumberLinePoint key={i} value={v} min={step.min} max={step.max} />

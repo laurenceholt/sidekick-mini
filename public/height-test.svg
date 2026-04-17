@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" width="240" height="220">
+  <!-- Sky -->
+  <rect width="240" height="220" fill="#E3F2FD"/>
+  <!-- Ground -->
+  <rect x="0" y="200" width="240" height="20" fill="#8BC34A"/>
+
+  <!-- Height-measurement sign post -->
+  <g transform="translate(60,200)">
+    <!-- Post -->
+    <rect x="-4" y="-180" width="8" height="180" fill="#FFB300"/>
+    <!-- Sign top (smiling character cut-out) -->
+    <rect x="-32" y="-200" width="64" height="40" rx="4" fill="#FF7043" stroke="#D84315" stroke-width="2"/>
+    <text x="0" y="-174" font-family="Nunito, sans-serif" font-size="14" font-weight="900" fill="#fff" text-anchor="middle">RIDE!</text>
+
+    <!-- Tick marks labeled 1..5 feet -->
+    <g stroke="#5D4037" stroke-width="1.6">
+      <line x1="4" y1="-30" x2="20" y2="-30"/>
+      <line x1="4" y1="-60" x2="20" y2="-60"/>
+      <line x1="4" y1="-90" x2="24" y2="-90"/>
+      <line x1="4" y1="-120" x2="20" y2="-120"/>
+      <line x1="4" y1="-150" x2="20" y2="-150"/>
+    </g>
+    <g font-family="Nunito, sans-serif" font-size="10" font-weight="900" fill="#5D4037">
+      <text x="22" y="-26">1'</text>
+      <text x="22" y="-56">2'</text>
+      <text x="22" y="-86">3'</text>
+      <text x="22" y="-116">4'</text>
+      <text x="22" y="-146">5'</text>
+    </g>
+    <!-- Red arrow at 4 ft showing "must be taller than this" -->
+    <g transform="translate(0,-120)">
+      <polygon points="-22,0 -38,-8 -38,8" fill="#D50000"/>
+      <text x="-56" y="4" font-family="Nunito, sans-serif" font-size="10" font-weight="900" fill="#D50000">4 ft</text>
+    </g>
+  </g>
+
+  <!-- Kid standing next to post -->
+  <g transform="translate(150,200)">
+    <!-- Legs -->
+    <rect x="-10" y="-40" width="8" height="40" fill="#1976D2"/>
+    <rect x="2" y="-40" width="8" height="40" fill="#1976D2"/>
+    <!-- Shoes -->
+    <ellipse cx="-6" cy="-1" rx="7" ry="3" fill="#424242"/>
+    <ellipse cx="6" cy="-1" rx="7" ry="3" fill="#424242"/>
+    <!-- Torso -->
+    <rect x="-14" y="-80" width="28" height="42" rx="4" fill="#FFEB3B"/>
+    <!-- Arms -->
+    <rect x="-22" y="-78" width="8" height="28" rx="3" fill="#FFEB3B"/>
+    <rect x="14" y="-78" width="8" height="28" rx="3" fill="#FFEB3B"/>
+    <!-- Hands -->
+    <circle cx="-18" cy="-50" r="4" fill="#FFCC80"/>
+    <circle cx="18" cy="-50" r="4" fill="#FFCC80"/>
+    <!-- Head -->
+    <circle cx="0" cy="-94" r="14" fill="#FFCC80"/>
+    <!-- Hair -->
+    <path d="M-14,-100 Q-14,-110 0,-108 Q14,-110 14,-100 Q8,-104 0,-104 Q-8,-104 -14,-100" fill="#6D4C41"/>
+    <!-- Eyes -->
+    <circle cx="-5" cy="-94" r="2" fill="#1a1a2e"/>
+    <circle cx="5" cy="-94" r="2" fill="#1a1a2e"/>
+    <!-- Smile -->
+    <path d="M-6,-88 Q0,-84 6,-88" fill="none" stroke="#3E2723" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Top of head reaches ~4.3 ft on the scale; shown relative to sign -->
+  </g>
+
+  <!-- Small dashed line from kid's head to the "4 ft" marker -->
+  <line x1="78" y1="80" x2="138" y2="96" stroke="#D50000" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
+</svg>

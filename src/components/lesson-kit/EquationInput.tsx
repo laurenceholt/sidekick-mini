@@ -31,6 +31,7 @@ export default function EquationInput({
           tickStep={step.tickStep}
           labelStep={step.labelStep}
           highlightValues={step.staticPoints}
+          inequalityLine={(step as any).inequalityLine}
         >
           {(step.staticPoints ?? []).map((v, i) => (
             <NumberLinePoint key={i} value={v} min={step.min!} max={step.max!} />
@@ -82,9 +83,29 @@ export function gradeEquationInput(
   value: string,
 ): { correct: boolean; hint?: string } {
   const v = normalize(value);
+  const num = parseFloat(v);
+
+  // Range-based grading ("any number greater than X") takes precedence
+  const cond = (step as any).condition as "lessThan" | "greaterThan" | undefined;
+  const condVal = (step as any).conditionValue as number | undefined;
+  if (cond && condVal !== undefined) {
+    if (Number.isNaN(num)) {
+      return { correct: false, hint: step.hint || "Type a number." };
+    }
+    if (cond === "greaterThan" && num > condVal) return { correct: true };
+    if (cond === "lessThan" && num < condVal) return { correct: true };
+    return {
+      correct: false,
+      hint:
+        step.hint ||
+        (cond === "greaterThan"
+          ? `Try a number greater than ${condVal}.`
+          : `Try a number less than ${condVal}.`),
+    };
+  }
+
   const acceptable = (step.acceptable ?? [String(step.target)]).map(normalize);
   if (acceptable.includes(v)) return { correct: true };
-  const num = parseFloat(v);
   if (!Number.isNaN(num) && num === step.target) return { correct: true };
   return { correct: false, hint: step.hint };
 }

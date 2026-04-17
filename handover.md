@@ -139,7 +139,9 @@ Write an idempotent script in `scripts/` that:
 
 ---
 
-## Current content (Module 1, Section 1)
+## Current content
+
+### Module 1, Section 1 (Negative Numbers and Absolute Value)
 
 | ID | Title | Mini-lessons |
 |----|-------|-------------|
@@ -147,6 +149,19 @@ Write an idempotent script in `scripts/` that:
 | 1-1-2 | Points on the Number Line | 2 MLs (10, 10 steps) |
 | 1-1-3 | Comparing Positive and Negative Numbers | 2 MLs (10, 10 steps) |
 | 1-1-4 | Absolute Value of Numbers | 1 ML (10 steps) |
+
+### Module 1, Section 2 (Inequalities)
+
+| ID | Title | Mini-lessons |
+|----|-------|-------------|
+| 1-2-1 | Introduction to Inequalities | 3 MLs (10, 10, 11 steps) |
+
+Step types introduced in Section 1-2:
+- `tap-point` — tap pre-placed dots on a number line (single or multi-select)
+- `inequality-build` — tap direction (`<`/`>`) + drag open-circle start to build a ray
+- `inequality-write` — sentence-style `[var] [sign] [num]` with configurable fillable slots. Grading via exact `target` or solution-set validation.
+- `NumberLine` supports optional `inequalityLine: { start, direction }` for a green ray with open circle and arrow head. Propagated through PlacePoint, MultipleChoice, NumberLineChoice, EquationInput, and InequalityWrite.
+- `EquationInput` supports `condition: "greaterThan"|"lessThan"` + `conditionValue` for range-based grading.
 
 ---
 

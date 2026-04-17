@@ -16,6 +16,9 @@ import Thermometer, {
 import Elevation, { gradeElevation } from "./Elevation";
 import CompareSign, { gradeCompareSign } from "./CompareSign";
 import InequalityInput, { gradeInequalityInput } from "./InequalityInput";
+import TapPoint, { gradeTapPoint } from "./TapPoint";
+import InequalityBuild, { gradeInequalityBuild } from "./InequalityBuild";
+import InequalityWrite, { gradeInequalityWrite } from "./InequalityWrite";
 import StreakToast from "./StreakToast";
 import Confetti from "./Confetti";
 import StoryOverlay from "./StoryOverlay";
@@ -275,6 +278,11 @@ export default function MultiStepShell({
     else if (s.type === "elevation") result = gradeElevation(s, answer as number);
     else if (s.type === "compare-sign") result = gradeCompareSign(s, answer as string);
     else if (s.type === "inequality-input") result = gradeInequalityInput(s, answer as string);
+    else if (s.type === "tap-point") result = gradeTapPoint(s, answer as number[]);
+    else if (s.type === "inequality-build")
+      result = gradeInequalityBuild(s, answer as any);
+    else if (s.type === "inequality-write")
+      result = gradeInequalityWrite(s, answer as any);
 
     // Event id extension:
     //   first try          → 1-1-1-1-1
@@ -440,6 +448,33 @@ export default function MultiStepShell({
         )}
         {step.type === "inequality-input" && (
           <InequalityInput
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "tap-point" && (
+          <TapPoint
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "inequality-build" && (
+          <InequalityBuild
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "inequality-write" && (
+          <InequalityWrite
             key={stepIdx}
             step={step as any}
             attemptKey={attemptKey}

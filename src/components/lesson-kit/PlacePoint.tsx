@@ -45,6 +45,7 @@ export default function PlacePoint({ step, onSelect, attemptKey = 0, locked }: P
           step.referencePoint !== undefined ? [step.referencePoint] : undefined
         }
         snapStep={snapStep}
+        inequalityLine={(step as any).inequalityLine}
         onLineClick={
           locked
             ? undefined

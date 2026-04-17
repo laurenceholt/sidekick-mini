@@ -17,7 +17,16 @@ export type StepType =
   | "elevation"
   | "compare-sign"
   | "inequality-input"
+  | "tap-point"
+  | "inequality-build"
+  | "inequality-write"
   | "celebrate";
+
+/** Visual inequality ray: open circle at `start`, line extending to the arrow direction. */
+export interface InequalityLineSpec {
+  start: number;
+  direction: ">" | "<";
+}
 
 export interface BaseStep {
   type: StepType;
@@ -136,6 +145,46 @@ export interface InequalityInputStep extends BaseStep {
   leftValue?: number;
   rightValue?: number;
   sign: ">" | "<";
+}
+
+export interface TapPointStep extends BaseStep {
+  type: "tap-point";
+  min: number;
+  max: number;
+  tickStep?: number;
+  labelStep?: number;
+  points: number[];
+  targets: number[];
+  multi?: boolean;
+  inequalityLine?: InequalityLineSpec;
+}
+
+export interface InequalityBuildStep extends BaseStep {
+  type: "inequality-build";
+  min: number;
+  max: number;
+  tickStep?: number;
+  labelStep?: number;
+  initialStart?: number;
+  initialDirection?: ">" | "<";
+  fixedDirection?: ">" | "<";
+  targetStart: number;
+  targetDirection: ">" | "<";
+  unitSuffix?: string;
+}
+
+export interface InequalityWriteStep extends BaseStep {
+  type: "inequality-write";
+  leftVar?: string;
+  leftIsInput?: boolean;
+  fixedSign?: ">" | "<" | "=";
+  includeEquals?: boolean;
+  rightValue?: number;
+  rightIsInput?: boolean;
+  target?: { var?: string; sign: ">" | "<" | "="; value: number };
+  solutions?: number[];
+  image?: string;
+  inequalityLine?: InequalityLineSpec;
 }
 
 export interface CelebrateStep extends BaseStep {

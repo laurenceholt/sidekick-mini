@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+  <!-- Sky gradient -->
+  <defs>
+    <linearGradient id="skyR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE0B2"/>
+      <stop offset="1" stop-color="#FFAB91"/>
+    </linearGradient>
+    <linearGradient id="towerR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ECEFF1"/>
+      <stop offset="1" stop-color="#B0BEC5"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="200" fill="url(#skyR)"/>
+  <!-- Ground -->
+  <rect x="0" y="170" width="300" height="30" fill="#689F38"/>
+
+  <!-- Back cooling tower (smaller) -->
+  <g transform="translate(90,170)">
+    <path d="M-20,0 Q-24,-50 -14,-80 L14,-80 Q24,-50 20,0 Z" fill="url(#towerR)" stroke="#78909C" stroke-width="1.5"/>
+    <ellipse cx="0" cy="-80" rx="14" ry="5" fill="#90A4AE"/>
+    <!-- Steam -->
+    <g fill="#fff" opacity="0.8">
+      <ellipse cx="-4" cy="-96" rx="16" ry="10"/>
+      <ellipse cx="10" cy="-108" rx="13" ry="8"/>
+      <ellipse cx="-8" cy="-118" rx="10" ry="6"/>
+    </g>
+  </g>
+
+  <!-- Front cooling tower (big) -->
+  <g transform="translate(200,170)">
+    <path d="M-35,0 Q-40,-80 -25,-130 L25,-130 Q40,-80 35,0 Z" fill="url(#towerR)" stroke="#78909C" stroke-width="2"/>
+    <ellipse cx="0" cy="-130" rx="25" ry="8" fill="#90A4AE"/>
+    <!-- Ring highlight -->
+    <path d="M-31,-30 Q0,-34 31,-30" stroke="#CFD8DC" stroke-width="2" fill="none"/>
+    <!-- Steam -->
+    <g fill="#fff" opacity="0.9">
+      <ellipse cx="-8" cy="-150" rx="24" ry="14"/>
+      <ellipse cx="14" cy="-164" rx="20" ry="12"/>
+      <ellipse cx="-4" cy="-180" rx="16" ry="10"/>
+      <ellipse cx="18" cy="-190" rx="12" ry="7"/>
+    </g>
+  </g>
+
+  <!-- Low reactor dome on the right -->
+  <g transform="translate(255,170)">
+    <rect x="-20" y="-30" width="40" height="30" fill="#CFD8DC" stroke="#78909C" stroke-width="1"/>
+    <path d="M-20,-30 Q0,-50 20,-30 Z" fill="#B0BEC5" stroke="#78909C" stroke-width="1"/>
+    <rect x="-8" y="-20" width="6" height="8" fill="#37474F"/>
+    <rect x="2" y="-20" width="6" height="8" fill="#37474F"/>
+  </g>
+
+  <!-- Power lines / pylon -->
+  <g transform="translate(40,170)" stroke="#455A64" stroke-width="1.5" fill="none">
+    <path d="M0,0 L-6,-40 L0,-55 L6,-40 Z"/>
+    <line x1="-6" y1="-40" x2="6" y2="-40"/>
+    <line x1="-5" y1="-30" x2="5" y2="-30"/>
+  </g>
+
+  <!-- Warning symbol on big tower -->
+  <g transform="translate(200,100)">
+    <polygon points="0,-8 7,5 -7,5" fill="#FFEB3B" stroke="#F57F17" stroke-width="1.2"/>
+    <text x="0" y="4" font-family="sans-serif" font-size="9" font-weight="900" text-anchor="middle" fill="#1a1a2e">!</text>
+  </g>
+</svg>

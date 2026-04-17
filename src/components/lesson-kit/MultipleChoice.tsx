@@ -40,6 +40,7 @@ export default function MultipleChoice({
           tickStep={step.tickStep}
           labelStep={step.labelStep}
           highlightValues={step.staticPoints}
+          inequalityLine={(step as any).inequalityLine}
         >
           {(step.staticPoints ?? []).map((v, i) => (
             <NumberLinePoint key={i} value={v} min={step.min!} max={step.max!} />

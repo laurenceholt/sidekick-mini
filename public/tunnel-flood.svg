@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+  <!-- Tunnel arch (outer) -->
+  <defs>
+    <radialGradient id="tunnelGrad" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#37474F"/>
+      <stop offset="100%" stop-color="#0D1B25"/>
+    </radialGradient>
+  </defs>
+  <!-- Dark background -->
+  <rect width="300" height="200" fill="#0D1B25"/>
+
+  <!-- Tunnel opening (arch) -->
+  <path d="M30,200 L30,90 Q30,20 150,20 Q270,20 270,90 L270,200 Z" fill="url(#tunnelGrad)"/>
+
+  <!-- Brick rings -->
+  <g stroke="#455A64" stroke-width="1.5" fill="none" opacity="0.6">
+    <path d="M50,200 L50,95 Q50,40 150,40 Q250,40 250,95 L250,200"/>
+    <path d="M70,200 L70,100 Q70,58 150,58 Q230,58 230,100 L230,200"/>
+    <path d="M90,200 L90,110 Q90,76 150,76 Q210,76 210,110 L210,200"/>
+  </g>
+
+  <!-- Water surface -->
+  <rect x="30" y="145" width="240" height="55" fill="#1565C0" opacity="0.85"/>
+  <!-- Water reflections / ripples -->
+  <g stroke="#42A5F5" stroke-width="1.2" fill="none" opacity="0.7">
+    <path d="M40,150 Q60,148 80,150 Q100,152 120,150"/>
+    <path d="M140,153 Q160,151 180,153 Q200,155 220,153"/>
+    <path d="M50,162 Q70,160 90,162"/>
+    <path d="M170,160 Q190,158 210,160 Q230,162 250,160"/>
+    <path d="M70,172 Q90,170 110,172"/>
+    <path d="M180,175 Q210,173 240,175"/>
+  </g>
+
+  <!-- Floating debris -->
+  <!-- Rubber duck -->
+  <g transform="translate(80,140)">
+    <ellipse cx="0" cy="0" rx="14" ry="9" fill="#FFD600"/>
+    <circle cx="-10" cy="-6" r="8" fill="#FFD600"/>
+    <polygon points="-17,-6 -22,-4 -17,-2" fill="#FF6F00"/>
+    <circle cx="-11" cy="-8" r="1.5" fill="#1a1a2e"/>
+  </g>
+
+  <!-- Plank of wood -->
+  <g transform="translate(200,148) rotate(-8)">
+    <rect x="-30" y="-3" width="60" height="6" fill="#6D4C41" rx="1"/>
+    <line x1="-20" y1="-3" x2="-20" y2="3" stroke="#4E342E" stroke-width="0.8"/>
+    <line x1="0" y1="-3" x2="0" y2="3" stroke="#4E342E" stroke-width="0.8"/>
+    <line x1="15" y1="-3" x2="15" y2="3" stroke="#4E342E" stroke-width="0.8"/>
+  </g>
+
+  <!-- Bottle -->
+  <g transform="translate(140,143) rotate(15)">
+    <rect x="-4" y="-12" width="8" height="20" fill="#4FC3F7" rx="1.5" opacity="0.9"/>
+    <rect x="-2" y="-16" width="4" height="5" fill="#4FC3F7" opacity="0.9"/>
+    <rect x="-2.5" y="-17" width="5" height="2" fill="#1a1a2e"/>
+  </g>
+
+  <!-- Small wave splash -->
+  <g fill="#90CAF9" opacity="0.6">
+    <circle cx="112" cy="148" r="2"/>
+    <circle cx="225" cy="150" r="2.5"/>
+    <circle cx="60" cy="155" r="1.5"/>
+  </g>
+
+  <!-- Light at the end (small glow) -->
+  <circle cx="150" cy="95" r="28" fill="#FFF8E1" opacity="0.15"/>
+  <circle cx="150" cy="95" r="16" fill="#FFF8E1" opacity="0.2"/>
+</svg>
