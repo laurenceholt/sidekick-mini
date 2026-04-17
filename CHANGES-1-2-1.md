@@ -150,7 +150,7 @@ Schema:
 
 ## Commits
 
-- All changes landed in a single commit on the `astro` branch.
+- All changes landed in commit `fe3091d` on the `astro` branch.
 - Content insertion run via `node scripts/insert-1-2-1.mjs` against Supabase `lessons_content/main` (prod).
 - Post-insertion structure: Module 1 → 2 sections (s1, s2). Section s2 has Lesson l1 with 3 mini-lessons (ml1, ml2, ml3) totaling 31 steps.
 
