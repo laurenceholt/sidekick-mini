@@ -98,9 +98,7 @@ export function gradeEquationInput(
       correct: false,
       hint:
         step.hint ||
-        (cond === "greaterThan"
-          ? `Try a number greater than ${condVal}.`
-          : `Try a number less than ${condVal}.`),
+        "Does your number make the inequality true? Try a different one.",
     };
   }
 

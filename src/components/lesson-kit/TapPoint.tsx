@@ -77,5 +77,8 @@ export function gradeTapPoint(
     return { correct: false, hint: step.hint || "Tap a point first." };
   }
   if (sameSet(answer, step.targets)) return { correct: true };
-  return { correct: false, hint: step.hint };
+  return {
+    correct: false,
+    hint: step.hint || "Not quite. Look carefully at each point.",
+  };
 }

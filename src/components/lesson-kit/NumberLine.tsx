@@ -67,22 +67,13 @@ export default function NumberLine({
   // Inequality line positioning (render into the number-line coordinate space)
   const ineq = inequalityLine;
   const ineqStartPct = ineq ? ((ineq.start - min) / range) * 100 : 0;
-  const ineqEndPct = ineq
-    ? ineq.direction === ">"
-      ? 100
-      : 0
-    : 0;
 
   return (
     <div className="number-line-container">
       <div ref={lineRef} className="number-line">
         {onLineClick && <div className="click-zone" onClick={handleClick} />}
         {ineq && (
-          <IneqRay
-            startPct={ineqStartPct}
-            endPct={ineqEndPct}
-            direction={ineq.direction}
-          />
+          <IneqRay startPct={ineqStartPct} direction={ineq.direction} />
         )}
         {ticks.map((v) => {
           const pct = ((v - min) / range) * 100;
@@ -146,38 +137,43 @@ export function NumberLinePoint({
   );
 }
 
-/** Inequality ray: open circle at start, solid line to the edge, with an arrow head. */
+/** Inequality ray: open circle at start, solid line extending past the end of the
+ *  number line (into the margin beyond the line's bounds), with an arrow head. */
 function IneqRay({
   startPct,
-  endPct,
   direction,
 }: {
   startPct: number;
-  endPct: number;
   direction: ">" | "<";
 }) {
-  const left = Math.min(startPct, endPct);
-  const right = Math.max(startPct, endPct);
-  const width = right - left;
+  // Extend the ray 28px past the edge of the number line so the arrow
+  // visually points "off the end" into an imagined continuation.
+  const OVERHANG = 28;
+  if (direction === ">") {
+    return (
+      <>
+        <div
+          className="ineq-ray"
+          style={{ left: `${startPct}%`, right: `-${OVERHANG}px` }}
+        />
+        <div className="ineq-start-circle" style={{ left: `${startPct}%` }} />
+        <div
+          className="ineq-arrow ineq-arrow-right"
+          style={{ right: `-${OVERHANG + 8}px` }}
+        />
+      </>
+    );
+  }
   return (
     <>
-      {/* Ray segment */}
       <div
         className="ineq-ray"
-        style={{
-          left: `${left}%`,
-          width: `${width}%`,
-        }}
+        style={{ left: `-${OVERHANG}px`, right: `${100 - startPct}%` }}
       />
-      {/* Open circle at start */}
+      <div className="ineq-start-circle" style={{ left: `${startPct}%` }} />
       <div
-        className="ineq-start-circle"
-        style={{ left: `${startPct}%` }}
-      />
-      {/* Arrow head at the far end */}
-      <div
-        className={`ineq-arrow ineq-arrow-${direction === ">" ? "right" : "left"}`}
-        style={{ left: `${endPct}%` }}
+        className="ineq-arrow ineq-arrow-left"
+        style={{ left: `-${OVERHANG + 8}px` }}
       />
     </>
   );

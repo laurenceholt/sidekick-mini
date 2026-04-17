@@ -76,7 +76,7 @@ export default function InequalityWrite({
       <option value="?">?</option>
       <option value="&lt;">&lt;</option>
       <option value="&gt;">&gt;</option>
-      {step.includeEquals && <option value="=">=</option>}
+      <option value="=">=</option>
     </select>
   );
 
@@ -188,9 +188,7 @@ export function gradeInequalityWrite(
       if (varText !== step.target.var) {
         return {
           correct: false,
-          hint:
-            step.hint ||
-            `Use the variable ${step.target.var}.`,
+          hint: step.hint || "That variable doesn't match. Re-read the question.",
         };
       }
     }
@@ -199,17 +197,15 @@ export function gradeInequalityWrite(
         correct: false,
         hint:
           step.hint ||
-          (step.target.sign === ">"
-            ? "Try the greater-than sign."
-            : step.target.sign === "<"
-              ? "Try the less-than sign."
-              : "Try the equals sign."),
+          "Think about whether it should be greater-than, less-than, or equal-to.",
       };
     }
     if (rightNum === null || Math.abs(rightNum - step.target.value) > 1e-9) {
       return {
         correct: false,
-        hint: step.hint || `Try the number ${step.target.value}.`,
+        hint:
+          step.hint ||
+          "The number on the right isn't quite right. Think about the situation.",
       };
     }
     return { correct: true };

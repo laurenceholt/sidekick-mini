@@ -1126,15 +1126,14 @@ button { font-family: inherit; }
   height: 0;
   z-index: 3;
   pointer-events: none;
+  transform: translateY(-50%);
 }
 .ineq-arrow-right {
-  transform: translate(-3px, -50%);
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 16px solid #57B477;
 }
 .ineq-arrow-left {
-  transform: translate(3px, -50%);
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-right: 16px solid #57B477;
@@ -1159,10 +1158,10 @@ button { font-family: inherit; }
 }
 .ineq-dir-btn {
   background: #fff;
-  border: 3px solid #e0e0e0;
+  border: 3px solid #1a1a2e;
   border-radius: 14px;
   padding: 10px 20px;
-  color: #888;
+  color: #1a1a2e;
   cursor: pointer;
   transition: all 0.15s;
   font-family: inherit;

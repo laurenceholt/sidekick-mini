@@ -160,7 +160,7 @@ export function gradeInequalityBuild(
   answer: { start: number; direction: ">" | "<" | null } | null,
 ): { correct: boolean; hint?: string } {
   if (!answer || !answer.direction) {
-    return { correct: false, hint: step.hint || "Choose a direction first." };
+    return { correct: false, hint: step.hint || "Pick a direction first (the ← or → button)." };
   }
   const dirOk = answer.direction === step.targetDirection;
   const startOk = Math.abs(answer.start - step.targetStart) < 1e-9;
@@ -170,15 +170,12 @@ export function gradeInequalityBuild(
       correct: false,
       hint:
         step.hint ||
-        (step.targetDirection === ">"
-          ? "The arrow should point right (greater than)."
-          : "The arrow should point left (less than)."),
+        "Think carefully: does the arrow point the right way?",
     };
   }
   return {
     correct: false,
     hint:
-      step.hint ||
-      `Drag the open circle to ${step.targetStart}${step.unitSuffix ?? ""}.`,
+      step.hint || "Not quite. Try dragging the open circle somewhere else.",
   };
 }

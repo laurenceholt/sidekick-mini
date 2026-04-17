@@ -57,6 +57,7 @@ export default function CompareSign({
       <option value="?">?</option>
       <option value="&gt;">&gt;</option>
       <option value="&lt;">&lt;</option>
+      <option value="=">=</option>
     </select>
   );
 

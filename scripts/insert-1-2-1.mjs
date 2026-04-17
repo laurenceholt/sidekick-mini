@@ -199,10 +199,10 @@ const ml2 = {
     {
       type: "inequality-write",
       instruction:
-        "Tonight's concert will be canceled if the temperature is 2° or colder. Write an inequality for temperatures when the concert still happens.",
+        "Tonight's concert will be canceled if the temperature is below 2°. Write an inequality for temperatures when the concert will be canceled.",
       leftVar: "t",
       rightValue: 2,
-      target: { sign: ">", value: 2 },
+      target: { sign: "<", value: 2 },
       image: "/rocker-icicles.svg",
       hintButton: "< is less than. > is greater than.",
     },
