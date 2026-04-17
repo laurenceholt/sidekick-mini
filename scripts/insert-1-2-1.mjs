@@ -38,7 +38,7 @@ const ml1 = {
       min: 0, max: 10, tickStep: 1,
       points: [5, 8],
       targets: [8],
-      hint: "\"Greater than\" means farther to the right on the number line.",
+      hintButton: "\"Greater than\" means farther to the right on the number line.",
     },
     // 1-2-1-1-2
     {
@@ -47,7 +47,7 @@ const ml1 = {
       min: 0, max: 10, tickStep: 1,
       points: [5, 8],
       targets: [5],
-      hint: "\"Less than\" means farther to the left on the number line.",
+      hintButton: "\"Less than\" means farther to the left on the number line.",
     },
     // 1-2-1-1-3
     {
@@ -57,7 +57,7 @@ const ml1 = {
       points: [1, 4, 9],
       targets: [4, 9],
       multi: true,
-      hint: "Remember to tap more than one point.",
+      hintButton: "Remember to tap more than one point.",
     },
     // 1-2-1-1-4
     {
@@ -172,7 +172,7 @@ const ml2 = {
       targetStart: 5,
       targetDirection: "<",
       unitSuffix: "°",
-      hint: "< means \"less than\".",
+      hintButton: "< means \"less than\".",
     },
     // 1-2-1-2-4
     {
@@ -204,7 +204,7 @@ const ml2 = {
       rightValue: 2,
       target: { sign: ">", value: 2 },
       image: "/rocker-icicles.svg",
-      hint: "< is less than. > is greater than.",
+      hintButton: "< is less than. > is greater than.",
     },
     // 1-2-1-2-7
     {
@@ -215,7 +215,7 @@ const ml2 = {
       rightIsInput: true,
       target: { sign: ">", value: -3 },
       image: "/tunnel-flood.svg",
-      hint: "You are trying to write \"w is greater than -3\" as a math sentence.",
+      hintButton: "You are trying to write \"w is greater than -3\" as a math sentence.",
     },
     // 1-2-1-2-8
     {
@@ -226,7 +226,7 @@ const ml2 = {
       rightIsInput: true,
       target: { sign: ">", value: 3 },
       image: "/reactor.svg",
-      hint: "You are trying to write \"temperature is greater than 3\" as a math sentence.",
+      hintButton: "You are trying to write \"temperature is greater than 3\" as a math sentence.",
     },
     // 1-2-1-2-9
     {
@@ -265,7 +265,7 @@ const ml3 = {
       initialStart: 0,
       targetStart: 4,
       targetDirection: ">",
-      hint:
+      hintButton:
         "To show \"greater than 4\", tap a direction for the line, then drag the start to the right place.",
     },
     // 1-2-1-3-2
@@ -280,7 +280,7 @@ const ml3 = {
         { text: "Agree", correct: true },
         { text: "Disagree", correct: false },
       ],
-      hint: "If n = 10, is it true that n > 4?",
+      hintButton: "If n = 10, is it true that n > 4?",
     },
     // 1-2-1-3-3
     {
@@ -315,7 +315,7 @@ const ml3 = {
       inequalityLine: { start: -4, direction: ">" },
       condition: "greaterThan",
       conditionValue: -4,
-      hint: "Write any number > -4.",
+      hintButton: "Write any number > -4.",
     },
     // 1-2-1-3-6
     {
@@ -336,7 +336,7 @@ const ml3 = {
         { text: "-½", correct: true },
         { text: "0", correct: false },
       ],
-      hint: "Remember 0 is not less than 0.",
+      hintButton: "Remember 0 is not less than 0.",
     },
     // 1-2-1-3-8
     {
@@ -347,7 +347,7 @@ const ml3 = {
         { text: "Agree", correct: false },
         { text: "Disagree", correct: true },
       ],
-      hint: "Is 99 > 100 a true statement?",
+      hintButton: "Is 99 > 100 a true statement?",
     },
     // 1-2-1-3-9
     {
@@ -356,7 +356,7 @@ const ml3 = {
       leftIsInput: true,
       rightIsInput: true,
       solutions: [7, 15, 33],
-      hint: "Choose any name for the variable in the first box.",
+      hintButton: "Choose any name for the variable in the first box.",
     },
     // 1-2-1-3-10
     {
