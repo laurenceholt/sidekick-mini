@@ -20,6 +20,8 @@ export type StepType =
   | "tap-point"
   | "inequality-build"
   | "inequality-write"
+  | "coord-plot"
+  | "coord-tap"
   | "celebrate";
 
 /** Visual inequality ray: open circle at `start`, line extending to the arrow direction. */
@@ -185,6 +187,48 @@ export interface InequalityWriteStep extends BaseStep {
   solutions?: number[];
   image?: string;
   inequalityLine?: InequalityLineSpec;
+}
+
+export interface CoordPlaneSpec {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+  showGrid?: boolean;
+  showBuildings?: boolean;
+  showAxes?: boolean;
+  showArchery?: boolean;
+  points?: { x: number; y: number; label?: string; figure?: boolean }[];
+  figure?: { x: number; y: number } | null;
+}
+
+export interface CoordPlotStep extends BaseStep {
+  type: "coord-plot";
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+  showGrid?: boolean;
+  showBuildings?: boolean;
+  showAxes?: boolean;
+  showArchery?: boolean;
+  points?: { x: number; y: number; label?: string; figure?: boolean }[];
+  initialFigure?: { x: number; y: number };
+  targetX: number;
+  targetY: number;
+}
+
+export interface CoordTapStep extends BaseStep {
+  type: "coord-tap";
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+  showGrid?: boolean;
+  showAxes?: boolean;
+  tapPoints: { x: number; y: number; label?: string }[];
+  targetX: number;
+  targetY: number;
 }
 
 export interface CelebrateStep extends BaseStep {

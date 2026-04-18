@@ -1,5 +1,6 @@
 import { useState } from "react";
 import NumberLine, { NumberLinePoint } from "./NumberLine";
+import CoordPlane from "./CoordPlane";
 import type { MultipleChoiceStep } from "@/lib/schemas/lesson";
 
 export interface MultipleChoiceProps {
@@ -41,11 +42,26 @@ export default function MultipleChoice({
           labelStep={step.labelStep}
           highlightValues={step.staticPoints}
           inequalityLine={(step as any).inequalityLine}
+          hops={(step as any).hops}
         >
           {(step.staticPoints ?? []).map((v, i) => (
             <NumberLinePoint key={i} value={v} min={step.min!} max={step.max!} />
           ))}
         </NumberLine>
+      )}
+      {(step as any).coordPlane && (
+        <CoordPlane
+          xMin={(step as any).coordPlane.xMin}
+          xMax={(step as any).coordPlane.xMax}
+          yMin={(step as any).coordPlane.yMin}
+          yMax={(step as any).coordPlane.yMax}
+          showGrid={(step as any).coordPlane.showGrid !== false}
+          showBuildings={(step as any).coordPlane.showBuildings}
+          showAxes={(step as any).coordPlane.showAxes}
+          showArchery={(step as any).coordPlane.showArchery}
+          points={(step as any).coordPlane.points}
+          figure={(step as any).coordPlane.figure}
+        />
       )}
       <div className="choices">
         {step.choices.map((ch, i) => {

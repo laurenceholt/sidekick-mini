@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import NumberLine, { NumberLinePoint } from "./NumberLine";
+import CoordPlane from "./CoordPlane";
 import type { EquationInputStep } from "@/lib/schemas/lesson";
 
 export interface EquationInputProps {
@@ -22,6 +23,9 @@ export default function EquationInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attemptKey]);
 
+  const cp = (step as any).coordPlane;
+  const suffix = (step as any).suffix as string | undefined;
+
   return (
     <div>
       {step.showNumberLine && step.min !== undefined && step.max !== undefined && (
@@ -32,11 +36,25 @@ export default function EquationInput({
           labelStep={step.labelStep}
           highlightValues={step.staticPoints}
           inequalityLine={(step as any).inequalityLine}
+          hops={(step as any).hops}
         >
           {(step.staticPoints ?? []).map((v, i) => (
             <NumberLinePoint key={i} value={v} min={step.min!} max={step.max!} />
           ))}
         </NumberLine>
+      )}
+      {cp && (
+        <CoordPlane
+          xMin={cp.xMin}
+          xMax={cp.xMax}
+          yMin={cp.yMin}
+          yMax={cp.yMax}
+          showGrid={cp.showGrid !== false}
+          showBuildings={cp.showBuildings}
+          showAxes={cp.showAxes}
+          showArchery={cp.showArchery}
+          points={cp.points}
+        />
       )}
       <div className="equation equation-row">
         {step.prefix && <ColorizedEq text={step.prefix} />}
@@ -52,6 +70,7 @@ export default function EquationInput({
           }}
           autoFocus
         />
+        {suffix && <ColorizedEq text={suffix} />}
       </div>
     </div>
   );

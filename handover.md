@@ -163,6 +163,24 @@ Step types introduced in Section 1-2:
 - `NumberLine` supports optional `inequalityLine: { start, direction }` for a green ray with open circle and arrow head. Propagated through PlacePoint, MultipleChoice, NumberLineChoice, EquationInput, and InequalityWrite.
 - `EquationInput` supports `condition: "greaterThan"|"lessThan"` + `conditionValue` for range-based grading.
 
+### Module 1, Section 3 (Coordinate Plane)
+
+| ID | Title | Mini-lessons |
+|----|-------|-------------|
+| 1-3-1 | Introduction to the Coordinate Plane | 3 MLs (10, 10, 10 steps) |
+
+Step types introduced in Section 1-3:
+- `coord-plot` — student clicks a grid intersection on a 2D coordinate plane. Grading via `targetX`/`targetY`.
+- `coord-tap` — student taps one of several pre-placed dots on a 2D plane.
+- `CoordPlane` primitive supports: plain grid, grid + buildings background (5 buildings × 5 floors with windows for the first mini-lesson), grid + axes labels, grid + archery-target overlay. Pre-placed points may carry text labels (`cabbage`, `broccoli`, `guard`, `thief`, `Marla`, `Escape door`, etc.) and/or a stick-figure marker.
+- `NumberLine` supports optional `hops: { from, to }` for static jump arcs (re-uses the arc rendering from `MovePoint`).
+- `EquationInput` now accepts a `coordPlane` prop (renders a CoordPlane above the input, e.g. "two points are here, how far apart?"), a `suffix` string for equations like `(3, _)`, and inline `hops`.
+- `MultipleChoice` also accepts a `coordPlane` prop (questions interpreting a plotted point or image).
+
+### Content convention: smart quotes
+
+All user-facing strings in the Supabase content blob use curly/smart quotes: `\u201C` `\u201D` for double, `\u2018` `\u2019` for single. A migration script at `scripts/smart-quote-all.mjs` walks the entire blob and converts any straight quotes. Re-run any time after content edits if straight quotes leak in.
+
 ---
 
 ## PATH workaround

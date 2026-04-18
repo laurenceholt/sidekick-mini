@@ -18,6 +18,8 @@ export interface NumberLineProps {
   snapStep?: number;
   /** Optional green inequality ray (open circle + line + arrow). */
   inequalityLine?: InequalityLineSpec | null;
+  /** Optional static jump arcs from `from` to `to` (one arc per integer hop). */
+  hops?: { from: number; to: number } | null;
 }
 
 /**
@@ -36,6 +38,7 @@ export default function NumberLine({
   onLineClick,
   snapStep,
   inequalityLine,
+  hops,
 }: NumberLineProps) {
   const lineRef = useRef<HTMLDivElement>(null);
   const range = max - min;
@@ -68,12 +71,56 @@ export default function NumberLine({
   const ineq = inequalityLine;
   const ineqStartPct = ineq ? ((ineq.start - min) / range) * 100 : 0;
 
+  // Jump arcs (static display)
+  const arcs: { d: string }[] = [];
+  if (hops && hops.from !== hops.to) {
+    const dir = hops.from < hops.to ? 1 : -1;
+    const steps = Math.abs(hops.to - hops.from);
+    for (let i = 0; i < steps; i++) {
+      const a = hops.from + i * dir;
+      const b = a + dir;
+      const x1 = ((a - min) / range) * 100;
+      const x2 = ((b - min) / range) * 100;
+      const midX = (x1 + x2) / 2;
+      arcs.push({ d: `M ${x1} 40 Q ${midX} 4 ${x2} 40` });
+    }
+  }
+
   return (
     <div className="number-line-container">
       <div ref={lineRef} className="number-line">
         {onLineClick && <div className="click-zone" onClick={handleClick} />}
         {ineq && (
           <IneqRay startPct={ineqStartPct} direction={ineq.direction} />
+        )}
+        {arcs.length > 0 && (
+          <svg
+            className="jump-arrows"
+            viewBox="0 0 100 44"
+            preserveAspectRatio="none"
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: "100%",
+              width: "100%",
+              height: 44,
+              overflow: "visible",
+              pointerEvents: "none",
+            }}
+          >
+            {arcs.map((a, i) => (
+              <g
+                key={i}
+                stroke="#57B477"
+                strokeWidth={0.6}
+                fill="none"
+                strokeLinecap="round"
+              >
+                <path d={a.d} />
+              </g>
+            ))}
+          </svg>
         )}
         {ticks.map((v) => {
           const pct = ((v - min) / range) * 100;

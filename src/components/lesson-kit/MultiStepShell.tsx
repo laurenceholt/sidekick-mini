@@ -19,6 +19,8 @@ import InequalityInput, { gradeInequalityInput } from "./InequalityInput";
 import TapPoint, { gradeTapPoint } from "./TapPoint";
 import InequalityBuild, { gradeInequalityBuild } from "./InequalityBuild";
 import InequalityWrite, { gradeInequalityWrite } from "./InequalityWrite";
+import CoordPlot, { gradeCoordPlot } from "./CoordPlot";
+import CoordTap, { gradeCoordTap } from "./CoordTap";
 import StreakToast from "./StreakToast";
 import Confetti from "./Confetti";
 import StoryOverlay from "./StoryOverlay";
@@ -283,6 +285,8 @@ export default function MultiStepShell({
       result = gradeInequalityBuild(s, answer as any);
     else if (s.type === "inequality-write")
       result = gradeInequalityWrite(s, answer as any);
+    else if (s.type === "coord-plot") result = gradeCoordPlot(s, answer as any);
+    else if (s.type === "coord-tap") result = gradeCoordTap(s, answer as any);
 
     // Event id extension:
     //   first try          → 1-1-1-1-1
@@ -475,6 +479,24 @@ export default function MultiStepShell({
         )}
         {step.type === "inequality-write" && (
           <InequalityWrite
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "coord-plot" && (
+          <CoordPlot
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "coord-tap" && (
+          <CoordTap
             key={stepIdx}
             step={step as any}
             attemptKey={attemptKey}

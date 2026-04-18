@@ -1240,3 +1240,144 @@ button { font-family: inherit; }
   text-align: center;
   height: 68px;
 }
+
+/* ═══════════════════════════════════════════
+   COORDINATE PLANE
+   ═══════════════════════════════════════════ */
+.cp-wrap {
+  position: relative;
+  margin: 20px auto;
+  padding: 12px 12px 28px 34px;
+  width: fit-content;
+  font-family: 'Nunito', sans-serif;
+}
+.cp-board {
+  position: relative;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border: 2px solid #cfd8dc;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  overflow: hidden;
+}
+.cp-board.buildings { cursor: pointer; }
+.cp-buildings-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.cp-grid-v {
+  position: absolute;
+  top: 0; bottom: 0; width: 1px;
+  background: #CFD8DC;
+  pointer-events: none;
+}
+.cp-grid-h {
+  position: absolute;
+  left: 0; right: 0; height: 1px;
+  background: #CFD8DC;
+  pointer-events: none;
+}
+.cp-grid-v.axis, .cp-grid-h.axis {
+  background: #78909C;
+  width: 2px;
+  height: 2px;
+}
+.cp-grid-h.axis { width: 100%; height: 2px; }
+.cp-grid-v.axis { width: 2px; height: 100%; }
+.cp-axis-labels-x {
+  position: relative;
+  height: 22px;
+  margin-top: 2px;
+}
+.cp-axis-labels-y {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 26px;
+}
+.cp-axis-label {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 800;
+  color: #546E7A;
+}
+.cp-axis-labels-y .cp-axis-label {
+  transform: translateY(-50%);
+  left: 14px;
+  text-align: right;
+  right: 4px;
+}
+.cp-axis-name {
+  position: absolute;
+  font-size: 16px;
+  font-weight: 900;
+  font-style: italic;
+  color: #455A64;
+}
+.cp-axis-name-x {
+  bottom: 28px;
+  margin-left: 8px;
+}
+.cp-axis-name-y {
+  top: 0;
+  left: 14px;
+  margin-top: -4px;
+}
+.cp-point {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.35);
+  pointer-events: none;
+}
+.cp-point.cp-tap {
+  cursor: pointer;
+  pointer-events: auto;
+  background: #57B477;
+  width: 16px;
+  height: 16px;
+}
+.cp-point.cp-tap.selected {
+  background: #F6B339;
+  box-shadow: 0 0 0 5px rgba(246,179,57,0.35), 0 2px 6px rgba(0,0,0,0.25);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.cp-point.cp-plotted {
+  background: #57B477;
+  width: 16px;
+  height: 16px;
+  animation: pop 0.3s ease;
+  box-shadow: 0 0 0 4px rgba(87,180,119,0.3), 0 2px 6px rgba(87,180,119,0.4);
+}
+.cp-point-label {
+  position: absolute;
+  transform: translate(-50%, -150%);
+  font-size: 11px;
+  font-weight: 900;
+  color: #1a1a2e;
+  background: rgba(255,255,255,0.92);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid #cfd8dc;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 6;
+}
+.cp-figure {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+}
