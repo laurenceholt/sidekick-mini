@@ -64,11 +64,23 @@ export default function CoordPlane({
   const xRange = xMax - xMin;
   const yRange = yMax - yMin;
 
-  // Auto-size cell: capped small enough that a 10-unit tall plane fits on a
-  // 1366x768 Chromebook viewport without scrolling.
-  const cell = Math.min(
-    26,
-    Math.floor(Math.min(480 / Math.max(xRange, 1), 260 / Math.max(yRange, 1))),
+  // Auto-size cell.
+  //  - Small/medium planes (<=10 units per side) are capped at 26 so a 10x10
+  //    fits on a 1366x768 Chromebook.
+  //  - Larger planes (e.g. 20x20) restore the earlier 34 cap with a taller
+  //    height budget so the grid is readable.
+  const isLargePlane = xRange > 10 || yRange > 10;
+  const cellCap = isLargePlane ? 34 : 26;
+  const maxPxH = isLargePlane ? 360 : 260;
+  const maxPxW = isLargePlane ? 500 : 420;
+  const cell = Math.max(
+    10,
+    Math.min(
+      cellCap,
+      Math.floor(
+        Math.min(maxPxW / Math.max(xRange, 1), maxPxH / Math.max(yRange, 1)),
+      ),
+    ),
   );
 
   // Axis layout
@@ -87,24 +99,22 @@ export default function CoordPlane({
   let padBottom = showBuildings ? 22 : 12;
 
   if (showAxes) {
-    // Room for right-end x-arrow + 'x' label
-    padRight = Math.max(padRight, 30);
+    // Room for right-end x-arrow + 'x' label (kept well clear of frame)
+    padRight = Math.max(padRight, 44);
     // Room for top-end y-arrow + 'y' label
-    padTop = Math.max(padTop, 26);
+    padTop = Math.max(padTop, 38);
     // Room for left-end x-arrow
-    if (xAxisNeedsLeftArrow) padLeft = Math.max(padLeft, 18);
+    if (xAxisNeedsLeftArrow) padLeft = Math.max(padLeft, 24);
     // Room for bottom-end y-arrow
-    if (yAxisNeedsBottomArrow) padBottom = Math.max(padBottom, 18);
+    if (yAxisNeedsBottomArrow) padBottom = Math.max(padBottom, 24);
   }
-  // Always leave some room for axis-labels positioned just outside the grid
-  // (labels live along the relevant axis; when axis is at the edge they
-  // effectively sit outside the grid).
-  if (!showBuildings && !yAxisInRange) padLeft = Math.max(padLeft, 18);
-  if (!showBuildings && !xAxisInRange) padBottom = Math.max(padBottom, 20);
+  // Axis-labels that sit outside the grid need padding clear of the frame
+  if (!showBuildings && !yAxisInRange) padLeft = Math.max(padLeft, 24);
+  if (!showBuildings && !xAxisInRange) padBottom = Math.max(padBottom, 24);
   if (!showBuildings) {
     // For grids with axis at the edge, labels need to sit outside.
-    if (xMin === 0) padLeft = Math.max(padLeft, 18);
-    if (yMin === 0) padBottom = Math.max(padBottom, 20);
+    if (xMin === 0) padLeft = Math.max(padLeft, 24);
+    if (yMin === 0) padBottom = Math.max(padBottom, 24);
   }
 
   const gridW = xRange * cell;
@@ -297,7 +307,7 @@ export default function CoordPlane({
             <div
               className="cp-axis-name cp-axis-name-x"
               style={{
-                left: padLeft + gridW + 18,
+                left: padLeft + gridW + 24,
                 top: padTop + (yMax - 0) * cell - 10,
               }}
             >
@@ -323,7 +333,7 @@ export default function CoordPlane({
               className="cp-axis-name cp-axis-name-y"
               style={{
                 left: padLeft + (0 - xMin) * cell - 5,
-                top: padTop - 22,
+                top: padTop - 32,
               }}
             >
               y
@@ -564,34 +574,38 @@ function ArcheryBg({
       }}
     >
       {[
-        { r: 9, fill: "#FFCDD2", score: 2 },
-        { r: 6, fill: "#FFE0B2", score: 5 },
-        { r: 3, fill: "#FFECB3", score: 10 },
-      ].map(({ r, fill, score }) => (
-        <g key={r}>
-          <circle
-            cx={origin.left}
-            cy={origin.top}
-            r={r * cell}
-            fill={fill}
-            stroke="#B71C1C"
-            strokeWidth={1.2}
-            opacity={0.85}
-          />
-          {/* Label in upper-right quadrant so it doesn't sit on the y-axis */}
-          <text
-            x={origin.left + r * cell * 0.7}
-            y={origin.top - r * cell * 0.7 + 4}
-            fontFamily="Nunito, sans-serif"
-            fontSize={11}
-            fontWeight={900}
-            fill="#B71C1C"
-            textAnchor="middle"
-          >
-            {score}
-          </text>
-        </g>
-      ))}
+        { r: 9, innerR: 6, fill: "#FFCDD2", score: 2 },
+        { r: 6, innerR: 3, fill: "#FFE0B2", score: 5 },
+        { r: 3, innerR: 0, fill: "#FFECB3", score: 10 },
+      ].map(({ r, innerR, fill, score }) => {
+        // Place label in the middle of the scoring zone (between innerR and r),
+        // in the upper-right quadrant so it avoids the y-axis.
+        const midR = (r + innerR) / 2;
+        return (
+          <g key={r}>
+            <circle
+              cx={origin.left}
+              cy={origin.top}
+              r={r * cell}
+              fill={fill}
+              stroke="#B71C1C"
+              strokeWidth={1.2}
+              opacity={0.85}
+            />
+            <text
+              x={origin.left + midR * cell * 0.707}
+              y={origin.top - midR * cell * 0.707 + 4}
+              fontFamily="Nunito, sans-serif"
+              fontSize={11}
+              fontWeight={900}
+              fill="#B71C1C"
+              textAnchor="middle"
+            >
+              {score}
+            </text>
+          </g>
+        );
+      })}
       <circle cx={origin.left} cy={origin.top} r={3} fill="#B71C1C" />
     </svg>
   );
