@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NumberLine, { NumberLinePoint } from "./NumberLine";
 import CoordPlane from "./CoordPlane";
 import type { EquationInputStep } from "@/lib/schemas/lesson";
@@ -17,10 +17,19 @@ export default function EquationInput({
   locked,
 }: EquationInputProps) {
   const [val, setVal] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     setVal("");
     onSelect(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attemptKey]);
+
+  // Focus the input on mount/attempt change, but DO NOT scroll the page to
+  // reveal it. Otherwise a tall coord plane above pushes the question text
+  // off the top of the screen on a Chromebook viewport.
+  useEffect(() => {
+    inputRef.current?.focus({ preventScroll: true });
   }, [attemptKey]);
 
   const cp = (step as any).coordPlane;
@@ -59,6 +68,7 @@ export default function EquationInput({
       <div className="equation equation-row">
         {step.prefix && <ColorizedEq text={step.prefix} />}
         <input
+          ref={inputRef}
           className="answer-box"
           type="text"
           value={val}
@@ -68,7 +78,6 @@ export default function EquationInput({
             setVal(v);
             onSelect(v.trim() === "" ? null : v.trim());
           }}
-          autoFocus
         />
         {suffix && <ColorizedEq text={suffix} />}
       </div>
