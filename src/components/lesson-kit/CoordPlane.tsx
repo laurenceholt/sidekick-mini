@@ -11,12 +11,14 @@ import { useRef, type ReactNode } from "react";
  * Children can be dots (via `points`), tappable selectable points (`tapPoints`),
  * or a student-placed point (`plottedPoint`). Click on any grid intersection
  * is forwarded via `onGridClick`.
+ *
+ * In buildings mode the board is padded so buildings don't clip at the edges.
  */
 export interface CoordPoint {
   x: number;
   y: number;
   label?: string;
-  figure?: boolean; // render as a stick figure
+  figure?: boolean;
 }
 
 export interface CoordPlaneProps {
@@ -28,19 +30,14 @@ export interface CoordPlaneProps {
   showBuildings?: boolean;
   showAxes?: boolean;
   showArchery?: boolean;
-  /** Pre-placed static points (no interaction) */
   points?: CoordPoint[];
-  /** Selectable points (student taps one) */
   tapPoints?: CoordPoint[];
   selectedTap?: CoordPoint | null;
   onTap?: (p: CoordPoint) => void;
-  /** Student's plotted point */
   plottedPoint?: CoordPoint | null;
-  /** Figure position (for buildings mode). null = hidden */
   figure?: CoordPoint | null;
   onGridClick?: (x: number, y: number) => void;
   locked?: boolean;
-  size?: number; // pixel size of each grid cell; auto by default
   children?: ReactNode;
 }
 
@@ -67,84 +64,63 @@ export default function CoordPlane({
   const xRange = xMax - xMin;
   const yRange = yMax - yMin;
 
-  // Auto-size: fit within 480px wide, but no more than 32px per cell
+  // Auto-size cell
   const cell = Math.min(
-    32,
-    Math.floor(Math.min(480 / Math.max(xRange, 1), 320 / Math.max(yRange, 1))),
+    34,
+    Math.floor(Math.min(480 / Math.max(xRange, 1), 340 / Math.max(yRange, 1))),
   );
-  const boardW = xRange * cell;
-  const boardH = yRange * cell;
 
+  // Padding around the grid area (for buildings to extend into without clipping)
+  const padLeft = showBuildings ? Math.ceil(cell * 0.35) + 2 : 0;
+  const padRight = showBuildings ? Math.ceil(cell * 0.35) + 2 : 0;
+  const padTop = showBuildings ? Math.ceil(cell * 0.5) : 0;
+  const padBottom = showBuildings ? Math.ceil(cell * 0.2) : 0;
+
+  const gridW = xRange * cell;
+  const gridH = yRange * cell;
+  const boardW = gridW + padLeft + padRight;
+  const boardH = gridH + padTop + padBottom;
+
+  // Convert grid coords → pixel coords (relative to board's top-left)
   const toPx = (x: number, y: number) => ({
-    left: (x - xMin) * cell,
-    // y axis flipped: yMax at top
-    top: (yMax - y) * cell,
+    left: padLeft + (x - xMin) * cell,
+    top: padTop + (yMax - y) * cell,
   });
 
   const handleClick = (e: React.MouseEvent) => {
     if (!onGridClick || locked || !ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
+    const px = e.clientX - rect.left - padLeft;
+    const py = e.clientY - rect.top - padTop;
+    if (px < -cell / 2 || px > gridW + cell / 2) return;
+    if (py < -cell / 2 || py > gridH + cell / 2) return;
     const x = Math.round(px / cell) + xMin;
-    const y = Math.round((boardH - py) / cell) + yMin;
+    const y = Math.round((gridH - py) / cell) + yMin;
     if (x < xMin || x > xMax || y < yMin || y > yMax) return;
     onGridClick(x, y);
   };
 
-  // Grid lines
+  // Build grid lines (positioned relative to grid area, offset by padLeft/padTop)
   const gridLines: React.ReactNode[] = [];
   if (showGrid) {
     for (let x = xMin; x <= xMax; x++) {
-      const pct = ((x - xMin) / xRange) * 100;
+      const p = toPx(x, yMin);
       gridLines.push(
         <div
           key={`vx${x}`}
           className={`cp-grid-v${x === 0 ? " axis" : ""}`}
-          style={{ left: `${pct}%` }}
+          style={{ left: p.left, top: padTop, height: gridH }}
         />,
       );
     }
     for (let y = yMin; y <= yMax; y++) {
-      const pct = ((yMax - y) / yRange) * 100;
+      const p = toPx(xMin, y);
       gridLines.push(
         <div
           key={`hy${y}`}
           className={`cp-grid-h${y === 0 ? " axis" : ""}`}
-          style={{ top: `${pct}%` }}
+          style={{ top: p.top, left: padLeft, width: gridW }}
         />,
-      );
-    }
-  }
-
-  // Axis number labels
-  const axisLabels: React.ReactNode[] = [];
-  if (showGrid) {
-    // x-axis labels under bottom edge
-    for (let x = xMin; x <= xMax; x++) {
-      // skip 0 label if both axes present to avoid overlap with y-axis label
-      const p = toPx(x, yMin);
-      axisLabels.push(
-        <div
-          key={`lx${x}`}
-          className="cp-axis-label cp-axis-label-x"
-          style={{ left: p.left }}
-        >
-          {x}
-        </div>,
-      );
-    }
-    // y-axis labels to the left
-    for (let y = yMin; y <= yMax; y++) {
-      const p = toPx(xMin, y);
-      axisLabels.push(
-        <div
-          key={`ly${y}`}
-          className="cp-axis-label cp-axis-label-y"
-          style={{ top: p.top }}
-        >
-          {y}
-        </div>,
       );
     }
   }
@@ -157,10 +133,18 @@ export default function CoordPlane({
         onClick={handleClick}
         style={{ width: boardW, height: boardH }}
       >
-        {showBuildings && <BuildingsBg xRange={xRange} yRange={yRange} />}
-        {showArchery && (
-          <ArcheryBg boardW={boardW} boardH={boardH} toPx={toPx} cell={cell} />
+        {showBuildings && (
+          <BuildingsBg
+            xMin={xMin}
+            xMax={xMax}
+            yMax={yMax}
+            cell={cell}
+            padLeft={padLeft}
+            padTop={padTop}
+            gridH={gridH}
+          />
         )}
+        {showArchery && <ArcheryBg toPx={toPx} cell={cell} />}
         {showGrid && <>{gridLines}</>}
 
         {/* Pre-placed points */}
@@ -208,12 +192,15 @@ export default function CoordPlane({
           />
         )}
 
-        {/* Figure (buildings mode) */}
+        {/* Figure */}
         {figure && <Figure style={toPx(figure.x, figure.y)} />}
       </div>
 
-      {/* Axis number labels (rendered outside board for clarity) */}
-      <div className="cp-axis-labels-x" style={{ width: boardW }}>
+      {/* Axis number labels (below / left of grid area) */}
+      <div
+        className="cp-axis-labels-x"
+        style={{ width: gridW, marginLeft: padLeft }}
+      >
         {Array.from({ length: xRange + 1 }, (_, i) => {
           const x = xMin + i;
           return (
@@ -227,7 +214,10 @@ export default function CoordPlane({
           );
         })}
       </div>
-      <div className="cp-axis-labels-y" style={{ height: boardH }}>
+      <div
+        className="cp-axis-labels-y"
+        style={{ height: gridH, top: padTop + 12 }}
+      >
         {Array.from({ length: yRange + 1 }, (_, i) => {
           const y = yMax - i;
           return (
@@ -244,94 +234,161 @@ export default function CoordPlane({
 
       {showAxes && (
         <>
-          <div className="cp-axis-name cp-axis-name-x" style={{ left: boardW }}>
+          <div
+            className="cp-axis-name cp-axis-name-x"
+            style={{ left: padLeft + gridW + 8, top: padTop + gridH - 10 }}
+          >
             x
           </div>
-          <div className="cp-axis-name cp-axis-name-y">y</div>
+          <div
+            className="cp-axis-name cp-axis-name-y"
+            style={{ left: padLeft + 8, top: padTop - 18 }}
+          >
+            y
+          </div>
         </>
       )}
     </div>
   );
 }
 
-function BuildingsBg({ xRange, yRange }: { xRange: number; yRange: number }) {
-  // 5 buildings centered at grid x=1..5, each 0.7 grid units wide.
-  // Windows on floors 1..5, each window centered at grid y=F.
-  // viewBox uses 100 SVG units per grid unit.
-  const U = 100;
-  const W = xRange * U;
-  const H = yRange * U;
+/**
+ * Draws 5 buildings centered at grid x=1..5. Each building has 5 floors,
+ * with a window centered on grid (bx, 1..5). Rendered as absolute-positioned
+ * elements using pixel coordinates.
+ */
+function BuildingsBg({
+  xMin,
+  xMax,
+  yMax,
+  cell,
+  padLeft,
+  padTop,
+  gridH,
+}: {
+  xMin: number;
+  xMax: number;
+  yMax: number;
+  cell: number;
+  padLeft: number;
+  padTop: number;
+  gridH: number;
+}) {
+  const colors = ["#90A4AE", "#A1887F", "#78909C", "#BCAAA4", "#8D6E63"];
+
+  const toPx = (x: number, y: number) => ({
+    left: padLeft + (x - xMin) * cell,
+    top: padTop + (yMax - y) * cell,
+  });
+
+  const buildingW = cell * 0.68;
+  const winSize = Math.max(10, cell * 0.42);
+
+  // Body vertical extent: top slightly above floor 5, bottom at grid y=0
+  const bodyTop = toPx(0, 5).top - Math.ceil(cell * 0.3);
+  const bodyBottom = padTop + gridH;
+  const bodyH = bodyBottom - bodyTop;
+
+  const buildings: React.ReactNode[] = [];
+
+  // Sky rectangle (just for color) over the full board is done via CSS
+  for (let bx = 1; bx <= 5; bx++) {
+    if (bx < xMin || bx > xMax) continue;
+    const centerX = toPx(bx, 0).left;
+    const leftX = centerX - buildingW / 2;
+    const color = colors[(bx - 1) % colors.length];
+
+    buildings.push(
+      <div
+        key={`b${bx}`}
+        style={{
+          position: "absolute",
+          left: leftX,
+          top: bodyTop,
+          width: buildingW,
+          height: bodyH,
+          background: color,
+          border: "1.5px solid #37474F",
+          borderRadius: "3px 3px 0 0",
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      >
+        {/* Windows for floors 1..5 */}
+        {[1, 2, 3, 4, 5].map((fy) => {
+          const winCenterY = (yMax - fy) * cell + padTop - bodyTop;
+          return (
+            <div
+              key={fy}
+              style={{
+                position: "absolute",
+                left: (buildingW - winSize) / 2,
+                top: winCenterY - winSize / 2,
+                width: winSize,
+                height: winSize,
+                background: "#1a2a3a",
+                border: "1px solid #0d1722",
+                borderRadius: 3,
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: 0,
+                  bottom: 0,
+                  width: 1,
+                  background: "#0d1722",
+                  transform: "translateX(-50%)",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: 0,
+                  right: 0,
+                  height: 1,
+                  background: "#0d1722",
+                  transform: "translateY(-50%)",
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>,
+    );
+  }
+
   return (
-    <svg
-      className="cp-buildings-bg"
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-    >
-      {/* Sky */}
-      <rect width="100%" height="100%" fill="#FFE0B2" opacity="0.55" />
-      {[1, 2, 3, 4, 5].map((bx, idx) => {
-        const colors = ["#90A4AE", "#A1887F", "#78909C", "#BCAAA4", "#8D6E63"];
-        const centerX = bx * U;
-        const w = 0.7 * U;
-        const leftX = centerX - w / 2;
-        // Body runs from grid y=0.5 (base) to y=5.5 (top) → SVG y range:
-        const bodyTopY = (yRange - 5.5) * U;
-        const bodyBottomY = (yRange - 0.3) * U;
-        const bodyH = bodyBottomY - bodyTopY;
-        return (
-          <g key={bx}>
-            {/* Body */}
-            <rect
-              x={leftX}
-              y={bodyTopY}
-              width={w}
-              height={bodyH}
-              fill={colors[idx]}
-              stroke="#37474F"
-              strokeWidth={1.2}
-            />
-            {/* Windows: 5 floors × 1 per floor, centered at grid (bx, F) */}
-            {[1, 2, 3, 4, 5].map((fy) => {
-              const winCenterY = (yRange - fy) * U;
-              const ww = 36;
-              const wh = 40;
-              const winX = centerX - ww / 2;
-              const winY = winCenterY - wh / 2;
-              return (
-                <g key={fy}>
-                  <rect
-                    x={winX}
-                    y={winY}
-                    width={ww}
-                    height={wh}
-                    fill="#1a2a3a"
-                    stroke="#0d1722"
-                    strokeWidth={1}
-                    rx={3}
-                  />
-                  <line
-                    x1={centerX}
-                    y1={winY}
-                    x2={centerX}
-                    y2={winY + wh}
-                    stroke="#0d1722"
-                    strokeWidth={1.2}
-                  />
-                  <line
-                    x1={winX}
-                    y1={winCenterY}
-                    x2={winX + ww}
-                    y2={winCenterY}
-                    stroke="#0d1722"
-                    strokeWidth={1.2}
-                  />
-                </g>
-              );
-            })}
-          </g>
-        );
-      })}
-    </svg>
+    <>
+      {/* Sky background (below buildings) */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "#FFE0B2",
+          opacity: 0.55,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      {/* Ground strip at bottom */}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: padTop > 0 ? 4 : 0,
+          background: "#8BC34A",
+          opacity: 0.5,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      {buildings}
+    </>
   );
 }
 
@@ -339,22 +396,21 @@ function ArcheryBg({
   toPx,
   cell,
 }: {
-  boardW: number;
-  boardH: number;
   toPx: (x: number, y: number) => { left: number; top: number };
   cell: number;
 }) {
   const origin = toPx(0, 0);
   return (
     <svg
-      className="cp-archery-bg"
       style={{
         position: "absolute",
         inset: 0,
+        width: "100%",
+        height: "100%",
         pointerEvents: "none",
+        zIndex: 1,
       }}
     >
-      {/* radii 9, 6, 3 concentric */}
       {[
         { r: 9, fill: "#FFCDD2", score: 2 },
         { r: 6, fill: "#FFE0B2", score: 5 },
@@ -390,15 +446,17 @@ function ArcheryBg({
 
 function Figure({ style }: { style: React.CSSProperties }) {
   return (
-    <svg className="cp-figure" style={style} viewBox="0 0 20 28" width={18} height={26}>
-      {/* Head */}
+    <svg
+      className="cp-figure"
+      style={style}
+      viewBox="0 0 20 28"
+      width={18}
+      height={26}
+    >
       <circle cx="10" cy="5" r="4" fill="#FFCC80" stroke="#1a1a2e" strokeWidth="1" />
-      {/* Body */}
       <line x1="10" y1="9" x2="10" y2="18" stroke="#1a1a2e" strokeWidth="1.5" />
-      {/* Arms */}
       <line x1="10" y1="12" x2="4" y2="16" stroke="#1a1a2e" strokeWidth="1.5" />
       <line x1="10" y1="12" x2="16" y2="16" stroke="#1a1a2e" strokeWidth="1.5" />
-      {/* Legs */}
       <line x1="10" y1="18" x2="5" y2="26" stroke="#1a1a2e" strokeWidth="1.5" />
       <line x1="10" y1="18" x2="15" y2="26" stroke="#1a1a2e" strokeWidth="1.5" />
     </svg>
