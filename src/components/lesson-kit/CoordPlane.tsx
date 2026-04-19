@@ -72,11 +72,11 @@ export default function CoordPlane({
 
   // Padding around the grid area
   // - Buildings mode: room for overhang on sides/top, plus stick-figure feet below
-  // - Non-buildings: small bottom margin so a figure at y=yMin doesn't clip feet
-  const padLeft = showBuildings ? Math.ceil(cell * 0.45) + 4 : 0;
-  const padRight = showBuildings ? Math.ceil(cell * 0.45) + 4 : 0;
-  const padTop = showBuildings ? Math.ceil(cell * 0.55) : 0;
-  const padBottom = showBuildings ? 22 : 0;
+  // - Non-buildings: ~12px buffer so dots/labels at the grid edge don't clip
+  const padLeft = showBuildings ? Math.ceil(cell * 0.45) + 4 : 12;
+  const padRight = showBuildings ? Math.ceil(cell * 0.45) + 4 : 12;
+  const padTop = showBuildings ? Math.ceil(cell * 0.55) : 12;
+  const padBottom = showBuildings ? 22 : 12;
 
   const gridW = xRange * cell;
   const gridH = yRange * cell;
