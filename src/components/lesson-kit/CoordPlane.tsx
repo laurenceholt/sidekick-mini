@@ -250,10 +250,9 @@ export default function CoordPlane({
             if yMin>0), y-axis labels along x=0 line (or left edge if xMin>0). */}
         {showGrid && (
           <>
-            {/* X-axis labels */}
+            {/* X-axis labels (skip 0 — drawn as a special origin label below) */}
             {Array.from({ length: xRange + 1 }, (_, i) => {
               const x = xMin + i;
-              // Skip 0 if y-axis exists in range (avoid overlap with y-labels)
               if (x === 0 && yAxisInRange && xAxisInRange) return null;
               const axisY = xAxisInRange ? padTop + (yMax - 0) * cell : padTop + gridH;
               const left = padLeft + i * cell;
@@ -267,7 +266,7 @@ export default function CoordPlane({
                 </span>
               );
             })}
-            {/* Y-axis labels (skip 0 — it's drawn once by x-axis labels) */}
+            {/* Y-axis labels (skip 0 — drawn as the origin label below) */}
             {Array.from({ length: yRange + 1 }, (_, i) => {
               const y = yMax - i;
               if (y === 0) return null;
@@ -283,6 +282,19 @@ export default function CoordPlane({
                 </span>
               );
             })}
+            {/* Origin '0' label — sits in the lower-left quadrant of the
+                axis crossing, right-aligned to the y-axis and below the x-axis. */}
+            {yAxisInRange && xAxisInRange && (
+              <span
+                className="cp-axis-label cp-axis-label-inline cp-axis-label-origin"
+                style={{
+                  left: padLeft + (0 - xMin) * cell - 4,
+                  top: padTop + (yMax - 0) * cell + 3,
+                }}
+              >
+                0
+              </span>
+            )}
           </>
         )}
 

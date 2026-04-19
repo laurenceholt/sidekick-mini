@@ -1308,6 +1308,9 @@ button { font-family: inherit; }
   transform: translate(-100%, -50%);
   padding-right: 2px;
 }
+.cp-axis-label-inline.cp-axis-label-origin {
+  transform: translate(-100%, 0);
+}
 .cp-axis-name {
   position: absolute;
   font-size: 15px;
