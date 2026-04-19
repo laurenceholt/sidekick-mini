@@ -34,7 +34,7 @@ export default function CoordPlot({
       showAxes={step.showAxes}
       showArchery={step.showArchery}
       points={step.points}
-      figure={pt ?? step.initialFigure ?? null}
+      figure={step.showBuildings ? (pt ?? step.initialFigure ?? null) : null}
       plottedPoint={step.showBuildings ? null : pt}
       locked={locked}
       onGridClick={(x, y) => {
@@ -54,6 +54,8 @@ export function gradeCoordPlot(
   if (ans.x === step.targetX && ans.y === step.targetY) return { correct: true };
   return {
     correct: false,
-    hint: step.hint || "Not quite. Remember: go along first, then up.",
+    hint:
+      step.hint ||
+      "Not quite. The first number is the x-coordinate (along); the second is the y-coordinate (up or down).",
   };
 }

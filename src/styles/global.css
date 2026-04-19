@@ -1246,8 +1246,8 @@ button { font-family: inherit; }
    ═══════════════════════════════════════════ */
 .cp-wrap {
   position: relative;
-  margin: 20px auto;
-  padding: 12px 12px 28px 34px;
+  margin: 12px auto;
+  padding: 4px;
   width: fit-content;
   font-family: 'Nunito', sans-serif;
 }
@@ -1293,44 +1293,29 @@ button { font-family: inherit; }
   height: 2px;
   background: #78909C;
 }
-.cp-axis-labels-x {
-  position: relative;
-  height: 22px;
-  margin-top: 4px;
-}
-.cp-axis-labels-y {
-  position: absolute;
-  left: 0;
-  width: 26px;
-}
 .cp-axis-label {
   position: absolute;
-  transform: translateX(-50%);
   font-size: 11px;
   font-weight: 800;
   color: #546E7A;
+  pointer-events: none;
+  z-index: 4;
 }
-.cp-axis-labels-y .cp-axis-label {
-  transform: translateY(-50%);
-  left: 14px;
-  text-align: right;
-  right: 4px;
+.cp-axis-label-inline.cp-axis-label-x {
+  transform: translateX(-50%);
+}
+.cp-axis-label-inline.cp-axis-label-y {
+  transform: translate(-100%, -50%);
+  padding-right: 2px;
 }
 .cp-axis-name {
   position: absolute;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
   font-style: italic;
-  color: #455A64;
-}
-.cp-axis-name-x {
-  bottom: 28px;
-  margin-left: 8px;
-}
-.cp-axis-name-y {
-  top: 0;
-  left: 14px;
-  margin-top: -4px;
+  color: #37474F;
+  pointer-events: none;
+  z-index: 4;
 }
 .cp-point {
   position: absolute;

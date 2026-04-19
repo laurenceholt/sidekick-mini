@@ -64,19 +64,48 @@ export default function CoordPlane({
   const xRange = xMax - xMin;
   const yRange = yMax - yMin;
 
-  // Auto-size cell
+  // Auto-size cell: capped small enough that a 10-unit tall plane fits on a
+  // 1366x768 Chromebook viewport without scrolling.
   const cell = Math.min(
-    34,
-    Math.floor(Math.min(480 / Math.max(xRange, 1), 340 / Math.max(yRange, 1))),
+    26,
+    Math.floor(Math.min(480 / Math.max(xRange, 1), 260 / Math.max(yRange, 1))),
   );
+
+  // Axis layout
+  const xAxisInRange = xMin <= 0 && 0 <= xMax; // horizontal axis at y=0 exists
+  const yAxisInRange = yMin <= 0 && 0 <= yMax; // vertical axis at x=0 exists
+  const xAxisNeedsLeftArrow = xMin < 0;
+  const yAxisNeedsBottomArrow = yMin < 0;
 
   // Padding around the grid area
   // - Buildings mode: room for overhang on sides/top, plus stick-figure feet below
-  // - Non-buildings: ~12px buffer so dots/labels at the grid edge don't clip
-  const padLeft = showBuildings ? Math.ceil(cell * 0.45) + 4 : 12;
-  const padRight = showBuildings ? Math.ceil(cell * 0.45) + 4 : 12;
-  const padTop = showBuildings ? Math.ceil(cell * 0.55) : 12;
-  const padBottom = showBuildings ? 22 : 12;
+  // - showAxes: extra room for axis arrows + x/y labels on the relevant sides
+  // - Non-buildings: small buffer so edge dots/labels don't clip
+  let padLeft = showBuildings ? Math.ceil(cell * 0.45) + 4 : 12;
+  let padRight = showBuildings ? Math.ceil(cell * 0.45) + 4 : 12;
+  let padTop = showBuildings ? Math.ceil(cell * 0.55) : 12;
+  let padBottom = showBuildings ? 22 : 12;
+
+  if (showAxes) {
+    // Room for right-end x-arrow + 'x' label
+    padRight = Math.max(padRight, 30);
+    // Room for top-end y-arrow + 'y' label
+    padTop = Math.max(padTop, 26);
+    // Room for left-end x-arrow
+    if (xAxisNeedsLeftArrow) padLeft = Math.max(padLeft, 18);
+    // Room for bottom-end y-arrow
+    if (yAxisNeedsBottomArrow) padBottom = Math.max(padBottom, 18);
+  }
+  // Always leave some room for axis-labels positioned just outside the grid
+  // (labels live along the relevant axis; when axis is at the edge they
+  // effectively sit outside the grid).
+  if (!showBuildings && !yAxisInRange) padLeft = Math.max(padLeft, 18);
+  if (!showBuildings && !xAxisInRange) padBottom = Math.max(padBottom, 20);
+  if (!showBuildings) {
+    // For grids with axis at the edge, labels need to sit outside.
+    if (xMin === 0) padLeft = Math.max(padLeft, 18);
+    if (yMin === 0) padBottom = Math.max(padBottom, 20);
+  }
 
   const gridW = xRange * cell;
   const gridH = yRange * cell;
@@ -206,61 +235,161 @@ export default function CoordPlane({
             figure.y >= 1 &&
             figure.y <= 5
           ) && <Figure style={toPx(figure.x, figure.y)} />}
-      </div>
 
-      {/* Axis number labels (below / left of grid area) */}
-      <div
-        className="cp-axis-labels-x"
-        style={{ width: gridW, marginLeft: padLeft }}
-      >
-        {Array.from({ length: xRange + 1 }, (_, i) => {
-          const x = xMin + i;
-          return (
-            <span
-              key={x}
-              className="cp-axis-label"
-              style={{ left: i * cell }}
-            >
-              {x}
-            </span>
-          );
-        })}
-      </div>
-      <div
-        className="cp-axis-labels-y"
-        style={{ height: gridH, top: padTop + 12 }}
-      >
-        {Array.from({ length: yRange + 1 }, (_, i) => {
-          const y = yMax - i;
-          return (
-            <span
-              key={y}
-              className="cp-axis-label"
-              style={{ top: i * cell }}
-            >
-              {y}
-            </span>
-          );
-        })}
-      </div>
+        {/* On-axis number labels — x-axis labels along y=0 line (or bottom edge
+            if yMin>0), y-axis labels along x=0 line (or left edge if xMin>0). */}
+        {showGrid && (
+          <>
+            {/* X-axis labels */}
+            {Array.from({ length: xRange + 1 }, (_, i) => {
+              const x = xMin + i;
+              // Skip 0 if y-axis exists in range (avoid overlap with y-labels)
+              if (x === 0 && yAxisInRange && xAxisInRange) return null;
+              const axisY = xAxisInRange ? padTop + (yMax - 0) * cell : padTop + gridH;
+              const left = padLeft + i * cell;
+              return (
+                <span
+                  key={`xl${x}`}
+                  className="cp-axis-label cp-axis-label-inline cp-axis-label-x"
+                  style={{ left, top: axisY + 4 }}
+                >
+                  {x}
+                </span>
+              );
+            })}
+            {/* Y-axis labels (skip 0 — it's drawn once by x-axis labels) */}
+            {Array.from({ length: yRange + 1 }, (_, i) => {
+              const y = yMax - i;
+              if (y === 0) return null;
+              const axisX = yAxisInRange ? padLeft + (0 - xMin) * cell : padLeft;
+              const top = padTop + i * cell;
+              return (
+                <span
+                  key={`yl${y}`}
+                  className="cp-axis-label cp-axis-label-inline cp-axis-label-y"
+                  style={{ left: axisX - 5, top }}
+                >
+                  {y}
+                </span>
+              );
+            })}
+          </>
+        )}
 
-      {showAxes && (
-        <>
-          <div
-            className="cp-axis-name cp-axis-name-x"
-            style={{ left: padLeft + gridW + 8, top: padTop + gridH - 10 }}
-          >
-            x
-          </div>
-          <div
-            className="cp-axis-name cp-axis-name-y"
-            style={{ left: padLeft + 8, top: padTop - 18 }}
-          >
-            y
-          </div>
-        </>
-      )}
+        {/* Axis arrows + x/y names (only when showAxes). Arrows attach to the
+            existing axis lines; padding above/right (and left/below if needed)
+            was reserved for them. */}
+        {showAxes && xAxisInRange && (
+          <>
+            {/* Right arrow on x-axis */}
+            <AxisArrow
+              dir="right"
+              left={padLeft + gridW}
+              top={padTop + (yMax - 0) * cell}
+            />
+            {xAxisNeedsLeftArrow && (
+              <AxisArrow
+                dir="left"
+                left={padLeft}
+                top={padTop + (yMax - 0) * cell}
+              />
+            )}
+            <div
+              className="cp-axis-name cp-axis-name-x"
+              style={{
+                left: padLeft + gridW + 18,
+                top: padTop + (yMax - 0) * cell - 10,
+              }}
+            >
+              x
+            </div>
+          </>
+        )}
+        {showAxes && yAxisInRange && (
+          <>
+            <AxisArrow
+              dir="up"
+              left={padLeft + (0 - xMin) * cell}
+              top={padTop}
+            />
+            {yAxisNeedsBottomArrow && (
+              <AxisArrow
+                dir="down"
+                left={padLeft + (0 - xMin) * cell}
+                top={padTop + gridH}
+              />
+            )}
+            <div
+              className="cp-axis-name cp-axis-name-y"
+              style={{
+                left: padLeft + (0 - xMin) * cell - 5,
+                top: padTop - 22,
+              }}
+            >
+              y
+            </div>
+          </>
+        )}
+      </div>
     </div>
+  );
+}
+
+function AxisArrow({
+  dir,
+  left,
+  top,
+}: {
+  dir: "up" | "down" | "left" | "right";
+  left: number;
+  top: number;
+}) {
+  // 10px triangle, rendered via CSS borders
+  const size = 6;
+  let borderStyle: React.CSSProperties = {};
+  const color = "#78909C";
+  if (dir === "right") {
+    borderStyle = {
+      borderTop: `${size}px solid transparent`,
+      borderBottom: `${size}px solid transparent`,
+      borderLeft: `${size + 2}px solid ${color}`,
+      transform: "translate(0, -50%)",
+    };
+  } else if (dir === "left") {
+    borderStyle = {
+      borderTop: `${size}px solid transparent`,
+      borderBottom: `${size}px solid transparent`,
+      borderRight: `${size + 2}px solid ${color}`,
+      transform: "translate(-100%, -50%)",
+    };
+  } else if (dir === "up") {
+    borderStyle = {
+      borderLeft: `${size}px solid transparent`,
+      borderRight: `${size}px solid transparent`,
+      borderBottom: `${size + 2}px solid ${color}`,
+      transform: "translate(-50%, -100%)",
+    };
+  } else {
+    borderStyle = {
+      borderLeft: `${size}px solid transparent`,
+      borderRight: `${size}px solid transparent`,
+      borderTop: `${size + 2}px solid ${color}`,
+      transform: "translate(-50%, 0)",
+    };
+  }
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left,
+        top,
+        width: 0,
+        height: 0,
+        zIndex: 3,
+        pointerEvents: "none",
+        ...borderStyle,
+      }}
+    />
   );
 }
 
@@ -449,9 +578,10 @@ function ArcheryBg({
             strokeWidth={1.2}
             opacity={0.85}
           />
+          {/* Label in upper-right quadrant so it doesn't sit on the y-axis */}
           <text
-            x={origin.left}
-            y={origin.top - r * cell + 14}
+            x={origin.left + r * cell * 0.7}
+            y={origin.top - r * cell * 0.7 + 4}
             fontFamily="Nunito, sans-serif"
             fontSize={11}
             fontWeight={900}
