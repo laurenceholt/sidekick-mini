@@ -70,11 +70,13 @@ export default function CoordPlane({
     Math.floor(Math.min(480 / Math.max(xRange, 1), 340 / Math.max(yRange, 1))),
   );
 
-  // Padding around the grid area (for buildings to extend into without clipping)
-  const padLeft = showBuildings ? Math.ceil(cell * 0.35) + 2 : 0;
-  const padRight = showBuildings ? Math.ceil(cell * 0.35) + 2 : 0;
-  const padTop = showBuildings ? Math.ceil(cell * 0.5) : 0;
-  const padBottom = showBuildings ? Math.ceil(cell * 0.2) : 0;
+  // Padding around the grid area
+  // - Buildings mode: room for overhang on sides/top, plus stick-figure feet below
+  // - Non-buildings: small bottom margin so a figure at y=yMin doesn't clip feet
+  const padLeft = showBuildings ? Math.ceil(cell * 0.45) + 4 : 0;
+  const padRight = showBuildings ? Math.ceil(cell * 0.45) + 4 : 0;
+  const padTop = showBuildings ? Math.ceil(cell * 0.55) : 0;
+  const padBottom = showBuildings ? 22 : 0;
 
   const gridW = xRange * cell;
   const gridH = yRange * cell;
@@ -142,6 +144,7 @@ export default function CoordPlane({
             padLeft={padLeft}
             padTop={padTop}
             gridH={gridH}
+            figure={figure ?? null}
           />
         )}
         {showArchery && <ArcheryBg toPx={toPx} cell={cell} />}
@@ -192,8 +195,17 @@ export default function CoordPlane({
           />
         )}
 
-        {/* Figure */}
-        {figure && <Figure style={toPx(figure.x, figure.y)} />}
+        {/* Figure — drawn only when NOT inside a building room.
+            Inside a room (buildings mode, x in 1..5 and y in 1..5), the lit
+            window takes over rendering. */}
+        {figure &&
+          !(
+            showBuildings &&
+            figure.x >= 1 &&
+            figure.x <= 5 &&
+            figure.y >= 1 &&
+            figure.y <= 5
+          ) && <Figure style={toPx(figure.x, figure.y)} />}
       </div>
 
       {/* Axis number labels (below / left of grid area) */}
@@ -265,6 +277,7 @@ function BuildingsBg({
   padLeft,
   padTop,
   gridH,
+  figure,
 }: {
   xMin: number;
   xMax: number;
@@ -273,6 +286,7 @@ function BuildingsBg({
   padLeft: number;
   padTop: number;
   gridH: number;
+  figure: CoordPoint | null;
 }) {
   const colors = ["#90A4AE", "#A1887F", "#78909C", "#BCAAA4", "#8D6E63"];
 
@@ -317,6 +331,7 @@ function BuildingsBg({
         {/* Windows for floors 1..5 */}
         {[1, 2, 3, 4, 5].map((fy) => {
           const winCenterY = (yMax - fy) * cell + padTop - bodyTop;
+          const lit = figure && figure.x === bx && figure.y === fy;
           return (
             <div
               key={fy}
@@ -326,33 +341,41 @@ function BuildingsBg({
                 top: winCenterY - winSize / 2,
                 width: winSize,
                 height: winSize,
-                background: "#1a2a3a",
-                border: "1px solid #0d1722",
+                background: lit ? "#FFE082" : "#1a2a3a",
+                border: `1px solid ${lit ? "#F57F17" : "#0d1722"}`,
                 borderRadius: 3,
+                boxShadow: lit ? "0 0 6px 2px #FFEB3B" : undefined,
+                overflow: "hidden",
               }}
             >
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: 0,
-                  bottom: 0,
-                  width: 1,
-                  background: "#0d1722",
-                  transform: "translateX(-50%)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: 0,
-                  right: 0,
-                  height: 1,
-                  background: "#0d1722",
-                  transform: "translateY(-50%)",
-                }}
-              />
+              {lit ? (
+                <WindowSilhouette size={winSize} />
+              ) : (
+                <>
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: "50%",
+                      top: 0,
+                      bottom: 0,
+                      width: 1,
+                      background: "#0d1722",
+                      transform: "translateX(-50%)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: 0,
+                      right: 0,
+                      height: 1,
+                      background: "#0d1722",
+                      transform: "translateY(-50%)",
+                    }}
+                  />
+                </>
+              )}
             </div>
           );
         })}
@@ -445,9 +468,10 @@ function ArcheryBg({
 }
 
 function Figure({ style }: { style: React.CSSProperties }) {
+  // Anchored by feet: the figure's feet sit on the clicked point.
   return (
     <svg
-      className="cp-figure"
+      className="cp-figure cp-figure-full"
       style={style}
       viewBox="0 0 20 28"
       width={18}
@@ -459,6 +483,34 @@ function Figure({ style }: { style: React.CSSProperties }) {
       <line x1="10" y1="12" x2="16" y2="16" stroke="#1a1a2e" strokeWidth="1.5" />
       <line x1="10" y1="18" x2="5" y2="26" stroke="#1a1a2e" strokeWidth="1.5" />
       <line x1="10" y1="18" x2="15" y2="26" stroke="#1a1a2e" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+/** Head + shoulders silhouette shown inside a lit window. */
+function WindowSilhouette({ size }: { size: number }) {
+  const pad = Math.max(1, size * 0.08);
+  const viewS = 30;
+  return (
+    <svg
+      viewBox={`0 0 ${viewS} ${viewS}`}
+      width={size - pad * 2}
+      height={size - pad * 2}
+      style={{
+        position: "absolute",
+        left: pad,
+        top: pad,
+        display: "block",
+      }}
+      preserveAspectRatio="xMidYMax meet"
+    >
+      {/* Shoulders / bust — rounded mound from bottom */}
+      <path
+        d="M 3 30 Q 3 20 15 19 Q 27 20 27 30 Z"
+        fill="#1a1a2e"
+      />
+      {/* Head — circle above shoulders */}
+      <circle cx="15" cy="13" r="6" fill="#1a1a2e" />
     </svg>
   );
 }

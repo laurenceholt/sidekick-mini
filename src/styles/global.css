@@ -1378,7 +1378,8 @@ button { font-family: inherit; }
 }
 .cp-figure {
   position: absolute;
-  transform: translate(-50%, -50%);
+  /* Anchored by feet: the grid point sits at the figure's feet. */
+  transform: translate(-50%, -100%);
   z-index: 7;
   pointer-events: none;
   filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
