@@ -341,7 +341,11 @@ export default function MultiStepShell({
       setStreak(0);
       playWrong();
       setFeedback("wrong");
-      setFeedbackMessage(result.hint);
+      // Fall back to the writer-supplied hintButton when the grader didn't
+      // provide a specific wrong-answer hint. The hintButton text was
+      // written with the question in mind so it's a better fallback than
+      // generic "Not quite" feedback.
+      setFeedbackMessage(result.hint || (step as any).hintButton);
       setButtonState("wrong");
       logEvent({ stepId: stepIdStr, answer: ansStr, correct: false, bobaTotal: bobaCount + 1 });
     }

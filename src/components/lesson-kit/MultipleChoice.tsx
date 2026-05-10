@@ -26,17 +26,35 @@ export default function MultipleChoice({
   const [internal, setInternal] = useState<number | null>(null);
   const sel = selectedIdx ?? internal;
 
+  // When the question already has a chart/visual primitive, the image is a
+  // decorative corner illustration — render it small in the top-right.
+  const hasChart =
+    !!(step as any).dotPlot ||
+    !!(step as any).histogram ||
+    !!(step as any).multiThermo ||
+    !!(step as any).coordPlane ||
+    step.showNumberLine;
+  const stepImage = (step as any).image as string | undefined;
+
+  // Compact button row: lots of short choices (e.g. "0","1","2","3","4","5")
+  // fit better as a flex-wrap grid than one-per-row.
+  const compactChoices =
+    step.choices.length > 3 && step.choices.every((c) => c.text.length <= 4);
+
   return (
-    <div key={attemptKey}>
-      {(step as any).image && (
-        <div style={{ display: "flex", justifyContent: "center", margin: "12px 0" }}>
-          <img
-            src={(step as any).image}
-            alt=""
-            style={{ maxWidth: "100%", maxHeight: 180, objectFit: "contain" }}
-          />
-        </div>
-      )}
+    <div key={attemptKey} className="mc-wrap">
+      {stepImage &&
+        (hasChart ? (
+          <img className="lesson-corner-illustration" src={stepImage} alt="" />
+        ) : (
+          <div style={{ display: "flex", justifyContent: "center", margin: "12px 0" }}>
+            <img
+              src={stepImage}
+              alt=""
+              style={{ maxWidth: "100%", maxHeight: 180, objectFit: "contain" }}
+            />
+          </div>
+        ))}
       {step.showNumberLine && step.min !== undefined && step.max !== undefined && (
         <NumberLine
           min={step.min}
@@ -69,7 +87,7 @@ export default function MultipleChoice({
       {(step as any).dotPlot && <DotPlot spec={(step as any).dotPlot} />}
       {(step as any).histogram && <Histogram spec={(step as any).histogram} />}
       {(step as any).multiThermo && <MultiThermo spec={(step as any).multiThermo} />}
-      <div className="choices">
+      <div className={`choices${compactChoices ? " compact" : ""}`}>
         {step.choices.map((ch, i) => {
           const isSel = sel === i;
           const cls =

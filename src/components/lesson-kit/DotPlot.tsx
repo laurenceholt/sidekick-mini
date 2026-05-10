@@ -40,11 +40,13 @@ export default function DotPlot({ spec }: DotPlotProps) {
   const small = spec.size === "small";
 
   const cell = small ? 22 : 36;
-  const dotSize = small ? 11 : 14;
+  const dotSize = small ? 10 : 13;
   const lineW = range * cell;
   const padX = small ? 22 : 30;
   const padTop = small ? 28 : 38;
   const padBottom = small ? 40 : 54;
+  // Space between the line and the bottom-most dot.
+  const dotBaseGap = small ? 4 : 6;
 
   // Build stack heights & per-position red flags
   const ticks: number[] = [];
@@ -86,7 +88,9 @@ export default function DotPlot({ spec }: DotPlotProps) {
             <div key={`s${v}`}>
               {Array.from({ length: count }, (_, k) => {
                 const isTopRed = redSet.has(v) && k === count - 1;
-                const bottomFromBase = 18 + k * (dotSize + 2);
+                // Line top sits at ~19 from container bottom; add a gap so
+                // the bottom-most dot doesn't crash into the line.
+                const bottomFromBase = 19 + dotBaseGap + k * (dotSize + 2);
                 return (
                   <div
                     key={k}
@@ -157,11 +161,7 @@ export default function DotPlot({ spec }: DotPlotProps) {
           {spec.label}
         </div>
       )}
-      {spec.legend && (
-        <div className="dotplot-legend">
-          <span className="dotplot-legend-dot" /> {spec.legend}
-        </div>
-      )}
+      {spec.legend && <div className="dotplot-legend">{spec.legend}</div>}
     </div>
   );
 }

@@ -395,6 +395,31 @@ button { font-family: inherit; }
 
 /* Multiple choice */
 .choices { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; align-self: center; margin: 16px auto 0; }
+/* Compact: lots of short choices (e.g. 0 / 1 / 2 / 3 / 4 / 5) → 3-up grid */
+.choices.compact {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 360px;
+  gap: 8px;
+}
+.choices.compact .choice-btn {
+  flex: 0 0 calc(33.333% - 8px);
+  min-width: 0;
+  padding: 10px 0;
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+/* Corner illustration: a decorative SVG in the upper-right of a question
+   that ALSO has a chart/visual taking the main space. */
+.lesson-corner-illustration {
+  float: right;
+  max-height: 64px;
+  max-width: 80px;
+  margin: 0 0 8px 12px;
+  object-fit: contain;
+}
 .choice-btn {
   padding: 18px 24px;
   border: 2px solid #e0e0e0;
@@ -1427,9 +1452,7 @@ button { font-family: inherit; }
   background: #FFE082;
   border: 2px solid #F57F17;
   border-radius: 4px;
-  padding: 1px 5px;
-  margin-left: -1px;
-  margin-top: -2px;
+  padding: 0 5px;
 }
 .dotplot-axis-name {
   text-align: center;

@@ -6,5 +6,11 @@ export function parseMarkdown(text: string | undefined | null): string {
   s = s.replace(/\*(.+?)\*/g, "<em>$1</em>");
   // Keep absolute-value expressions like |-5| on a single line.
   s = s.replace(/\|([^|\s][^|]*?)\|/g, '<span style="white-space:nowrap">|$1|</span>');
+  // Phonetic-slug parentheses with multiple hyphens (e.g. "(HIST-o-gram)",
+  // "(dih-struh-BYOO-shun)", "(MEE-dee-un)") — replace internal hyphens
+  // with U+2011 (non-breaking hyphen) so they never wrap.
+  s = s.replace(/\(([^()]*-[^()]*-[^()]*)\)/g, (_, inner) =>
+    `(${inner.replace(/-/g, "‑")})`,
+  );
   return s;
 }

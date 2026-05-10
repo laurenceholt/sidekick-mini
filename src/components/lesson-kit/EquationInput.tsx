@@ -37,9 +37,13 @@ export default function EquationInput({
 
   const cp = (step as any).coordPlane;
   const suffix = (step as any).suffix as string | undefined;
+  const stepImage = (step as any).image as string | undefined;
 
   return (
     <div>
+      {stepImage && (
+        <img className="lesson-corner-illustration" src={stepImage} alt="" />
+      )}
       {step.showNumberLine && step.min !== undefined && step.max !== undefined && (
         <NumberLine
           min={step.min}

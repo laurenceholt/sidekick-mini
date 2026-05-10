@@ -30,8 +30,13 @@ export default function PickFromList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attemptKey]);
 
+  const stepImage = (step as any).image as string | undefined;
+
   return (
     <div>
+      {stepImage && (
+        <img className="lesson-corner-illustration" src={stepImage} alt="" />
+      )}
       {(step as any).dotPlot && <DotPlot spec={(step as any).dotPlot} />}
       {(step as any).multiThermo && <MultiThermo spec={(step as any).multiThermo} />}
       <div className="pickfromlist-wrap">
