@@ -34,33 +34,35 @@ export default function MapView() {
 
   if (error) return <div className="map-content">Error: {error}</div>;
   if (!content) return <div className="map-content">Loading…</div>;
-  const mod: Module | undefined = content.modules[0];
-  if (!mod) return <div className="map-content">No modules.</div>;
+  if (content.modules.length === 0)
+    return <div className="map-content">No modules.</div>;
 
-  const key = (sId: string, lId: string, mlId: string) =>
-    `${mod.id}-${sId}-${lId}-${mlId}`;
-  const isCompleted = (sId: string, lId: string, mlId: string) => {
-    const v = progress[key(sId, lId, mlId)];
+  const isCompletedFor = (mod: Module) => (sId: string, lId: string, mlId: string) => {
+    const v = progress[`${mod.id}-${sId}-${lId}-${mlId}`];
     if (typeof v === "boolean") return v;
     if (v && typeof v === "object") return !!(v as any).completed;
     return false;
   };
 
-  // First incomplete mini-lesson (the "current" node).
-  let current: { sId: string; lId: string; mlId: string } | null = null;
-  outer: for (const sec of mod.sections) {
-    for (const les of sec.lessons) {
-      for (const ml of les.miniLessons) {
-        if (ml.steps.length === 0) continue;
-        if (!isCompleted(sec.id, les.id, ml.id)) {
-          current = { sId: sec.id, lId: les.id, mlId: ml.id };
-          break outer;
+  // First-incomplete-per-module → "current" node for that module
+  const currentByMod: Record<string, { sId: string; lId: string; mlId: string } | null> = {};
+  for (const mod of content.modules) {
+    const isCompleted = isCompletedFor(mod);
+    let cur: { sId: string; lId: string; mlId: string } | null = null;
+    outer: for (const sec of mod.sections) {
+      for (const les of sec.lessons) {
+        for (const ml of les.miniLessons) {
+          if (ml.steps.length === 0) continue;
+          if (!isCompleted(sec.id, les.id, ml.id)) {
+            cur = { sId: sec.id, lId: les.id, mlId: ml.id };
+            break outer;
+          }
         }
       }
     }
+    currentByMod[mod.id] = cur;
   }
 
-  let nodeIndex = 0;
   const boba =
     typeof window !== "undefined"
       ? parseInt(localStorage.getItem("bobaCount") || "0", 10) || 0
@@ -70,14 +72,24 @@ export default function MapView() {
     <>
       <div className="map-header">
         <div className="map-title-bar">
-          <div className="map-module-title">{mod.title}</div>
+          <div className="map-module-title">{content.modules[0].title}</div>
           <div className="map-gems">
             <img src="/boba.svg" className="boba-icon" alt="boba" />
             <span>{boba}</span>
           </div>
         </div>
       </div>
-      <div className="map-content">
+      {content.modules.map((mod, modIdx) => {
+        const isCompleted = isCompletedFor(mod);
+        const current = currentByMod[mod.id];
+        let nodeIndex = 0;
+        return (
+      <div key={mod.id} className="map-content">
+        {modIdx > 0 && (
+          <div className="map-module-divider">
+            <div className="map-module-title-sub">{mod.title}</div>
+          </div>
+        )}
         {mod.sections.map((sec) => {
           const allDone = sec.lessons.every((l) =>
             l.miniLessons
@@ -165,6 +177,8 @@ export default function MapView() {
           );
         })}
       </div>
+        );
+      })}
       <div className="step-number">astro {COMMIT_SHA}</div>
     </>
   );
