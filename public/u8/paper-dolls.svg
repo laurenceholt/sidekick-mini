@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <!-- Two paper-cut dolls joined at the hands -->
+  <g fill="#FFF59D" stroke="#F57F17" stroke-width="2">
+    <!-- Left doll -->
+    <circle cx="28" cy="22" r="10"/>
+    <path d="M28,32 L28,52 M28,40 L18,48 M28,40 L46,40 M28,52 L22,68 M28,52 L34,68" stroke-linecap="round" stroke-width="6" fill="none"/>
+    <!-- Right doll -->
+    <circle cx="92" cy="22" r="10"/>
+    <path d="M92,32 L92,52 M92,40 L102,48 M92,40 L74,40 M92,52 L86,68 M92,52 L98,68" stroke-linecap="round" stroke-width="6" fill="none"/>
+  </g>
+  <!-- Faces -->
+  <g fill="#1a1a2e">
+    <circle cx="25" cy="20" r="1.2"/>
+    <circle cx="31" cy="20" r="1.2"/>
+    <path d="M24,25 Q28,28 32,25" fill="none" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="89" cy="20" r="1.2"/>
+    <circle cx="95" cy="20" r="1.2"/>
+    <path d="M88,25 Q92,28 96,25" fill="none" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+  <!-- Joining ribbon at the hands (middle area) -->
+  <rect x="44" y="36" width="32" height="8" fill="#FFE082" stroke="#F57F17" stroke-width="1.5"/>
+</svg>

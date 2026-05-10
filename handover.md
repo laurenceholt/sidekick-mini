@@ -177,6 +177,45 @@ Step types introduced in Section 1-3:
 - `EquationInput` now accepts a `coordPlane` prop (renders a CoordPlane above the input, e.g. "two points are here, how far apart?"), a `suffix` string for equations like `(3, _)`, and inline `hops`.
 - `MultipleChoice` also accepts a `coordPlane` prop (questions interpreting a plotted point or image).
 
+### Module 6, Section 8 (Unit 8: Statistics)
+
+| ID | Title | Mini-lessons |
+|----|-------|-------------|
+| 6-8-4 | Dot plots | 2 MLs (11, 10 steps) |
+| 6-8-6 | Histograms | 1 ML (10 steps) |
+| 6-8-9 | Mean | 2 MLs (10, 10 steps) |
+| 6-8-13 | Median | 1 ML (10 steps) |
+| 6-8-14 | Mean vs median | 2 MLs (9, 10 steps) |
+
+This is a **second module** (`m6`) added after the existing Unit 7 module (`m1`). It uses `displayNum` overrides at module/section/lesson/mini-lesson levels so step-ID badges and event-log step IDs read `6-8-4-1-1` etc, matching the curriculum spec rather than the app's array-index numbering (which would otherwise read `2-1-1-1-1`).
+
+#### `displayNum` infrastructure
+- New optional `displayNum?: number` field on `Module`, `Section`, `Lesson`, `MiniLesson`.
+- `LessonRunner` builds the step prefix as `${displayNum ?? idx+1}` at each level.
+- `MapView` shows the lesson number as `displayNum ?? li+1`.
+- `EditView` builds the location column and the mini-lesson filter dropdown using `displayNum` at each level.
+- Lessons can be non-contiguous (Unit 8 uses lessons 4, 6, 9, 13, 14 — five entries with no placeholders for the gaps).
+
+#### New step types introduced in Unit 8
+- `tile-sort` — drag numbered tiles into labeled buckets (e.g. `1-5`, `6-10`). Touch-friendly click-to-cycle UX (tap a tile, then tap a bucket).
+- `bar-leveler` — N bars with arrows between adjacent pairs; each click moves one filled cell between bars. Used to teach the mean as a "leveling" operation.
+- `pick-from-list` — values shown inline (e.g. `1, 4, 4, 7, 12, 21, 64`); each is selectable. Used for "click the median".
+- `compare-means` — three-part labeled comparison: `[leftLabel] [input] [sign] [rightLabel] [input]`. Grades each number AND requires the sign to make the constructed inequality true.
+- `two-chart-choice` — two charts shown side-by-side as tappable cards. Used for "tap the dot plot that is more spread out".
+
+#### New visual primitives (used as props on MultipleChoice / EquationInput / etc)
+- `DotPlot` — horizontal number line with stacked dots; supports `redValues` (highlight specific data points), `highlightValue` (highlight a tick label), label & legend, regular/small sizes.
+- `Histogram` — vertical bars per bucket. Supports `bucketsVisible` (progressive reveal), `dotsInBars` (visualize each bar as a stack of dots), `arrowAtBucket` (point at a specific bar), x/y axis labels, selectable bars.
+- `MultiThermo` — row of small thermometers with explicit temperature readings. Used for "find the mean of 120°, 124°, 122°".
+
+#### Components extended
+- `MultipleChoice` now accepts `dotPlot`, `histogram`, `multiThermo` props (renders above the choices).
+- `EquationInput` now accepts the same three props.
+- `PickFromList` accepts `dotPlot` and `multiThermo` (some median steps show a chart above the picker).
+
+#### Smart quotes for Unit 8
+After running `scripts/insert-unit-8.mjs`, run `scripts/smart-quote-all.mjs` to convert any remaining straight quotes (the insert script may use plain `"`/`'` in some places).
+
 ### Content convention: smart quotes
 
 All user-facing strings in the Supabase content blob use curly/smart quotes: `\u201C` `\u201D` for double, `\u2018` `\u2019` for single. A migration script at `scripts/smart-quote-all.mjs` walks the entire blob and converts any straight quotes. Re-run any time after content edits if straight quotes leak in.

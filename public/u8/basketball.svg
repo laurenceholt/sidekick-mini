@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 130" width="120" height="130">
+  <!-- Height chart -->
+  <rect x="2" y="6" width="14" height="120" fill="#FFCDD2" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- Tick marks -->
+  <g stroke="#1a1a2e" stroke-width="1">
+    <line x1="2" y1="20" x2="16" y2="20"/>
+    <line x1="2" y1="40" x2="10" y2="40"/>
+    <line x1="2" y1="60" x2="16" y2="60"/>
+    <line x1="2" y1="80" x2="10" y2="80"/>
+    <line x1="2" y1="100" x2="16" y2="100"/>
+  </g>
+  <!-- Player body -->
+  <g>
+    <!-- Head -->
+    <circle cx="60" cy="22" r="11" fill="#FFCC80" stroke="#1a1a2e" stroke-width="1.5"/>
+    <!-- Hair -->
+    <path d="M50,18 Q60,8 70,18 Q66,14 60,14 Q54,14 50,18 Z" fill="#3E2723"/>
+    <!-- Body (jersey) -->
+    <path d="M48,34 L72,34 L74,80 L46,80 Z" fill="#D32F2F" stroke="#1a1a2e" stroke-width="1.5"/>
+    <!-- Number on jersey -->
+    <text x="60" y="60" font-family="Nunito, sans-serif" font-size="18" font-weight="900" fill="#fff" text-anchor="middle">23</text>
+    <!-- Arms (one raised holding ball) -->
+    <path d="M48,38 L36,62 L40,72 L46,46" fill="#FFCC80" stroke="#1a1a2e" stroke-width="1.5"/>
+    <path d="M72,38 Q98,18 100,8 L94,6 Q80,18 70,32" fill="#FFCC80" stroke="#1a1a2e" stroke-width="1.5"/>
+    <!-- Basketball in hand -->
+    <circle cx="100" cy="8" r="9" fill="#F57C00" stroke="#1a1a2e" stroke-width="1.5"/>
+    <path d="M100,-1 L100,17 M91,8 L109,8 M94,2 Q104,8 106,14 M106,2 Q96,8 94,14" stroke="#1a1a2e" stroke-width="1" fill="none"/>
+    <!-- Legs -->
+    <rect x="48" y="80" width="10" height="40" fill="#1a1a2e"/>
+    <rect x="62" y="80" width="10" height="40" fill="#1a1a2e"/>
+    <!-- Shoes -->
+    <ellipse cx="53" cy="124" rx="9" ry="4" fill="#fff" stroke="#1a1a2e" stroke-width="1.2"/>
+    <ellipse cx="67" cy="124" rx="9" ry="4" fill="#fff" stroke="#1a1a2e" stroke-width="1.2"/>
+  </g>
+</svg>

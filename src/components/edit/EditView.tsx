@@ -70,13 +70,17 @@ function StepsTab({
   data: ContentData;
   save: (d: ContentData) => void;
 }) {
-  // Build list of all mini-lesson ids (m-s-l-ml)
+  // Build list of all mini-lesson ids (m-s-l-ml), honoring displayNum overrides
   const miniIds: string[] = [];
   data.modules.forEach((mod, mi) =>
     mod.sections.forEach((sec, si) =>
       sec.lessons.forEach((les, li) =>
-        les.miniLessons.forEach((_ml, mli) => {
-          miniIds.push(`${mi + 1}-${si + 1}-${li + 1}-${mli + 1}`);
+        les.miniLessons.forEach((ml, mli) => {
+          const mNum = mod.displayNum ?? mi + 1;
+          const sNum = sec.displayNum ?? si + 1;
+          const lNum = les.displayNum ?? li + 1;
+          const mlNum = ml.displayNum ?? mli + 1;
+          miniIds.push(`${mNum}-${sNum}-${lNum}-${mlNum}`);
         }),
       ),
     ),
@@ -124,12 +128,16 @@ function StepsTab({
           mod.sections.map((sec, si) =>
             sec.lessons.map((les, li) =>
               les.miniLessons.map((ml, mli) => {
-                const mlId = `${mi + 1}-${si + 1}-${li + 1}-${mli + 1}`;
+                const mNum = mod.displayNum ?? mi + 1;
+                const sNum = sec.displayNum ?? si + 1;
+                const lNum = les.displayNum ?? li + 1;
+                const mlNum = ml.displayNum ?? mli + 1;
+                const mlId = `${mNum}-${sNum}-${lNum}-${mlNum}`;
                 if (filter !== "all" && filter !== mlId) return null;
                 return ml.steps.map((step, sti) => (
                   <tr key={`${mi}-${si}-${li}-${mli}-${sti}`}>
                     <td className="edit-loc">
-                      {mi + 1}-{si + 1}-{li + 1}-{mli + 1}-{sti + 1}
+                      {mNum}-{sNum}-{lNum}-{mlNum}-{sti + 1}
                     </td>
                     <td className="edit-type-desc" style={{ width: "12%", whiteSpace: "normal" }}>
                       {(step as any).type}

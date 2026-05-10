@@ -22,7 +22,45 @@ export type StepType =
   | "inequality-write"
   | "coord-plot"
   | "coord-tap"
+  | "tile-sort"
+  | "bar-leveler"
+  | "pick-from-list"
+  | "compare-means"
+  | "two-chart-choice"
   | "celebrate";
+
+/** Specs reused as props across multiple step types */
+export interface DotPlotSpec {
+  xMin: number;
+  xMax: number;
+  step?: number;
+  data: number[];
+  redValues?: number[];
+  highlightValue?: number;
+  label?: string;
+  legend?: string;
+}
+
+export interface HistogramBucketSpec {
+  label: string;
+  count: number;
+}
+export interface HistogramSpec {
+  buckets: HistogramBucketSpec[];
+  bucketsVisible?: number;
+  dotsInBars?: boolean;
+  arrowAtBucket?: number;
+  yLabel?: string;
+  xLabel?: string;
+  yStep?: number;
+}
+
+export interface MultiThermoSpec {
+  values: number[];
+  min?: number;
+  max?: number;
+  unit?: string;
+}
 
 /** Visual inequality ray: open circle at `start`, line extending to the arrow direction. */
 export interface InequalityLineSpec {
@@ -231,6 +269,50 @@ export interface CoordTapStep extends BaseStep {
   targetY: number;
 }
 
+export interface TileSortStep extends BaseStep {
+  type: "tile-sort";
+  /** Numeric tiles the student drags into buckets. Duplicates allowed. */
+  tiles: number[];
+  /** Bucket labels of the form "lo-hi" (inclusive). */
+  buckets: string[];
+}
+
+export interface BarLevelerStep extends BaseStep {
+  type: "bar-leveler";
+  /** Starting count of filled cells per bar */
+  initial: number[];
+  /** Height of every bar in cells */
+  barHeight: number;
+  /** All bars should end at this count */
+  target: number;
+  /** Hide the left/right arrows (display-only "find the mean" mode) */
+  hideArrows?: boolean;
+}
+
+export interface PickFromListStep extends BaseStep {
+  type: "pick-from-list";
+  values: number[];
+  target: number;
+}
+
+export interface CompareMeansStep extends BaseStep {
+  type: "compare-means";
+  leftLabel: string;
+  rightLabel: string;
+  leftTarget: number;
+  rightTarget: number;
+}
+
+export interface TwoChartChoiceStep extends BaseStep {
+  type: "two-chart-choice";
+  choices: {
+    label?: string;
+    correct: boolean;
+    dotPlot?: DotPlotSpec;
+    histogram?: HistogramSpec;
+  }[];
+}
+
 export interface CelebrateStep extends BaseStep {
   type: "celebrate";
 }
@@ -240,24 +322,29 @@ export type Step = BaseStep & Record<string, unknown>;
 export interface MiniLesson {
   id: string;
   title: string;
+  /** Overrides the array-index based number used in the step-id badge / event log */
+  displayNum?: number;
   steps: Step[];
 }
 
 export interface Lesson {
   id: string;
   title: string;
+  displayNum?: number;
   miniLessons: MiniLesson[];
 }
 
 export interface Section {
   id: string;
   title: string;
+  displayNum?: number;
   lessons: Lesson[];
 }
 
 export interface Module {
   id: string;
   title: string;
+  displayNum?: number;
   sections: Section[];
 }
 

@@ -49,7 +49,11 @@ export default function LessonRunner(props: LessonRunnerProps) {
         const ml = les.miniLessons[mli];
         if (!ml) return setError("Mini-lesson not found");
         setMini(ml);
-        setPrefix(`${mi + 1}-${si + 1}-${li + 1}-${mli + 1}`);
+        const mNum = mod.displayNum ?? mi + 1;
+        const sNum = sec.displayNum ?? si + 1;
+        const lNum = les.displayNum ?? li + 1;
+        const mlNum = ml.displayNum ?? mli + 1;
+        setPrefix(`${mNum}-${sNum}-${lNum}-${mlNum}`);
         setStories(content.stories);
       })
       .catch((e) => alive && setError(String(e.message || e)));

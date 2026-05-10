@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 100" width="50" height="100">
+  <!-- Thermometer column -->
+  <rect x="20" y="8" width="10" height="68" rx="5" fill="#fff" stroke="#455A64" stroke-width="2"/>
+  <!-- Mercury fill (about 40% from bottom) -->
+  <rect x="22" y="50" width="6" height="26" fill="#D84315"/>
+  <!-- Bulb -->
+  <circle cx="25" cy="82" r="11" fill="#D84315" stroke="#455A64" stroke-width="2"/>
+  <!-- Highlight on bulb -->
+  <circle cx="21" cy="78" r="3" fill="#FF8A65" opacity="0.7"/>
+  <!-- Scale marks -->
+  <g stroke="#455A64" stroke-width="1.2">
+    <line x1="14" y1="20" x2="20" y2="20"/>
+    <line x1="16" y1="32" x2="20" y2="32"/>
+    <line x1="14" y1="44" x2="20" y2="44"/>
+    <line x1="16" y1="56" x2="20" y2="56"/>
+    <line x1="14" y1="68" x2="20" y2="68"/>
+  </g>
+</svg>

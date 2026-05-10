@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 90" width="80" height="90">
+  <!-- Stem -->
+  <path d="M40,8 Q44,14 42,22" stroke="#5D4037" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Leaf -->
+  <path d="M42,12 Q56,8 60,18 Q52,22 44,18 Z" fill="#66BB6A" stroke="#2E7D32" stroke-width="1.5"/>
+  <!-- Grapes (cluster) -->
+  <g stroke="#4A148C" stroke-width="1.2">
+    <circle cx="32" cy="32" r="9" fill="#7B1FA2"/>
+    <circle cx="48" cy="32" r="9" fill="#7B1FA2"/>
+    <circle cx="28" cy="48" r="9" fill="#7B1FA2"/>
+    <circle cx="44" cy="48" r="9" fill="#7B1FA2"/>
+    <circle cx="36" cy="60" r="9" fill="#7B1FA2"/>
+    <circle cx="52" cy="60" r="9" fill="#7B1FA2"/>
+    <circle cx="40" cy="76" r="9" fill="#7B1FA2"/>
+  </g>
+  <!-- Highlights -->
+  <ellipse cx="29" cy="29" rx="2" ry="3" fill="#CE93D8" opacity="0.8"/>
+  <ellipse cx="45" cy="29" rx="2" ry="3" fill="#CE93D8" opacity="0.8"/>
+  <ellipse cx="25" cy="45" rx="2" ry="3" fill="#CE93D8" opacity="0.8"/>
+  <ellipse cx="37" cy="73" rx="2" ry="3" fill="#CE93D8" opacity="0.8"/>
+</svg>

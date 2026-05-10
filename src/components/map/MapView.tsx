@@ -89,10 +89,11 @@ export default function MapView() {
               <div className="map-section-title">{sec.title}</div>
               {sec.lessons.map((les, li) => {
                 const mlNodes = les.miniLessons.filter((ml) => ml.steps.length > 0);
+                const lessonNum = les.displayNum ?? li + 1;
                 return (
                   <div key={les.id}>
                     <div className="map-lesson-title">
-                      {li + 1}. {les.title}
+                      {lessonNum}. {les.title}
                     </div>
                     <div className="map-path">
                       {mlNodes.map((ml, mli) => {

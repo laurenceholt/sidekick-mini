@@ -1,6 +1,9 @@
 import { useState } from "react";
 import NumberLine, { NumberLinePoint } from "./NumberLine";
 import CoordPlane from "./CoordPlane";
+import DotPlot from "./DotPlot";
+import Histogram from "./Histogram";
+import MultiThermo from "./MultiThermo";
 import type { MultipleChoiceStep } from "@/lib/schemas/lesson";
 
 export interface MultipleChoiceProps {
@@ -63,6 +66,9 @@ export default function MultipleChoice({
           figure={(step as any).coordPlane.figure}
         />
       )}
+      {(step as any).dotPlot && <DotPlot spec={(step as any).dotPlot} />}
+      {(step as any).histogram && <Histogram spec={(step as any).histogram} />}
+      {(step as any).multiThermo && <MultiThermo spec={(step as any).multiThermo} />}
       <div className="choices">
         {step.choices.map((ch, i) => {
           const isSel = sel === i;

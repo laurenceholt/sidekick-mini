@@ -21,6 +21,11 @@ import InequalityBuild, { gradeInequalityBuild } from "./InequalityBuild";
 import InequalityWrite, { gradeInequalityWrite } from "./InequalityWrite";
 import CoordPlot, { gradeCoordPlot } from "./CoordPlot";
 import CoordTap, { gradeCoordTap } from "./CoordTap";
+import TileSort, { gradeTileSort } from "./TileSort";
+import BarLeveler, { gradeBarLeveler } from "./BarLeveler";
+import PickFromList, { gradePickFromList } from "./PickFromList";
+import CompareMeans, { gradeCompareMeans } from "./CompareMeans";
+import TwoChartChoice, { gradeTwoChartChoice } from "./TwoChartChoice";
 import StreakToast from "./StreakToast";
 import Confetti from "./Confetti";
 import StoryOverlay from "./StoryOverlay";
@@ -287,6 +292,14 @@ export default function MultiStepShell({
       result = gradeInequalityWrite(s, answer as any);
     else if (s.type === "coord-plot") result = gradeCoordPlot(s, answer as any);
     else if (s.type === "coord-tap") result = gradeCoordTap(s, answer as any);
+    else if (s.type === "tile-sort") result = gradeTileSort(s, answer as any);
+    else if (s.type === "bar-leveler") result = gradeBarLeveler(s, answer as any);
+    else if (s.type === "pick-from-list")
+      result = gradePickFromList(s, answer as number | null);
+    else if (s.type === "compare-means")
+      result = gradeCompareMeans(s, answer as any);
+    else if (s.type === "two-chart-choice")
+      result = gradeTwoChartChoice(s, answer as number | null);
 
     // Event id extension:
     //   first try          → 1-1-1-1-1
@@ -497,6 +510,51 @@ export default function MultiStepShell({
         )}
         {step.type === "coord-tap" && (
           <CoordTap
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "tile-sort" && (
+          <TileSort
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "bar-leveler" && (
+          <BarLeveler
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "pick-from-list" && (
+          <PickFromList
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "compare-means" && (
+          <CompareMeans
+            key={stepIdx}
+            step={step as any}
+            attemptKey={attemptKey}
+            locked={locked}
+            onSelect={handleSelect}
+          />
+        )}
+        {step.type === "two-chart-choice" && (
+          <TwoChartChoice
             key={stepIdx}
             step={step as any}
             attemptKey={attemptKey}

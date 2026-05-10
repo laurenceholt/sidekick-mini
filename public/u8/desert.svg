@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <!-- Sky -->
+  <rect width="120" height="50" fill="#FFE0B2"/>
+  <!-- Sun -->
+  <circle cx="100" cy="20" r="10" fill="#FFEE58"/>
+  <circle cx="100" cy="20" r="14" fill="#FFEE58" opacity="0.3"/>
+  <!-- Sand dunes -->
+  <path d="M0,55 Q30,40 60,55 Q90,45 120,55 L120,80 L0,80 Z" fill="#F9A825"/>
+  <path d="M0,65 Q40,55 80,65 Q100,60 120,65 L120,80 L0,80 Z" fill="#FFB300"/>
+  <!-- Saguaro cactus -->
+  <g stroke="#2E7D32" stroke-width="2" fill="#388E3C">
+    <rect x="22" y="42" width="8" height="22" rx="2"/>
+    <path d="M22,52 Q16,52 16,46 L16,42 L20,42 L20,46 Q20,48 22,48 Z"/>
+    <path d="M30,48 Q36,48 36,42 L36,38 L32,38 L32,42 Q32,44 30,44 Z"/>
+  </g>
+  <!-- Small rocks -->
+  <ellipse cx="60" cy="64" rx="5" ry="3" fill="#A1887F"/>
+  <ellipse cx="90" cy="68" rx="6" ry="3" fill="#8D6E63"/>
+</svg>

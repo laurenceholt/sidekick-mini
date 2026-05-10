@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" width="100" height="80">
+  <!-- Pillow body -->
+  <path d="M14,28 Q10,18 22,16 L78,16 Q92,18 86,28 L88,52 Q92,62 78,64 L22,64 Q8,62 12,52 Z" fill="#E1F5FE" stroke="#0277BD" stroke-width="2"/>
+  <!-- Stitching lines -->
+  <path d="M22,22 Q50,18 78,22" stroke="#0277BD" stroke-width="1" fill="none" stroke-dasharray="3 3"/>
+  <path d="M22,58 Q50,62 78,58" stroke="#0277BD" stroke-width="1" fill="none" stroke-dasharray="3 3"/>
+  <!-- Corner pleat -->
+  <circle cx="14" cy="28" r="2.5" fill="#0277BD"/>
+  <circle cx="86" cy="28" r="2.5" fill="#0277BD"/>
+  <circle cx="12" cy="52" r="2.5" fill="#0277BD"/>
+  <circle cx="88" cy="52" r="2.5" fill="#0277BD"/>
+  <!-- Sleepy "Z" -->
+  <text x="50" y="46" font-family="Nunito, sans-serif" font-size="16" font-weight="900" fill="#0277BD" text-anchor="middle">Zzz</text>
+</svg>

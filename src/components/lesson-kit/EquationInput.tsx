@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import NumberLine, { NumberLinePoint } from "./NumberLine";
 import CoordPlane from "./CoordPlane";
+import DotPlot from "./DotPlot";
+import Histogram from "./Histogram";
+import MultiThermo from "./MultiThermo";
 import type { EquationInputStep } from "@/lib/schemas/lesson";
 
 export interface EquationInputProps {
@@ -65,6 +68,9 @@ export default function EquationInput({
           points={cp.points}
         />
       )}
+      {(step as any).dotPlot && <DotPlot spec={(step as any).dotPlot} />}
+      {(step as any).histogram && <Histogram spec={(step as any).histogram} />}
+      {(step as any).multiThermo && <MultiThermo spec={(step as any).multiThermo} />}
       <div className="equation equation-row">
         {step.prefix && <ColorizedEq text={step.prefix} />}
         <input

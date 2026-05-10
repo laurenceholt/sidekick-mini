@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110" width="100" height="110">
+  <!-- Straps -->
+  <path d="M30,18 Q26,8 36,8 L36,30" fill="none" stroke="#4A148C" stroke-width="4" stroke-linecap="round"/>
+  <path d="M70,18 Q74,8 64,8 L64,30" fill="none" stroke="#4A148C" stroke-width="4" stroke-linecap="round"/>
+  <!-- Main body bulging at top -->
+  <path d="M14,28 Q12,18 22,16 L78,16 Q92,18 88,30 L92,90 Q92,100 82,100 L18,100 Q8,100 8,90 Z" fill="#6A1B9A" stroke="#4A148C" stroke-width="2"/>
+  <!-- Front pocket -->
+  <rect x="20" y="50" width="60" height="36" rx="6" fill="#7B1FA2" stroke="#4A148C" stroke-width="2"/>
+  <!-- Zipper -->
+  <line x1="22" y1="62" x2="78" y2="62" stroke="#FFD600" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <circle cx="78" cy="62" r="2" fill="#FFD600"/>
+  <!-- Top flap zipper -->
+  <path d="M14,35 Q50,40 88,35" stroke="#FFD600" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/>
+  <!-- Books spilling out the top -->
+  <g>
+    <rect x="32" y="2" width="14" height="20" rx="1" fill="#D84315" stroke="#1a1a2e" stroke-width="1.2" transform="rotate(-10 39 12)"/>
+    <rect x="52" y="0" width="14" height="20" rx="1" fill="#1565C0" stroke="#1a1a2e" stroke-width="1.2" transform="rotate(8 59 10)"/>
+    <line x1="55" y1="4" x2="69" y2="6" stroke="#fff" stroke-width="1.5" transform="rotate(8 59 10)"/>
+  </g>
+</svg>

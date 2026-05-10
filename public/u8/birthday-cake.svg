@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 90" width="110" height="90">
+  <!-- Cake plate -->
+  <ellipse cx="55" cy="80" rx="50" ry="5" fill="#90A4AE"/>
+  <!-- Bottom tier -->
+  <rect x="14" y="58" width="82" height="22" fill="#F8BBD0" stroke="#AD1457" stroke-width="1.5"/>
+  <!-- Frosting drip -->
+  <path d="M14,58 Q22,65 30,58 Q38,66 46,58 Q54,66 62,58 Q70,66 78,58 Q86,66 96,58" fill="#fff" stroke="#AD1457" stroke-width="1.5"/>
+  <!-- Middle tier -->
+  <rect x="28" y="40" width="54" height="18" fill="#F48FB1" stroke="#AD1457" stroke-width="1.5"/>
+  <path d="M28,40 Q34,46 40,40 Q46,46 52,40 Q58,46 64,40 Q70,46 76,40 Q82,46 82,40" fill="#fff" stroke="#AD1457" stroke-width="1.5"/>
+  <!-- Top tier -->
+  <rect x="40" y="24" width="30" height="16" fill="#EC407A" stroke="#AD1457" stroke-width="1.5"/>
+  <path d="M40,24 Q46,30 52,24 Q58,30 64,24 Q70,30 70,24" fill="#fff" stroke="#AD1457" stroke-width="1.5"/>
+  <!-- Several candles -->
+  <g>
+    <rect x="44" y="14" width="3" height="10" fill="#FFEE58" stroke="#1a1a2e" stroke-width="0.6"/>
+    <rect x="50" y="10" width="3" height="14" fill="#4DD0E1" stroke="#1a1a2e" stroke-width="0.6"/>
+    <rect x="56" y="12" width="3" height="12" fill="#EF5350" stroke="#1a1a2e" stroke-width="0.6"/>
+    <rect x="62" y="10" width="3" height="14" fill="#9CCC65" stroke="#1a1a2e" stroke-width="0.6"/>
+    <!-- Flames -->
+    <ellipse cx="45.5" cy="12" rx="2" ry="3" fill="#FF9800"/>
+    <ellipse cx="51.5" cy="8" rx="2" ry="3" fill="#FF9800"/>
+    <ellipse cx="57.5" cy="10" rx="2" ry="3" fill="#FF9800"/>
+    <ellipse cx="63.5" cy="8" rx="2" ry="3" fill="#FF9800"/>
+  </g>
+  <!-- "40" label on top tier -->
+  <text x="55" y="36" font-family="Nunito, sans-serif" font-size="9" font-weight="900" fill="#fff" text-anchor="middle">40</text>
+</svg>
