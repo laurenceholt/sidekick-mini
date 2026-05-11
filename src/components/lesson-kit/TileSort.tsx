@@ -102,7 +102,7 @@ export default function TileSort({
                     <div
                       key={id}
                       className="tilesort-tile placed"
-                      style={{ bottom: 4 + k * 36 }}
+                      style={{ bottom: 4 + k * 34 }}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (locked) return;

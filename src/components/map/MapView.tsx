@@ -7,6 +7,13 @@ const COMMIT_SHA: string =
   typeof __COMMIT_SHA__ !== "undefined" ? __COMMIT_SHA__ : "dev";
 
 /**
+ * Temporary: limit which modules are listed on the map so the user can
+ * test with kids on a single unit without scrolling past every other unit.
+ * Set to `null` (or comment out the filter usage) to show every module.
+ */
+const VISIBLE_MODULE_IDS: string[] | null = ["m6"];
+
+/**
  * Map view — ported from legacy/app.js `renderMap()`.
  *
  * Shows Module → Section → Lesson → Mini-lesson structure as a vertical
@@ -34,7 +41,10 @@ export default function MapView() {
 
   if (error) return <div className="map-content">Error: {error}</div>;
   if (!content) return <div className="map-content">Loading…</div>;
-  if (content.modules.length === 0)
+  const visibleModules = VISIBLE_MODULE_IDS
+    ? content.modules.filter((m) => VISIBLE_MODULE_IDS!.includes(m.id))
+    : content.modules;
+  if (visibleModules.length === 0)
     return <div className="map-content">No modules.</div>;
 
   const isCompletedFor = (mod: Module) => (sId: string, lId: string, mlId: string) => {
@@ -46,7 +56,7 @@ export default function MapView() {
 
   // First-incomplete-per-module → "current" node for that module
   const currentByMod: Record<string, { sId: string; lId: string; mlId: string } | null> = {};
-  for (const mod of content.modules) {
+  for (const mod of visibleModules) {
     const isCompleted = isCompletedFor(mod);
     let cur: { sId: string; lId: string; mlId: string } | null = null;
     outer: for (const sec of mod.sections) {
@@ -72,14 +82,14 @@ export default function MapView() {
     <>
       <div className="map-header">
         <div className="map-title-bar">
-          <div className="map-module-title">{content.modules[0].title}</div>
+          <div className="map-module-title">{visibleModules[0].title}</div>
           <div className="map-gems">
             <img src="/boba.svg" className="boba-icon" alt="boba" />
             <span>{boba}</span>
           </div>
         </div>
       </div>
-      {content.modules.map((mod, modIdx) => {
+      {visibleModules.map((mod, modIdx) => {
         const isCompleted = isCompletedFor(mod);
         const current = currentByMod[mod.id];
         let nodeIndex = 0;

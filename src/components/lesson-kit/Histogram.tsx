@@ -1,18 +1,23 @@
 /**
  * Histogram — vertical bars per bucket.
  *
- * Used as a passive visual AND as the body of the bucket-tap step (6-8-6-1-2/3/8).
+ * Bars sit edge-to-edge with NO gap. Each bar carries a 1.5px outline; the
+ * `box-sizing: border-box` + 1.5px horizontal overlap means adjacent bars'
+ * borders coincide and read as a single 1.5px line between them, while the
+ * top of the taller bar continues alone above the shorter bar's top — the
+ * classic stair-step silhouette.
  *
- * `buckets` is an ordered list of { label, count }. Optionally:
- *  - `bucketsVisible` — when set, only the first N bars are drawn (the rest
- *    are skipped). Used in 6-8-6-1-5/6 (progressive reveal).
- *  - `dotsInBars` — when true, each bar is drawn as a stack of small dots so
- *    students can count them (6-8-6-1-6).
- *  - `arrowAtBucket` — index of a bucket to add a downward arrow above
- *    (6-8-6-1-5).
- *  - `yLabel` / `xLabel` — axis descriptions.
- *  - `yStep` — major grid line spacing on the y-axis (default 5).
- *  - `selectable` — bars become clickable; pass `selectedLabel` + `onSelect`.
+ * Features:
+ *  - `bucketsVisible` — progressive reveal (first N bars only)
+ *  - `dotsInBars` + `dotColumns` — visualize each bar as a stack of small
+ *    dots (1 or 3 columns; counts distributed evenly)
+ *  - `tilesInBars` — visualize each bar as a stack of outlined boxes,
+ *    matching the look of the TileSort step
+ *  - `arrowAtBucket` — small down-arrow above a target bar
+ *  - `xTickStyle: "ranges"` (default) draws each bucket's full label centered
+ *    under its bar. `xTickStyle: "edges"` parses bucket labels "lo-hi" and
+ *    draws tick marks + numeric labels at each bar boundary instead.
+ *  - `selectable` — bars become tappable
  */
 export interface HistogramBucket {
   label: string;
@@ -23,10 +28,13 @@ export interface HistogramSpec {
   buckets: HistogramBucket[];
   bucketsVisible?: number;
   dotsInBars?: boolean;
+  dotColumns?: number;
+  tilesInBars?: boolean;
   arrowAtBucket?: number;
   yLabel?: string;
   xLabel?: string;
   yStep?: number;
+  xTickStyle?: "ranges" | "edges";
   size?: "regular" | "small";
 }
 
@@ -37,6 +45,15 @@ export interface HistogramProps {
   onSelect?: (label: string) => void;
   locked?: boolean;
 }
+
+// Colors
+const BAR_FILL = "#C5E1F5";
+const BAR_BORDER = "#1565C0";
+const GRID_LINE = "#E8EAF1";
+const AXIS_LINE = "#37474F";
+const AXIS_TEXT = "#1a1a2e";
+
+const BORDER_W = 1.5;
 
 export default function Histogram({
   spec,
@@ -50,17 +67,18 @@ export default function Histogram({
   const maxCount = Math.max(1, ...buckets.map((b) => b.count));
   const visibleCount = spec.bucketsVisible ?? buckets.length;
   const yStep = spec.yStep ?? Math.max(1, Math.ceil(maxCount / 5));
-  const yMax = Math.ceil(maxCount / yStep) * yStep;
+  const yMax = Math.max(yStep, Math.ceil(maxCount / yStep) * yStep);
 
   const barW = small ? 30 : 44;
-  const barGap = small ? 4 : 6;
-  const chartH = small ? 140 : 200;
+  const chartH = small ? 150 : 220;
   const padLeft = 36;
   const padRight = 16;
-  const padTop = 18;
-  const padBottom = small ? 40 : 46;
+  const padTop = 14;
+  const padBottom = small ? 44 : 56;
 
-  const chartW = buckets.length * (barW + barGap) + barGap;
+  // Bars overlap by BORDER_W so adjacent borders read as a single line.
+  const stride = barW - BORDER_W;
+  const chartW = buckets.length * stride + BORDER_W;
   const totalW = chartW + padLeft + padRight;
   const totalH = chartH + padTop + padBottom;
 
@@ -68,21 +86,61 @@ export default function Histogram({
   const yTicks: number[] = [];
   for (let v = 0; v <= yMax; v += yStep) yTicks.push(v);
 
+  const xStyle = spec.xTickStyle ?? "ranges";
+
+  // For "edges" style, compute the edge value at each bar boundary by
+  // parsing "lo-hi" labels.
+  const edges: (number | string)[] = (() => {
+    if (xStyle !== "edges") return [];
+    const out: (number | string)[] = [];
+    buckets.forEach((b, i) => {
+      const m = b.label.match(/^(-?\d+(?:\.\d+)?)\s*[-–]\s*(-?\d+(?:\.\d+)?)$/);
+      if (!m) {
+        if (i === 0) out.push(b.label);
+        out.push("");
+        return;
+      }
+      if (i === 0) out.push(Number(m[1]));
+      out.push(Number(m[2]));
+    });
+    return out;
+  })();
+
   return (
     <div
       className={`histogram-wrap${small ? " small" : ""}`}
-      style={{ width: totalW, minHeight: totalH }}
+      style={{ width: totalW, minHeight: totalH, position: "relative" }}
     >
       <div className="histogram-inner" style={{ position: "relative", width: totalW, height: totalH }}>
+        {/* Horizontal grid lines (light) at each y-tick */}
+        {yTicks.map((v) => {
+          if (v === 0) return null;
+          const top = padTop + chartH - (v / yMax) * chartH;
+          return (
+            <div
+              key={`g${v}`}
+              style={{
+                position: "absolute",
+                left: padLeft,
+                top,
+                width: chartW,
+                height: 1,
+                background: GRID_LINE,
+                pointerEvents: "none",
+              }}
+            />
+          );
+        })}
+
         {/* y-axis line */}
         <div
           style={{
             position: "absolute",
             left: padLeft,
             top: padTop,
-            width: 2,
+            width: 1.5,
             height: chartH,
-            background: "#888",
+            background: AXIS_LINE,
           }}
         />
         {/* x-axis line */}
@@ -92,10 +150,11 @@ export default function Histogram({
             left: padLeft,
             top: padTop + chartH,
             width: chartW,
-            height: 2,
-            background: "#888",
+            height: 1.5,
+            background: AXIS_LINE,
           }}
         />
+
         {/* y-axis ticks + labels */}
         {yTicks.map((v) => {
           const top = padTop + chartH - (v / yMax) * chartH;
@@ -104,17 +163,22 @@ export default function Histogram({
               <div
                 style={{
                   position: "absolute",
-                  left: padLeft - 5,
+                  left: padLeft - 4,
                   top,
-                  width: 5,
+                  width: 4,
                   height: 1.5,
-                  background: "#888",
+                  background: AXIS_LINE,
                   transform: "translateY(-50%)",
                 }}
               />
               <div
                 className="histogram-y-label"
-                style={{ position: "absolute", right: totalW - padLeft + 8, top, transform: "translateY(-50%)" }}
+                style={{
+                  position: "absolute",
+                  right: totalW - padLeft + 6,
+                  top,
+                  transform: "translateY(-50%)",
+                }}
               >
                 {v}
               </div>
@@ -125,8 +189,9 @@ export default function Histogram({
         {/* Bars */}
         {buckets.map((b, i) => {
           if (i >= visibleCount) return null;
+          if (b.count === 0) return null;
           const heightPx = (b.count / yMax) * chartH;
-          const left = padLeft + barGap + i * (barW + barGap);
+          const left = padLeft + i * stride;
           const top = padTop + chartH - heightPx;
           const sel = selectedLabel === b.label;
           const arrow = spec.arrowAtBucket === i;
@@ -140,33 +205,29 @@ export default function Histogram({
                   top,
                   width: barW,
                   height: heightPx,
+                  boxSizing: "border-box",
+                  border: `${BORDER_W}px solid ${BAR_BORDER}`,
+                  background: sel ? "#FFE0B2" : BAR_FILL,
+                  cursor: selectable && !locked ? "pointer" : "default",
                 }}
                 onClick={() => {
                   if (!selectable || locked) return;
                   onSelect?.(b.label);
                 }}
               >
-                {spec.dotsInBars && (
+                {spec.dotsInBars && !spec.tilesInBars && (
                   <DotStack
                     count={b.count}
                     barW={barW}
                     barH={heightPx}
+                    columns={Math.max(1, spec.dotColumns ?? 1)}
                   />
                 )}
+                {spec.tilesInBars && (
+                  <TileStack count={b.count} barW={barW} barH={heightPx} />
+                )}
               </div>
-              {/* x-axis bucket label */}
-              <div
-                className="histogram-x-label"
-                style={{
-                  position: "absolute",
-                  left: left + barW / 2,
-                  top: padTop + chartH + 8,
-                  transform: "translateX(-50%)",
-                }}
-              >
-                {b.label}
-              </div>
-              {/* down-arrow (above bar) */}
+              {/* down-arrow above bar */}
               {arrow && (
                 <div
                   style={{
@@ -186,31 +247,97 @@ export default function Histogram({
           );
         })}
 
-        {/* y-axis label */}
+        {/* x-axis labels — "ranges" style: centered under each bar */}
+        {xStyle === "ranges" &&
+          buckets.map((b, i) => {
+            const left = padLeft + i * stride + barW / 2;
+            return (
+              <div
+                key={`xr${i}`}
+                className="histogram-x-label"
+                style={{
+                  position: "absolute",
+                  left,
+                  top: padTop + chartH + 8,
+                  transform: "translateX(-50%)",
+                }}
+              >
+                {b.label}
+              </div>
+            );
+          })}
+
+        {/* x-axis labels — "edges" style: at each bar boundary */}
+        {xStyle === "edges" &&
+          edges.map((e, i) => {
+            const left = padLeft + i * stride;
+            return (
+              <div key={`xe${i}`}>
+                {/* small tick mark */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: left - 0.75,
+                    top: padTop + chartH,
+                    width: 1.5,
+                    height: 5,
+                    background: AXIS_LINE,
+                  }}
+                />
+                <div
+                  className="histogram-x-label"
+                  style={{
+                    position: "absolute",
+                    left,
+                    top: padTop + chartH + 10,
+                    transform: "translateX(-50%)",
+                  }}
+                >
+                  {e}
+                </div>
+              </div>
+            );
+          })}
+
+        {/* y-axis label: rotated text, vertically centered along the axis */}
         {spec.yLabel && (
           <div
-            className="histogram-axis-name"
+            className="histogram-axis-name-y"
             style={{
               position: "absolute",
-              left: 2,
-              top: padTop + chartH / 2,
-              transform: "rotate(-90deg) translateX(50%)",
-              transformOrigin: "left top",
-              whiteSpace: "nowrap",
+              left: 0,
+              top: padTop,
+              height: chartH,
+              width: 18,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              writingMode: "vertical-rl",
+              transform: "rotate(180deg)",
+              color: AXIS_TEXT,
+              fontFamily: "Nunito, sans-serif",
+              fontSize: 12,
+              fontWeight: 700,
             }}
           >
             {spec.yLabel}
           </div>
         )}
+
         {/* x-axis label */}
         {spec.xLabel && (
           <div
-            className="histogram-axis-name"
+            className="histogram-axis-name-x"
             style={{
               position: "absolute",
               left: padLeft + chartW / 2,
-              top: padTop + chartH + 26,
+              top: padTop + chartH + 30,
               transform: "translateX(-50%)",
+              color: AXIS_TEXT,
+              fontFamily: "Nunito, sans-serif",
+              fontSize: 13,
+              fontWeight: 700,
+              whiteSpace: "nowrap",
             }}
           >
             {spec.xLabel}
@@ -221,28 +348,79 @@ export default function Histogram({
   );
 }
 
-function DotStack({ count, barW, barH }: { count: number; barW: number; barH: number }) {
-  // Fit `count` dots inside the bar. Choose dot size that fits.
-  const dotSize = Math.max(4, Math.min(10, Math.floor(Math.min(barH / count, barW / 3))));
+/** Distribute `count` dots across `columns` columns, stacked from the bottom. */
+function DotStack({
+  count,
+  barW,
+  barH,
+  columns,
+}: {
+  count: number;
+  barW: number;
+  barH: number;
+  columns: number;
+}) {
+  // How many dots per column? Fill from left to right, larger columns first.
+  const perCol: number[] = [];
+  let remaining = count;
+  for (let c = 0; c < columns; c++) {
+    const colsLeft = columns - c;
+    const n = Math.ceil(remaining / colsLeft);
+    perCol.push(n);
+    remaining -= n;
+  }
+  const maxPerCol = Math.max(1, ...perCol);
+  const dotSize = Math.max(4, Math.min(10, Math.floor(Math.min(barH / maxPerCol, barW / (columns + 1)))));
   const gap = 2;
+  const colSpacing = barW / (columns + 1);
+
   const dots: React.ReactNode[] = [];
+  perCol.forEach((n, c) => {
+    const colLeft = colSpacing * (c + 1);
+    for (let i = 0; i < n; i++) {
+      dots.push(
+        <div
+          key={`${c}-${i}`}
+          style={{
+            position: "absolute",
+            left: colLeft,
+            bottom: 3 + i * (dotSize + gap),
+            width: dotSize,
+            height: dotSize,
+            borderRadius: "50%",
+            background: "#fff",
+            transform: "translateX(-50%)",
+            boxShadow: "0 0 0 1px #455A64",
+          }}
+        />,
+      );
+    }
+  });
+  return <>{dots}</>;
+}
+
+/** Outlined boxes stacked inside a bar (mirrors TileSort stacking). */
+function TileStack({ count, barW, barH }: { count: number; barW: number; barH: number }) {
+  const tileH = Math.max(6, Math.min(28, Math.floor(barH / count) - 1));
+  const tileW = Math.min(barW - 8, 30);
+  const tiles: React.ReactNode[] = [];
   for (let i = 0; i < count; i++) {
-    dots.push(
+    tiles.push(
       <div
         key={i}
         style={{
           position: "absolute",
           left: "50%",
-          bottom: 3 + i * (dotSize + gap),
-          width: dotSize,
-          height: dotSize,
-          borderRadius: "50%",
-          background: "#fff",
+          bottom: 2 + i * (tileH + 1),
+          width: tileW,
+          height: tileH,
+          background: "rgba(255,255,255,0.55)",
+          border: "1px solid #455A64",
+          borderRadius: 2,
           transform: "translateX(-50%)",
-          boxShadow: "0 0 0 1px #455A64",
         }}
       />,
     );
   }
-  return <>{dots}</>;
+  return <>{tiles}</>;
 }

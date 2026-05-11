@@ -86,7 +86,7 @@ const WRONG_PREFIXES = [
   "Take another look. ",
   "Try again. ",
   "Almost. ",
-  "Close, but think it through. ",
+  "Nearly. ",
   "Give it another shot. ",
 ];
 function pickWrongPrefix(): string {
