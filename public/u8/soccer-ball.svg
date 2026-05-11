@@ -1,22 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!--
+    Classic black-and-white soccer ball: central pentagon + 5 surrounding
+    pentagons arranged around it, connected by white hexagonal panels.
+    Hand-positioned for a clean, readable look at small sizes.
+  -->
+  <defs>
+    <radialGradient id="ballShade" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0E0E0"/>
+    </radialGradient>
+  </defs>
+
   <!-- Ball -->
-  <circle cx="40" cy="40" r="34" fill="#fff" stroke="#1a1a2e" stroke-width="2"/>
+  <circle cx="50" cy="50" r="42" fill="url(#ballShade)" stroke="#1a1a2e" stroke-width="2.5"/>
+
   <!-- Center pentagon -->
-  <polygon points="40,30 50,37 46,48 34,48 30,37" fill="#1a1a2e"/>
-  <!-- Surrounding hexagons (suggested via lines) -->
-  <g stroke="#1a1a2e" stroke-width="1.5" fill="none">
-    <path d="M40,30 L40,12"/>
-    <path d="M50,37 L66,30"/>
-    <path d="M46,48 L56,62"/>
-    <path d="M34,48 L24,62"/>
-    <path d="M30,37 L14,30"/>
+  <polygon
+    points="50,38 61,45.6 56.8,58.8 43.2,58.8 39,45.6"
+    fill="#1a1a2e"
+    stroke="#1a1a2e"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+  />
+
+  <!-- Five outer pentagons + connecting seams -->
+  <g fill="#1a1a2e" stroke="#1a1a2e" stroke-width="1.5" stroke-linejoin="round">
+    <!-- Top pentagon -->
+    <polygon points="50,18 60,22 56,32 44,32 40,22"/>
+    <!-- Upper-right pentagon -->
+    <polygon points="80,40 86,49 79,57 70,52 71,42"/>
+    <!-- Lower-right pentagon -->
+    <polygon points="76,72 68,80 58,75 60,65 70,63"/>
+    <!-- Lower-left pentagon -->
+    <polygon points="24,72 32,80 42,75 40,65 30,63"/>
+    <!-- Upper-left pentagon -->
+    <polygon points="20,40 14,49 21,57 30,52 29,42"/>
   </g>
-  <!-- Small dark hexagon shapes at the edges -->
-  <g fill="#1a1a2e">
-    <polygon points="40,12 50,8 48,2 32,2 30,8" opacity="0.7"/>
-    <polygon points="66,30 74,28 74,18 70,16 66,22" opacity="0.7"/>
-    <polygon points="56,62 60,72 50,76 46,68 50,64" opacity="0.7"/>
-    <polygon points="24,62 30,64 34,68 30,76 20,72" opacity="0.7"/>
-    <polygon points="14,30 10,22 6,16 6,28 14,30" opacity="0.7"/>
+
+  <!-- Seams (white lines connecting pentagons) -->
+  <g stroke="#1a1a2e" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <!-- Center to outer pentagons -->
+    <line x1="50" y1="38" x2="50" y2="32"/>
+    <line x1="61" y1="45.6" x2="71" y2="42"/>
+    <line x1="56.8" y1="58.8" x2="60" y2="65"/>
+    <line x1="43.2" y1="58.8" x2="40" y2="65"/>
+    <line x1="39" y1="45.6" x2="29" y2="42"/>
+    <!-- Outer pentagons to ball edge -->
+    <line x1="44" y1="22" x2="40" y2="14"/>
+    <line x1="60" y1="22" x2="64" y2="14"/>
+    <line x1="80" y1="40" x2="88" y2="36"/>
+    <line x1="79" y1="57" x2="88" y2="60"/>
+    <line x1="76" y1="72" x2="82" y2="78"/>
+    <line x1="58" y1="75" x2="58" y2="86"/>
+    <line x1="42" y1="75" x2="42" y2="86"/>
+    <line x1="24" y1="72" x2="18" y2="78"/>
+    <line x1="21" y1="57" x2="12" y2="60"/>
+    <line x1="20" y1="40" x2="12" y2="36"/>
   </g>
+
+  <!-- Highlight on upper-left -->
+  <ellipse cx="32" cy="28" rx="9" ry="5" fill="#FFFFFF" opacity="0.5"/>
 </svg>
