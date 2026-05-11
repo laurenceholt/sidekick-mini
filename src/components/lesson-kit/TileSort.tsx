@@ -140,7 +140,7 @@ export default function TileSort({
         )}
       </div>
       {activeTile !== null && (
-        <div className="tilesort-prompt">Tap a bucket to drop this tile.</div>
+        <div className="tilesort-prompt">Tap a bin to drop this tile.</div>
       )}
     </div>
   );
@@ -151,22 +151,22 @@ export function gradeTileSort(
   placements: Record<string, string | null> | null,
 ): { correct: boolean; hint?: string } {
   if (!placements) {
-    return { correct: false, hint: step.hint || "Place every tile in a bucket." };
+    return { correct: false, hint: step.hint || "Place every tile in a bin." };
   }
-  const buckets = step.buckets.map(parseBucket);
+  const bins = step.buckets.map(parseBucket);
   for (const id in placements) {
     const idx = parseInt(id.slice(1), 10);
     const v = step.tiles[idx];
     const placedLabel = placements[id];
     if (!placedLabel) {
-      return { correct: false, hint: step.hint || "Place every tile in a bucket." };
+      return { correct: false, hint: step.hint || "Place every tile in a bin." };
     }
-    const b = buckets.find((b) => b.label === placedLabel);
-    if (!b) return { correct: false, hint: "Unknown bucket." };
+    const b = bins.find((b) => b.label === placedLabel);
+    if (!b) return { correct: false, hint: "Unknown bin." };
     if (v < b.min || v > b.max) {
       return {
         correct: false,
-        hint: step.hint || "One of the tiles isn't in the right bucket. Check the labels.",
+        hint: step.hint || "One of the tiles isn't in the right bin. Check the labels.",
       };
     }
   }

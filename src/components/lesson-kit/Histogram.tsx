@@ -175,7 +175,7 @@ export default function Histogram({
                 className="histogram-y-label"
                 style={{
                   position: "absolute",
-                  right: totalW - padLeft + 6,
+                  right: totalW - padLeft + 10,
                   top,
                   transform: "translateY(-50%)",
                 }}
