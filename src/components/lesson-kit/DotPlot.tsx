@@ -41,7 +41,10 @@ export default function DotPlot({ spec }: DotPlotProps) {
 
   const cell = small ? 22 : 36;
   const dotSize = small ? 10 : 13;
-  const lineW = range * cell;
+  // `cell` is the width per STEP, not per integer unit — fixes plots with
+  // half-step ticks (e.g. xMin=5, xMax=9, step=0.5 → 8 cells, not 4).
+  const numCells = range / step;
+  const lineW = numCells * cell;
   const padX = small ? 22 : 30;
   const padTop = small ? 28 : 38;
   const padBottom = small ? 40 : 54;

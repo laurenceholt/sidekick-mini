@@ -181,6 +181,7 @@ button { font-family: inherit; }
   justify-content: flex-start;
   padding: 10px 20px 20px 52px;
   gap: 30px;
+  position: relative;
 }
 
 .step-number {
@@ -411,14 +412,22 @@ button { font-family: inherit; }
   letter-spacing: 0;
 }
 
-/* Corner illustration: a decorative SVG in the upper-right of a question
-   that ALSO has a chart/visual taking the main space. */
+/* Corner illustration: a decorative SVG positioned in the upper-right
+   of the step content area, alongside the main chart/visual. */
 .lesson-corner-illustration {
-  float: right;
-  max-height: 64px;
-  max-width: 80px;
-  margin: 0 0 8px 12px;
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  max-height: 72px;
+  max-width: 88px;
   object-fit: contain;
+  z-index: 6;
+  pointer-events: none;
+}
+/* Reserve room on the right side of the instruction so it doesn't tuck
+   under the corner illustration. */
+.step-content:has(.lesson-corner-illustration) .instruction {
+  padding-right: 96px;
 }
 .choice-btn {
   padding: 18px 24px;

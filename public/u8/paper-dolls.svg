@@ -1,22 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
-  <!-- Two paper-cut dolls joined at the hands -->
-  <g fill="#FFF59D" stroke="#F57F17" stroke-width="2">
-    <!-- Left doll -->
-    <circle cx="28" cy="22" r="10"/>
-    <path d="M28,32 L28,52 M28,40 L18,48 M28,40 L46,40 M28,52 L22,68 M28,52 L34,68" stroke-linecap="round" stroke-width="6" fill="none"/>
-    <!-- Right doll -->
-    <circle cx="92" cy="22" r="10"/>
-    <path d="M92,32 L92,52 M92,40 L102,48 M92,40 L74,40 M92,52 L86,68 M92,52 L98,68" stroke-linecap="round" stroke-width="6" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 90" width="200" height="90">
+  <!--
+    Paper-doll chain: four identical paper-cutout dolls joined at the hands.
+    Each doll is a flat silhouette in light yellow with an orange outline.
+    Adjacent dolls share a single arm tip, so the chain reads as one
+    continuous cut-out strip.
+  -->
+  <defs>
+    <g id="doll-shape">
+      <!-- Head -->
+      <circle cx="0" cy="-30" r="9" />
+      <!-- Body (trapezoidal dress) -->
+      <path d="M-9,-22 L9,-22 L13,16 L-13,16 Z" />
+      <!-- Legs (two stubs) -->
+      <rect x="-9" y="14" width="6" height="14" />
+      <rect x="3" y="14" width="6" height="14" />
+      <!-- Arms (out to the side, joining the neighbour doll's hand) -->
+      <rect x="-26" y="-15" width="17" height="8" />
+      <rect x="9" y="-15" width="17" height="8" />
+    </g>
+  </defs>
+
+  <!-- Background tint to suggest paper -->
+  <rect x="2" y="32" width="196" height="58" fill="#FFFDE7" opacity="0.35" rx="4"/>
+
+  <!-- Four dolls in a row, centers at x = 30, 70, 110, 150, y baseline = 50 -->
+  <g fill="#FFF59D" stroke="#F57F17" stroke-width="2" stroke-linejoin="round">
+    <use href="#doll-shape" transform="translate(30,50)"/>
+    <use href="#doll-shape" transform="translate(70,50)"/>
+    <use href="#doll-shape" transform="translate(110,50)"/>
+    <use href="#doll-shape" transform="translate(150,50)"/>
   </g>
-  <!-- Faces -->
+
+  <!-- Tiny faces on each doll (eyes + smile) -->
   <g fill="#1a1a2e">
-    <circle cx="25" cy="20" r="1.2"/>
-    <circle cx="31" cy="20" r="1.2"/>
-    <path d="M24,25 Q28,28 32,25" fill="none" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
-    <circle cx="89" cy="20" r="1.2"/>
-    <circle cx="95" cy="20" r="1.2"/>
-    <path d="M88,25 Q92,28 96,25" fill="none" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+    <!-- doll 1 -->
+    <circle cx="27" cy="19" r="1"/>
+    <circle cx="33" cy="19" r="1"/>
+    <!-- doll 2 -->
+    <circle cx="67" cy="19" r="1"/>
+    <circle cx="73" cy="19" r="1"/>
+    <!-- doll 3 -->
+    <circle cx="107" cy="19" r="1"/>
+    <circle cx="113" cy="19" r="1"/>
+    <!-- doll 4 -->
+    <circle cx="147" cy="19" r="1"/>
+    <circle cx="153" cy="19" r="1"/>
   </g>
-  <!-- Joining ribbon at the hands (middle area) -->
-  <rect x="44" y="36" width="32" height="8" fill="#FFE082" stroke="#F57F17" stroke-width="1.5"/>
+  <g stroke="#1a1a2e" stroke-width="1" stroke-linecap="round" fill="none">
+    <path d="M27,24 Q30,26 33,24"/>
+    <path d="M67,24 Q70,26 73,24"/>
+    <path d="M107,24 Q110,26 113,24"/>
+    <path d="M147,24 Q150,26 153,24"/>
+  </g>
 </svg>

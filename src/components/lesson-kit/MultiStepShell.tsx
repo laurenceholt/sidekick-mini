@@ -80,6 +80,31 @@ function pickPraise(wasRetry: boolean, difficulty?: "easy" | "medium" | "hard"):
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+const WRONG_PREFIXES = [
+  "Not quite. ",
+  "Hmm — ",
+  "Take another look. ",
+  "Try again. ",
+  "Almost. ",
+  "Close, but think it through. ",
+  "Give it another shot. ",
+];
+function pickWrongPrefix(): string {
+  return WRONG_PREFIXES[Math.floor(Math.random() * WRONG_PREFIXES.length)];
+}
+
+/** Compose wrong-answer feedback.
+ *  - If the grader returned a specific `hint`, use it as-is.
+ *  - Else if the step has a `hintButton`, frame it with a varied prefix so
+ *    the feedback feels like a re-statement rather than a verbatim repeat
+ *    of the on-demand hint.
+ *  - Else return undefined (the red wrong-state icon alone). */
+function composeWrongFeedback(hint: string | undefined, hintButton?: string): string | undefined {
+  if (hint) return hint;
+  if (hintButton) return pickWrongPrefix() + hintButton;
+  return undefined;
+}
+
 export default function MultiStepShell({
   miniLesson,
   stepIdPrefix,
@@ -341,11 +366,9 @@ export default function MultiStepShell({
       setStreak(0);
       playWrong();
       setFeedback("wrong");
-      // Fall back to the writer-supplied hintButton when the grader didn't
-      // provide a specific wrong-answer hint. The hintButton text was
-      // written with the question in mind so it's a better fallback than
-      // generic "Not quite" feedback.
-      setFeedbackMessage(result.hint || (step as any).hintButton);
+      setFeedbackMessage(
+        composeWrongFeedback(result.hint, (step as any).hintButton),
+      );
       setButtonState("wrong");
       logEvent({ stepId: stepIdStr, answer: ansStr, correct: false, bobaTotal: bobaCount + 1 });
     }
