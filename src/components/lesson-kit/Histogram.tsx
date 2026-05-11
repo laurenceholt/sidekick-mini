@@ -71,7 +71,13 @@ export default function Histogram({
 
   const barW = small ? 30 : 44;
   const chartH = small ? 150 : 220;
-  const padLeft = 36;
+  // padLeft sized to fit: rotated y-axis NAME (~16px) + gap (4) +
+  // widest value label (~9px per digit @ font-size 12, weight 700) + tick gap (10).
+  const maxYDigits = String(yMax).length;
+  const valueLabelW = Math.max(12, maxYDigits * 9);
+  const nameW = spec.yLabel ? 18 : 0;
+  const nameGap = spec.yLabel ? 4 : 0;
+  const padLeft = nameW + nameGap + valueLabelW + 10;
   const padRight = 16;
   const padTop = 14;
   const padBottom = small ? 44 : 56;
@@ -224,7 +230,11 @@ export default function Histogram({
                   />
                 )}
                 {spec.tilesInBars && (
-                  <TileStack count={b.count} barW={barW} barH={heightPx} />
+                  <TileStack
+                    count={b.count}
+                    barW={barW}
+                    unitH={chartH / yMax}
+                  />
                 )}
               </div>
               {/* down-arrow above bar */}
@@ -399,10 +409,17 @@ function DotStack({
   return <>{dots}</>;
 }
 
-/** Outlined boxes stacked inside a bar (mirrors TileSort stacking). */
-function TileStack({ count, barW, barH }: { count: number; barW: number; barH: number }) {
-  const tileH = Math.max(6, Math.min(28, Math.floor(barH / count) - 1));
-  const tileW = Math.min(barW - 8, 30);
+/**
+ * Outlined boxes stacked inside a bar. Each tile is exactly one y-axis unit
+ * tall (`unitH` pixels) and stacked tightly, so tile boundaries line up with
+ * the y-axis tick marks AND the top tile aligns with the top of the bar.
+ */
+function TileStack({
+  count,
+  barW,
+  unitH,
+}: { count: number; barW: number; unitH: number }) {
+  const tileW = Math.min(barW - 4, 36);
   const tiles: React.ReactNode[] = [];
   for (let i = 0; i < count; i++) {
     tiles.push(
@@ -411,13 +428,18 @@ function TileStack({ count, barW, barH }: { count: number; barW: number; barH: n
         style={{
           position: "absolute",
           left: "50%",
-          bottom: 2 + i * (tileH + 1),
+          bottom: i * unitH,
           width: tileW,
-          height: tileH,
-          background: "rgba(255,255,255,0.55)",
-          border: "1px solid #455A64",
-          borderRadius: 2,
+          height: unitH,
+          background: "rgba(255,255,255,0.5)",
+          // Top + side borders only — the bottom of tile k coincides with
+          // the top of tile k-1, and the bottommost tile uses the bar's
+          // own bottom border.
+          borderTop: "1px solid #455A64",
+          borderLeft: "1px solid #455A64",
+          borderRight: "1px solid #455A64",
           transform: "translateX(-50%)",
+          boxSizing: "border-box",
         }}
       />,
     );

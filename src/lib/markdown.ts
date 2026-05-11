@@ -12,5 +12,12 @@ export function parseMarkdown(text: string | undefined | null): string {
   s = s.replace(/\(([^()]*-[^()]*-[^()]*)\)/g, (_, inner) =>
     `(${inner.replace(/-/g, "‑")})`,
   );
+  // Comma-separated number lists (e.g. "120, 124, and 122" or "5, 30, 10,
+  // 20, 10, 15") shouldn't break across a line — kids need to read the
+  // whole list to add or sort.
+  s = s.replace(
+    /-?\d+(?:\.\d+)?(?:\s*,\s*-?\d+(?:\.\d+)?)+(?:\s*,?\s*and\s+-?\d+(?:\.\d+)?)?/g,
+    (m) => `<span style="white-space:nowrap">${m}</span>`,
+  );
   return s;
 }

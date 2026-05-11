@@ -75,6 +75,9 @@ export default function EquationInput({
       {(step as any).dotPlot && <DotPlot spec={(step as any).dotPlot} />}
       {(step as any).histogram && <Histogram spec={(step as any).histogram} />}
       {(step as any).multiThermo && <MultiThermo spec={(step as any).multiThermo} />}
+      {(step as any).barsDisplay && (
+        <BarsDisplay spec={(step as any).barsDisplay} />
+      )}
       <div className="equation equation-row">
         {step.prefix && <ColorizedEq text={step.prefix} />}
         <input
@@ -144,4 +147,73 @@ export function gradeEquationInput(
   if (acceptable.includes(v)) return { correct: true };
   if (!Number.isNaN(num) && num === step.target) return { correct: true };
   return { correct: false, hint: step.hint };
+}
+
+/**
+ * Static "stack of blue cells" bars used to illustrate mean / leveling
+ * questions where the answer is a typed number (no leveling interaction).
+ * Mirrors the visual style of the BarLeveler step type.
+ */
+function BarsDisplay({
+  spec,
+}: {
+  spec: { values: number[]; barHeight: number };
+}) {
+  const cellSize = 28;
+  const barW = cellSize;
+  const barH = spec.barHeight * cellSize;
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "flex-end",
+        justifyContent: "center",
+        gap: 18,
+        margin: "12px 0 6px",
+      }}
+    >
+      {spec.values.map((v, i) => (
+        <div
+          key={i}
+          style={{
+            width: barW,
+            height: barH,
+            border: "2px solid #455A64",
+            borderRadius: 4,
+            position: "relative",
+            background: "#ECEFF1",
+          }}
+        >
+          {Array.from({ length: v }, (_, k) => (
+            <div
+              key={k}
+              style={{
+                position: "absolute",
+                left: 1,
+                right: 1,
+                bottom: k * cellSize + 1,
+                height: cellSize - 2,
+                background: "#42A5F5",
+                borderTop:
+                  k === v - 1 ? "1.5px solid #1565C0" : "none",
+              }}
+            />
+          ))}
+          {Array.from({ length: spec.barHeight - 1 }, (_, k) => (
+            <div
+              key={`g${k}`}
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                top: (k + 1) * cellSize,
+                height: 1,
+                background: "#B0BEC5",
+              }}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
 }

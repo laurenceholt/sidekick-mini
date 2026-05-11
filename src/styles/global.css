@@ -316,7 +316,12 @@ button { font-family: inherit; }
 .bottom-bar .feedback-inline { flex: 1; min-width: 0; text-align: center; }
 
 .check-btn {
-  padding: 14px 40px;
+  height: 48px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40px;
   font-family: 'Nunito', sans-serif;
   font-size: 16px;
   font-weight: 800;
@@ -336,7 +341,12 @@ button { font-family: inherit; }
 .check-btn.try-again { background: #ff4b4b; box-shadow: 0 4px 0 #d63b3b; }
 
 .hint-btn {
-  padding: 14px 28px;
+  height: 48px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 28px;
   font-family: 'Nunito', sans-serif;
   font-size: 15px;
   font-weight: 800;

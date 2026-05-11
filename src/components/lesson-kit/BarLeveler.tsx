@@ -55,7 +55,7 @@ export default function BarLeveler({
   const cellSize = 28;
   const barW = cellSize;
   const barH = step.barHeight * cellSize;
-  const gap = 56; // room for arrows
+  const gap = 48; // pixel width of the arrow column between adjacent bars
   const hideArrows = step.hideArrows;
 
   return (
@@ -65,88 +65,95 @@ export default function BarLeveler({
         display: "flex",
         alignItems: "flex-end",
         justifyContent: "center",
-        gap: hideArrows ? 18 : gap - 14,
+        gap: 0,
         marginTop: 12,
       }}
     >
-      {values.map((v, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "flex-end" }}>
-          {/* The bar */}
-          <div
-            style={{
-              width: barW,
-              height: barH,
-              border: "2px solid #455A64",
-              borderRadius: 4,
-              position: "relative",
-              background: "#ECEFF1",
-            }}
-          >
-            {/* Filled cells from bottom up */}
-            {Array.from({ length: v }, (_, k) => (
-              <div
-                key={k}
-                style={{
-                  position: "absolute",
-                  left: 1,
-                  right: 1,
-                  bottom: k * cellSize + 1,
-                  height: cellSize - 2,
-                  background: "#42A5F5",
-                  borderTop: k === v - 1 ? "1.5px solid #1565C0" : "none",
-                }}
-              />
-            ))}
-            {/* Cell grid lines */}
-            {Array.from({ length: step.barHeight - 1 }, (_, k) => (
-              <div
-                key={`g${k}`}
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  top: (k + 1) * cellSize,
-                  height: 1,
-                  background: "#B0BEC5",
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Arrow controls between this bar and the next */}
-          {i < values.length - 1 && !hideArrows && (
+      {values.map((v, i) => {
+        const isLast = i === values.length - 1;
+        return (
+          <div key={i} style={{ display: "contents" }}>
+            {/* The bar */}
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
-                alignItems: "center",
-                margin: "0 8px",
-                marginBottom: barH / 2 - 22,
+                width: barW,
+                height: barH,
+                border: "2px solid #455A64",
+                borderRadius: 4,
+                position: "relative",
+                background: "#ECEFF1",
+                marginLeft: hideArrows && i > 0 ? 18 : 0,
               }}
             >
-              <button
-                type="button"
-                className="barlevel-arrow"
-                aria-label="Move right"
-                disabled={locked || values[i] === 0 || values[i + 1] === step.barHeight}
-                onClick={() => moveRight(i)}
-              >
-                →
-              </button>
-              <button
-                type="button"
-                className="barlevel-arrow"
-                aria-label="Move left"
-                disabled={locked || values[i + 1] === 0 || values[i] === step.barHeight}
-                onClick={() => moveLeft(i + 1)}
-              >
-                ←
-              </button>
+              {/* Filled cells from bottom up */}
+              {Array.from({ length: v }, (_, k) => (
+                <div
+                  key={k}
+                  style={{
+                    position: "absolute",
+                    left: 1,
+                    right: 1,
+                    bottom: k * cellSize + 1,
+                    height: cellSize - 2,
+                    background: "#42A5F5",
+                    borderTop: k === v - 1 ? "1.5px solid #1565C0" : "none",
+                  }}
+                />
+              ))}
+              {/* Cell grid lines */}
+              {Array.from({ length: step.barHeight - 1 }, (_, k) => (
+                <div
+                  key={`g${k}`}
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    top: (k + 1) * cellSize,
+                    height: 1,
+                    background: "#B0BEC5",
+                  }}
+                />
+              ))}
             </div>
-          )}
-        </div>
-      ))}
+
+            {/* Arrow controls: a SEPARATE column between adjacent bars, so
+                they sit centered in the gap. */}
+            {!isLast && !hideArrows && (
+              <div
+                style={{
+                  width: gap,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 6,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  // Vertical center of the arrow column ≈ middle of the bar
+                  marginBottom: barH / 2 - 22,
+                }}
+              >
+                <button
+                  type="button"
+                  className="barlevel-arrow"
+                  aria-label="Move right"
+                  disabled={locked || values[i] === 0 || values[i + 1] === step.barHeight}
+                  onClick={() => moveRight(i)}
+                >
+                  →
+                </button>
+                <button
+                  type="button"
+                  className="barlevel-arrow"
+                  aria-label="Move left"
+                  disabled={locked || values[i + 1] === 0 || values[i] === step.barHeight}
+                  onClick={() => moveLeft(i + 1)}
+                >
+                  ←
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
