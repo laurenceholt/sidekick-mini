@@ -78,6 +78,9 @@ export default function EquationInput({
       {(step as any).barsDisplay && (
         <BarsDisplay spec={(step as any).barsDisplay} />
       )}
+      {(step as any).numberTiles && (
+        <NumberTiles values={(step as any).numberTiles as (number | string)[]} />
+      )}
       <div className="equation equation-row">
         {step.prefix && <ColorizedEq text={step.prefix} />}
         <input
@@ -94,6 +97,23 @@ export default function EquationInput({
         />
         {suffix && <ColorizedEq text={suffix} />}
       </div>
+    </div>
+  );
+}
+
+/**
+ * NumberTiles — a row of numbers shown as styled tiles (same visual as the
+ * TileSort tile). Used by median steps to make a value list look like
+ * "draggable tiles" so students see the link to the earlier tile-sort step.
+ */
+function NumberTiles({ values }: { values: (number | string)[] }) {
+  return (
+    <div className="numbertiles-row">
+      {values.map((v, i) => (
+        <div key={i} className="numbertile">
+          {v}
+        </div>
+      ))}
     </div>
   );
 }

@@ -1621,6 +1621,32 @@ button { font-family: inherit; }
   color: #1565C0;
 }
 
+/* Display-only row of number "tiles" — used above an equation-input on
+   median steps so the list of values reads as the same kind of object
+   students moved around in the earlier tile-sort step. */
+.numbertiles-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+.numbertile {
+  min-width: 52px;
+  height: 36px;
+  padding: 0 10px;
+  background: #C5E1F5;
+  border: 2px solid #1565C0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  color: #1a1a2e;
+}
+
 /* ═══════════════════════════════════════════
    BAR LEVELER (Unit 8)
    ═══════════════════════════════════════════ */

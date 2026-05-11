@@ -73,6 +73,6 @@ export function gradePickFromList(
     correct: false,
     hint:
       step.hint ||
-      "Not quite. Put the numbers in order in your head and pick the middle one.",
+      "Not quite. Write the numbers in order on a piece of paper and pick the middle one.",
   };
 }
