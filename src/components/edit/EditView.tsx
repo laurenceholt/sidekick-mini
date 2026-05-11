@@ -31,6 +31,61 @@ export default function EditView() {
     if (error) alert("Save failed: " + error.message);
   }
 
+  /**
+   * Field-level read-modify-write for step text fields (instruction,
+   * hintButton). Resists clobbering by content scripts that may have
+   * touched OTHER fields since the editor loaded.
+   *
+   * Pass an empty string to `value` to delete the field (used for clearing
+   * hintButton).
+   */
+  async function saveStepField(
+    modId: string,
+    secId: string,
+    lesId: string,
+    mlId: string,
+    stepIdx: number,
+    field: string,
+    value: string,
+  ) {
+    setSaving(true);
+    try {
+      // Fetch the LATEST blob (not the one we loaded at page open).
+      const { data: row, error: readErr } = await supabase
+        .from("lessons_content")
+        .select("data")
+        .eq("id", "main")
+        .single();
+      if (readErr || !row) throw new Error(readErr?.message ?? "row missing");
+
+      const blob = row.data as ContentData;
+      const mod = blob.modules.find((m) => m.id === modId);
+      const sec = mod?.sections.find((s) => s.id === secId);
+      const les = sec?.lessons.find((l) => l.id === lesId);
+      const ml = les?.miniLessons.find((m) => m.id === mlId);
+      const step = ml?.steps[stepIdx];
+      if (!step) throw new Error(`step ${modId}/${secId}/${lesId}/${mlId}/${stepIdx} not found`);
+
+      // Apply just this field change to the FRESH blob.
+      if (value === "") delete (step as any)[field];
+      else (step as any)[field] = value;
+
+      const { error: writeErr } = await supabase
+        .from("lessons_content")
+        .update({ data: blob, updated_at: new Date().toISOString() })
+        .eq("id", "main");
+      if (writeErr) throw writeErr;
+
+      // Update local state so future re-renders see the fresh data
+      // (script-side changes to other fields included).
+      setData(blob);
+    } catch (e: any) {
+      alert("Save failed: " + (e?.message ?? String(e)));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (error) return <div className="edit-content">Error: {error}</div>;
   if (!data) return <div className="edit-content">Loading…</div>;
 
@@ -56,7 +111,11 @@ export default function EditView() {
             </button>
           ))}
         </div>
-        {tab === "steps" ? <StepsTab data={data} save={save} /> : <StoriesTab data={data} save={save} />}
+        {tab === "steps" ? (
+          <StepsTab data={data} saveStepField={saveStepField} />
+        ) : (
+          <StoriesTab data={data} save={save} />
+        )}
       </div>
       <div className="step-number">astro edit</div>
     </div>
@@ -65,10 +124,18 @@ export default function EditView() {
 
 function StepsTab({
   data,
-  save,
+  saveStepField,
 }: {
   data: ContentData;
-  save: (d: ContentData) => void;
+  saveStepField: (
+    modId: string,
+    secId: string,
+    lesId: string,
+    mlId: string,
+    stepIdx: number,
+    field: string,
+    value: string,
+  ) => Promise<void>;
 }) {
   // Build list of all mini-lesson ids (m-s-l-ml), honoring displayNum overrides
   const miniIds: string[] = [];
@@ -149,7 +216,7 @@ function StepsTab({
                         defaultValue={(step as any).instruction || ""}
                         onBlur={(e) => {
                           (step as any).instruction = e.target.value;
-                          save(data);
+                          saveStepField(mod.id, sec.id, les.id, ml.id, sti, "instruction", e.target.value);
                         }}
                       />
                     </td>
@@ -162,7 +229,7 @@ function StepsTab({
                           const v = e.target.value;
                           if (v) (step as any).hintButton = v;
                           else delete (step as any).hintButton;
-                          save(data);
+                          saveStepField(mod.id, sec.id, les.id, ml.id, sti, "hintButton", v);
                         }}
                       />
                     </td>
